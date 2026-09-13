@@ -108,6 +108,11 @@ h1{font-size:19px;font-weight:600;letter-spacing:.03em;margin:0 0 4px}
 
 .foot{margin-top:26px;font-size:11.5px;color:var(--ink-3);line-height:1.9}
 .foot.th{font-family:var(--thai)}
+.ver{
+  display:block;margin-top:8px;
+  font-family:var(--sans);
+  opacity:.55;font-variant-numeric:tabular-nums;letter-spacing:.06em;
+}
 </style>
 </head>
 <body>
@@ -128,7 +133,7 @@ h1{font-size:19px;font-weight:600;letter-spacing:.03em;margin:0 0 4px}
 
   <div class="intro" id="intro"></div>
 
-  <p class="foot" id="foot"></p>
+  <p class="foot" id="foot"><span class="ver" id="ver"></span></p>
 </div>
 
 <script src="/shared/ll.js"></script>
@@ -206,8 +211,13 @@ h1{font-size:19px;font-weight:600;letter-spacing:.03em;margin:0 0 4px}
     text("sub", copy.sub);
     text("l1", copy.l1);
     text("l2", copy.l2);
-    text("foot", copy.foot);
-    document.getElementById("foot").className = "foot" + (isThai ? " th" : "");
+    // foot 裡面有版號的 span，不能用 textContent 直接覆蓋（會把它洗掉）
+    var foot = document.getElementById("foot");
+    foot.className = "foot" + (isThai ? " th" : "");
+    foot.firstChild && foot.firstChild.nodeType === 3
+      ? (foot.firstChild.nodeValue = copy.foot)
+      : foot.insertBefore(document.createTextNode(copy.foot), foot.firstChild);
+    document.getElementById("ver").textContent = "v" + LL.VERSION;
 
     var intro = document.getElementById("intro");
     intro.textContent = "";
