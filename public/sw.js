@@ -17,6 +17,7 @@ const PRECACHE = [
   '/',
   '/en/',
   '/ja/',
+  '/th/',
   '/shared/ll.js',
   '/manifest.webmanifest',
   '/icons/icon-192.png',

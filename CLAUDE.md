@@ -56,7 +56,11 @@ Gemini 金鑰當成免費的通用 LLM 代理來用。
 **日文**：例句的 `tokens` 接起來必須完全等於 `jp`，對不上就整句不切詞 ——
 錯的切詞比沒有切詞更誤導人。假名開關用 `visibility` 不用 `display`，切換時版面才不會跳。
 
-**泰文**（step 2，尚未實作）：
+**泰文**（已實作，`public/th/index.html`）：
+
+- ⚠️ **發音一律送泰文字，絕不送 Paiboon 轉寫** —— Google TTS 讀不懂轉寫，
+  會用英文去念，聲調全錯。日文版是 `onSpeak(reading || surface)`（念假名），
+  照抄過來就會踩到
 - 不用空格斷詞，切詞只能靠模型
 - 母音與聲調符號疊在子音上下，**行高 ≥ 2.2**，容器不要 `overflow: hidden`
 - 字型要有頭圈（Sarabun、Noto Sans Thai）
@@ -71,6 +75,13 @@ tools/check.sh <檔案...>   語法檢查（沒有建置工具，靠 node --chec
 npm run voices            查 Google TTS 實際可用的語音
 npm run icons             重新產生 PWA 圖示
 ```
+
+## 版本
+
+**進版一律要經過使用者同意，不要自己 bump、自己打 tag、自己部署。**
+
+規則見 `CHANGELOG.md` 開頭那張表：資料要遷移 → 主版本；加功能 → 次版本；
+修 bug／改文案 → 修訂號。進版用 `./tools/release.sh <版號>`。
 
 ## 收尾
 

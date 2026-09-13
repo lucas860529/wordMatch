@@ -14,6 +14,10 @@
 
   var LL = {};
 
+  // 由 tools/release.sh 更新，顯示在頁尾 —— 用來確認眼前這頁是哪一版。
+  // 進版規則見 CHANGELOG.md。
+  LL.VERSION = "1.0.0";
+
   /* ============================ 課程生成 ============================ */
 
   // 伺服器會連訊息一起回，這裡是拿不到訊息時的備援文案
@@ -276,7 +280,7 @@
   LL.LANGS = [
     { id: "en", path: "/en/", label: "英文", ready: true },
     { id: "ja", path: "/ja/", label: "日文", ready: true },
-    { id: "th", path: "/th/", label: "泰文", ready: false }
+    { id: "th", path: "/th/", label: "泰文", ready: true }
   ];
 
   /** 記住最後看的語言，根目錄會導向這裡 */
@@ -307,10 +311,25 @@
       })
       .then(function (data) {
         if (!data || data.ok !== true) return null;
+
+        // 伺服器是事實來源，但不能整個覆寫掉本機 —— 首次開啟塞進去的示範課程
+        // 不在 D1 裡，直接覆寫會把它洗掉。所以伺服器的排前面，本機獨有的接在後面。
+        var merged = data.items.slice();
+        var seen = {};
+        merged.forEach(function (it) { seen[it.id] = true; });
         try {
-          localStorage.setItem(prefix + ".index", JSON.stringify(data.items));
+          var local = JSON.parse(localStorage.getItem(prefix + ".index") || "[]");
+          if (Array.isArray(local)) {
+            local.forEach(function (it) {
+              if (it && it.id && !seen[it.id]) merged.push(it);
+            });
+          }
+        } catch (e) { /* 讀不到就只用伺服器那份 */ }
+
+        try {
+          localStorage.setItem(prefix + ".index", JSON.stringify(merged));
         } catch (e) { /* 無痕視窗寫不進去，畫面仍然吃得到回傳值 */ }
-        return data.items;
+        return merged;
       })
       .catch(function () { return null; });
   };

@@ -28,6 +28,7 @@ iPhone / Mac 上的 PWA
 public/
   index.html              語言選單（記得上次看的就直接跳過去）
   en/ ja/ th/index.html   三個語言各一頁，各自完整
+  login/index.html        登入頁（唯一不需要登入的頁面）
   shared/ll.js            共用底層：/api/lesson 與 /api/tts 的封裝、發音、語言列
   sw.js                   service worker（只快取外殼，/api/* 一律走網路）
   manifest.webmanifest
@@ -122,3 +123,10 @@ Cloudflare 後台（Compute → Workers & Pages → Create → Connect to Git）
   要恢復的話 `/api/lesson` 得改成 SSE 轉送。
 - **課程只存在這台裝置**的 localStorage，不同步。
 - **泰文轉寫用 Paiboon**（有標聲調），不是 RTGS。見 `docs/adr/0002`。
+- **泰文不用 ruby**，例句改成逐詞上下堆疊（泰文在上、轉寫在下）。
+  泰文上下都被母音與聲調符號佔滿，疊 ruby 會糊掉。
+
+## 版本
+
+進版規則與歷史見 [CHANGELOG.md](CHANGELOG.md)。版號顯示在每頁頁尾。
+**進版要經過同意**，指令是 `./tools/release.sh <版號>`。

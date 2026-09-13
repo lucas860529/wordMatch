@@ -307,6 +307,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 .pill-enter{animation:pillin .18s ease-out}
 @keyframes pillin{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
+.ver{opacity:.55;font-variant-numeric:tabular-nums;letter-spacing:.04em}
 .footnote{padding:26px 0 0;border-top:1px solid var(--rule);font-size:12.5px;color:var(--ink-3);max-width:var(--measure);line-height:1.9}
 
 /* ---------- responsive ---------- */
@@ -1014,7 +1015,8 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 
         h("div", { className: "block" },
           h("p", { className: "footnote" },
-            "課程由 Gemini 依你的主題即時生成，用法與讀音建議當作起點而非定論；關鍵用字再對照一次辭典。課程存在這台裝置的瀏覽器裡，不會同步到其他裝置。")
+            "課程由 Gemini 依你的主題即時生成，用法與讀音建議當作起點而非定論；關鍵用字再對照一次辭典。課程存在這台裝置的瀏覽器裡，不會同步到其他裝置。",
+            h("span", { className: "ver" }, "　v" + LL.VERSION))
         )
       );
     }

@@ -1,6 +1,6 @@
 {
   "name": "wordmatch",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "三語學習 App — 繁體中文母語者的英／日／泰學習工具",
   "scripts": {
