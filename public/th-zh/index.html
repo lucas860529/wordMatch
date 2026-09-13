@@ -186,6 +186,7 @@ input{font:inherit;color:inherit}
 .status-stage{font-family:var(--thai);color:var(--ink)}
 .status-count{font-variant-numeric:tabular-nums;color:var(--ink-3);font-size:12px}
 
+.speech-err{margin-top:0;margin-bottom:12px}
 .notice{margin-top:14px;padding:10px 14px;font-size:13.5px;line-height:1.65;border-left:3px solid var(--brick);background:var(--brick-faint);color:var(--ink)}
 .notice button{color:var(--brick);text-decoration:underline;text-underline-offset:3px;margin-left:8px}
 .notice .code{display:block;margin-top:7px;font-family:var(--thai);font-size:11.5px;color:var(--ink-2);letter-spacing:.03em}
@@ -601,6 +602,15 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
   /* ============================ app ============================ */
 
   function App() {
+    var SPEECH_ERR = {
+      unauthorized: "เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่เพื่อใช้เสียง",
+      rate_limited: "วันนี้ใช้เสียงครบจำนวนแล้ว",
+      upstream: "ระบบเสียงมีปัญหา อาจเป็นเพราะเซิร์ฟเวอร์ยังไม่ได้ตั้งค่าคีย์ Google TTS หรือชื่อเสียงนั้นไม่มีอยู่จริง",
+      network: "เชื่อมต่อระบบเสียงไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ต",
+      offline: "ขณะนี้ออฟไลน์ การฟังเสียงต้องเชื่อมต่ออินเทอร์เน็ต",
+      playback: "ได้ไฟล์เสียงแล้วแต่เล่นไม่ได้ ลองแตะที่หน้าจอแล้วลองใหม่อีกครั้ง"
+    };
+
     var s1 = useState(""); var topic = s1[0], setTopic = s1[1];
     var s2 = useState(null); var lesson = s2[0], setLesson = s2[1];
     var s3 = useState(false); var busy = s3[0], setBusy = s3[1];
@@ -616,6 +626,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
     var s13 = useState(null); var nowPlaying = s13[0], setNowPlaying = s13[1];
     var s14 = useState(0); var voiceTick = s14[0], setVoiceTick = s14[1];
     var s15 = useState(null); var armed = s15[0], setArmed = s15[1];
+    var sSE = useState(null); var speechErr = sSE[0], setSpeechErr = sSE[1];
     var s16 = useState(false); var drawer = s16[0], setDrawer = s16[1];
     var s17 = useState("loading"); var storeState = s17[0], setStoreState = s17[1];
     var s18 = useState("loading"); var aiState = s18[0], setAiState = s18[1];
@@ -651,6 +662,12 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       return function () { live = false; };
     }, []);
 
+    /* ---- 發音錯誤 ---- */
+    // 發音不再靜默失敗。訂閱一次就好，所以 deps 是空的
+    useEffect(function () {
+      LL.speech.onError(function (code) { setSpeechErr(code); });
+    }, []);
+
     /* ---- voices ---- */
     // 原本這裡訂閱瀏覽器的 voiceschanged 事件，等系統語音載入完再重畫。
     // 改走 Google TTS 之後沒有「語音清單要等」這回事，整段拿掉。
@@ -670,6 +687,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       if (!text) return;
       utterSeq.current += 1;
       var seq = utterSeq.current;
+      setSpeechErr(null);
       setSpeaking(key);
       setNowPlaying({ text: text, voice: "cmn-CN Standard" });
       // 失敗靜默降級成不發音 —— 點一個詞念不出來就跳錯誤，讀一段課文會被打斷十次
@@ -827,7 +845,16 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 
     function VoiceBar() {
       var voiceLabel = activeVoice.name;
-      return h("div", { className: "voicebar" },
+      return h(Frag, null,
+        speechErr ? h("div", { className: "notice speech-err", role: "alert" },
+          h("span", null, SPEECH_ERR[speechErr] || SPEECH_ERR.upstream),
+          h("button", {
+            type: "button",
+            onClick: function () { setSpeechErr(null); }
+          }, "ปิด"),
+          h("span", { className: "code" }, "tts　" + speechErr)
+        ) : null,
+        h("div", { className: "voicebar" },
         // 泰文的 Standard 只有 th-TH-Standard-A 一個音色，沒得選，所以不放切換
         h("div", { className: "seg", role: "group", "aria-label": "ความเร็ว" },
           h("button", {
@@ -860,6 +887,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
           "aria-expanded": drawer,
           onClick: function () { setDrawer(!drawer); }
         }, drawer ? "ซ่อนรายการ" : "ประวัติและคำศัพท์")
+        )
       );
     }
 

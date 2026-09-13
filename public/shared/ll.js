@@ -76,9 +76,16 @@
   /* ============================ 發音 ============================ */
 
   /**
-   * 為什麼不用瀏覽器內建的 speechSynthesis：品質看裝置，而且泰文在很多裝置上
+   * **發音只有 Google Cloud TTS 一種，沒有任何後備。**
+   *
+   * 不用瀏覽器內建的 speechSynthesis：品質看裝置，而且泰文在很多裝置上
    * 根本沒有語音 —— 更糟的是瀏覽器會退而拿英文語音去念泰文，聲調全錯。
    * 對一個拿來練聲調的工具，錯的發音比沒有聲音更危險。
+   *
+   * **失敗一律回報錯誤，不靜默降級。** 原本是靜默的（想法是「讀課文時
+   * 每個念不出來的詞都彈對話框會很煩」），代價是出問題時畫面上看不出
+   * 任何原因 —— 使用者只覺得「壞了」，也無從回報。現在會顯示一則
+   * 可關閉的提示，講清楚是額度、連線、還是服務端的問題。
    *
    * iOS 的兩個硬限制決定了這一段的結構：
    *   1. 音訊只能由使用者手勢啟動  → unlock()
@@ -95,6 +102,15 @@
   var queueSeq = 0;
 
   var Speech = {};
+
+  // 發音出錯時通知頁面。頁面自己決定怎麼顯示、用哪個語言的文案
+  var errListeners = [];
+  Speech.onError = function (fn) { errListeners.push(fn); };
+  function emitError(code) {
+    for (var i = 0; i < errListeners.length; i++) {
+      try { errListeners[i](code); } catch (e) {}
+    }
+  }
 
   Speech.unlock = function () {
     if (unlocked) return;
@@ -147,10 +163,7 @@
   };
 
   /**
-   * 念一段文字。
-   *
-   * 失敗時**靜默降級**成不發音（只回 false）—— 點一個詞念不出來就彈對話框，
-   * 讀一段課文會被打斷十次。
+   * 念一段文字。回傳 Promise<boolean>；失敗時透過 onError 通知頁面。
    */
   Speech.speak = function (lang, text, key, opts) {
     opts = opts || {};
@@ -168,9 +181,12 @@
     if (urls[id]) return play(urls[id], mine);
 
     return loadBlob(lang, word, rate, voice, id).then(function (blob) {
-      if (!blob || seq !== mine) return false;
+      if (seq !== mine) return false;
       urls[id] = URL.createObjectURL(blob);
       return play(urls[id], mine);
+    }).catch(function (e) {
+      if (seq === mine) emitError((e && e.code) || "upstream");
+      return false;
     });
   };
 
@@ -210,34 +226,48 @@
   function loadBlob(lang, text, rate, voice, id) {
     var cacheUrl = location.origin + "/__tts/" + encodeURIComponent(id);
 
-    // 先問瀏覽器的 Cache Storage —— 跨 session 有效，重開 app 同一個詞還是免費
+    // 先問瀏覽器的 Cache Storage —— 跨 session 有效，重開 app 同一個詞還是免費。
+    // 快取本身失敗不算錯誤（無痕視窗就沒有），用 then 的第二個參數接住，
+    // 才不會把後面 fetchSpeech 丟出來的錯誤也一起吞掉
     return caches.open(CACHE).then(function (c) {
       return c.match(cacheUrl).then(function (hit) {
         if (hit) return hit.blob();
         return fetchSpeech(lang, text, rate, voice).then(function (blob) {
-          if (!blob) return null;
           c.put(cacheUrl, new Response(blob.slice(), {
             headers: { "content-type": "audio/mpeg" }
           })).catch(function () {});
           return blob;
         });
       });
-    }).catch(function () {
-      // 沒有 Cache Storage（或無痕視窗擋掉）就直接打 API
+    }, function () {
       return fetchSpeech(lang, text, rate, voice);
     });
   }
 
+  function speechError(code) {
+    var e = new Error(code);
+    e.code = code;
+    return e;
+  }
+
   function fetchSpeech(lang, text, rate, voice) {
+    if (!navigator.onLine) return Promise.reject(speechError("offline"));
+
     return fetch("/api/tts", {
       method: "POST",
+      credentials: "same-origin",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ lang: lang, text: text, rate: rate, voice: voice })
-    }).then(function (res) {
-      if (!res.ok) return null;
-      return res.blob();
     }).catch(function () {
-      return null; // 靜默降級
+      throw speechError("network");
+    }).then(function (res) {
+      if (res.ok) return res.blob();
+
+      // 伺服器回的 code 直接用，分得出是額度、沒登入、還是上游壞掉
+      return res.json().catch(function () { return null; }).then(function (data) {
+        if (data && data.code === "unauthorized") kickToLogin();
+        throw speechError((data && data.code) || "upstream");
+      });
     });
   }
 
@@ -267,7 +297,10 @@
         finish(false);
       }
     }).then(function (ok) {
-      return seq === mine ? ok : false;
+      if (seq !== mine) return false;
+      // 音檔拿到了卻播不出來 —— 多半是瀏覽器的自動播放限制
+      if (!ok) emitError("playback");
+      return ok;
     });
   }
 

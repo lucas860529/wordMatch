@@ -3,12 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>三語研究室</title>
+<title>wordMatch</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#ECEFF1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121C22" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="icon" href="/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap">
 <style>
 :root{
   --paper:#ECEFF1; --paper-2:#E3E8EB;
@@ -30,7 +32,7 @@
 html{color-scheme:light dark}
 body{
   margin:0; min-height:100dvh; background:var(--paper); color:var(--ink);
-  font-family:"Avenir Next","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+  font-family:"Sarabun","Avenir Next","PingFang TC","Microsoft JhengHei","Noto Sans TC","Noto Sans Thai",sans-serif;
   font-size:15px; line-height:1.7;
   display:grid; place-items:center; padding:24px;
   -webkit-font-smoothing:antialiased;
@@ -72,18 +74,18 @@ button[disabled]{background:var(--rule-strong);cursor:default}
 <body>
 <div class="box">
   <div class="mark" aria-hidden="true"><i></i><i></i><i></i></div>
-  <h1>三語研究室</h1>
-  <p class="sub">英文・日文・泰文</p>
+  <h1>wordMatch</h1>
+  <p class="sub" id="sub"></p>
 
   <form id="f" autocomplete="on">
-    <label for="pw">密碼</label>
+    <label for="pw" id="lbl"></label>
     <input id="pw" name="password" type="password" autocomplete="current-password"
            autocapitalize="off" autocorrect="off" spellcheck="false" required>
-    <button id="go" type="submit">進入</button>
+    <button id="go" type="submit"></button>
     <p class="err" id="err" role="alert" hidden></p>
   </form>
 
-  <p class="foot">這是私人工具，只有拿到密碼的人可以使用。</p>
+  <p class="foot" id="foot"></p>
 </div>
 
 <script>
@@ -93,11 +95,66 @@ button[disabled]{background:var(--rule-strong);cursor:default}
   var go = document.getElementById("go");
   var err = document.getElementById("err");
 
+  /**
+   * 登入後要去哪裡。
+   *
+   * **一定要檢查 next 是不是真的存在的課程路徑。** 原本照單全收，
+   * 結果舊連結（課程化之前的 /en/）登入成功後會轉到一個 404 頁面 ——
+   * 使用者看到的是「登入完卻壞掉」，完全看不出是網址舊了。
+   *
+   * 這份清單要跟 src/api/_shared/courses.js 一致。寫死是刻意的：
+   * 登入頁在登入前載不到 /shared/ll.js（那支要登入才拿得到）。
+   */
+  var COURSES = /^\/(zh-en|zh-ja|zh-th|th-zh|th-en)\/$/;
+
+  /**
+   * 登入頁的語言。
+   *
+   * 泰國使用者也會先看到這一頁，全中文對他們沒有意義。這裡載不到
+   * /shared/ll.js（那支要登入才拿得到），所以文案直接寫死在這裡。
+   * 判斷依據只能用瀏覽器語言 —— 這時候還沒有任何使用者偏好可以參考。
+   */
+  var COPY = {
+    zh: {
+      sub: "英文・日文・泰文・中文",
+      label: "密碼",
+      go: "進入",
+      wait: "驗證中…",
+      foot: "這是私人工具，只有拿到密碼的人可以使用。",
+      fail: "登入失敗，再試一次。",
+      net: "連線出了狀況，再試一次。"
+    },
+    th: {
+      sub: "ภาษาจีน・ภาษาอังกฤษ",
+      label: "รหัสผ่าน",
+      go: "เข้าสู่ระบบ",
+      wait: "กำลังตรวจสอบ…",
+      foot: "นี่เป็นเครื่องมือส่วนตัว ใช้ได้เฉพาะผู้ที่ได้รับรหัสผ่านเท่านั้น",
+      fail: "เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่",
+      net: "การเชื่อมต่อมีปัญหา กรุณาลองใหม่"
+    }
+  };
+
+  var T = COPY[String(navigator.language || "").toLowerCase().indexOf("th") === 0 ? "th" : "zh"];
+  document.documentElement.lang = T === COPY.th ? "th" : "zh-Hant";
+  document.getElementById("sub").textContent = T.sub;
+  document.getElementById("lbl").textContent = T.label;
+  go.textContent = T.go;
+  document.getElementById("foot").textContent = T.foot;
+
+  function safeNext() {
+    var next = new URLSearchParams(location.search).get("next");
+    if (!next) return "/";
+    // 擋掉 //evil.com 這種被當成協定相對網址的寫法
+    if (next.charAt(0) !== "/" || next.charAt(1) === "/") return "/";
+    return COURSES.test(next) ? next : "/";
+  }
+
   function fail(msg) {
     err.textContent = msg;
     err.hidden = false;
     go.disabled = false;
-    go.textContent = "進入";
+    go.textContent = T.go;
     pw.select();
   }
 
@@ -105,7 +162,7 @@ button[disabled]{background:var(--rule-strong);cursor:default}
     e.preventDefault();
     err.hidden = true;
     go.disabled = true;
-    go.textContent = "驗證中…";
+    go.textContent = T.wait;
 
     fetch("/api/login", {
       method: "POST",
@@ -114,14 +171,12 @@ button[disabled]{background:var(--rule-strong);cursor:default}
     }).then(function (res) {
       return res.json().catch(function () { return null; }).then(function (data) {
         if (!res.ok || !data || data.ok !== true) {
-          throw new Error((data && data.message) || "登入失敗，再試一次。");
+          throw new Error((data && data.message) || T.fail);
         }
-        // 登入後回到原本想去的地方，沒有就回語言選單
-        var next = new URLSearchParams(location.search).get("next");
-        location.replace(next && next.charAt(0) === "/" && next.charAt(1) !== "/" ? next : "/");
+        location.replace(safeNext());
       });
     }).catch(function (e) {
-      fail(e.message || "連線出了狀況，再試一次。");
+      fail(e.message || T.net);
     });
   });
 
