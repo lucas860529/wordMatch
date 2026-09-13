@@ -1,42 +1,78 @@
 /**
- * Worker 進入點。
+ * Worker 進入點：路由與登入閘門。
  *
  * 這裡取代了 Cloudflare Pages 的檔案路由。Pages 會把 `functions/api/lesson.js`
- * 自動掛到 `/api/lesson`；Workers 沒有這個機制，路由要自己寫 —— 就是這 30 行。
+ * 自動掛到 `/api/lesson`；Workers 沒有這個機制，路由要自己寫 —— 就是這一支。
  *
- * （官方有 `wrangler pages functions build` 可以把 Pages Functions 編譯成 Worker，
- *   但那是相容層，多一層轉換也多一個會壞的地方。手寫的路由看得懂、改得動。）
- *
- * 靜態檔案不經過這裡：Workers 預設先比對 `assets.directory` 底下的檔案，
- * 有對到就直接送出、根本不會叫起這支 Worker。所以會走到這裡的只有
- * `/api/*` 和所有打錯的網址。
+ * ⚠️ 靜態檔案也會經過這裡。預設的 Workers 行為是「先比對靜態檔案，對到就直接送出、
+ * 根本不叫起 Worker」，那樣就沒辦法擋住未登入的人看到 app。所以 wrangler.jsonc
+ * 開了 `run_worker_first: true`，一切都先進來這裡。
  */
 
 import * as lesson from './api/lesson.js';
 import * as tts from './api/tts.js';
+import * as auth from './api/auth.js';
+import * as history from './api/history.js';
+import { currentUser } from './api/_shared/auth.js';
 
 const ROUTES = {
   '/api/lesson': lesson,
   '/api/tts': tts,
+  '/api/login': auth,
+  '/api/logout': auth,
+  '/api/me': auth,
+  '/api/history': history,
 };
+
+/**
+ * 不需要登入就能拿到的路徑。
+ *
+ * 只放「登入頁本身需要的東西」。icons 與 manifest 在這裡是因為
+ * 登入頁與加入主畫面要用到；其餘一律要登入。
+ */
+const PUBLIC = [
+  '/login/',
+  '/login/index.html',
+  '/manifest.webmanifest',
+  '/sw.js',
+];
+
+const PUBLIC_PREFIX = ['/icons/'];
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    const path = url.pathname;
 
-    const mod = ROUTES[url.pathname];
+    // API：各端點自己檢查登入（它們要回 JSON 錯誤，不是轉址到登入頁）
+    const mod = ROUTES[path];
     if (mod) return dispatch(mod, request, env, ctx);
 
-    // 靜態檔案沒對到、又不是 API。交給資產伺服器去回它的 404，
-    // 這樣 /en/ 這種目錄網址仍然能解析到 /en/index.html
-    if (env.ASSETS) return env.ASSETS.fetch(request);
+    if (path.startsWith('/api/')) return notFound(true);
 
-    return new Response('Not found', {
-      status: 404,
-      headers: { 'content-type': 'text/plain; charset=utf-8' },
-    });
+    // 靜態檔案：公開的直接放行
+    if (isPublic(path)) return serve(env, request);
+
+    // 其餘一律要登入。沒登入就送去登入頁，並記住原本要去哪
+    const user = await currentUser(env, request).catch(() => null);
+    if (!user) {
+      const next = encodeURIComponent(path + url.search);
+      return Response.redirect(`${url.origin}/login/?next=${next}`, 302);
+    }
+
+    return serve(env, request);
   },
 };
+
+function isPublic(path) {
+  if (PUBLIC.includes(path)) return true;
+  return PUBLIC_PREFIX.some((p) => path.startsWith(p));
+}
+
+function serve(env, request) {
+  if (env.ASSETS) return env.ASSETS.fetch(request);
+  return notFound(false);
+}
 
 /**
  * 依 HTTP method 找對應的處理函式。
@@ -60,18 +96,26 @@ async function dispatch(mod, request, env, ctx) {
       ctx,
     });
   } catch (e) {
-    // 任何漏接的例外都不要變成 Cloudflare 的預設 1101 錯誤頁 ——
-    // 前端只認得我們自己那四種 code
-    console.log('unhandled', url(request), e && e.stack ? e.stack : e);
+    // 任何漏接的例外都不要變成 Cloudflare 的預設錯誤頁 ——
+    // 前端只認得我們自己那幾種 code
+    console.log('unhandled', pathOf(request), e && e.stack ? e.stack : e);
     return json({ ok: false, code: 'upstream', message: '伺服器出了狀況，再試一次。' }, 500);
   }
 }
 
 const cap = (m) => m.charAt(0) + m.slice(1).toLowerCase();
 
-const url = (request) => {
+const pathOf = (request) => {
   try { return new URL(request.url).pathname; } catch { return '?'; }
 };
+
+function notFound(asJson) {
+  if (asJson) return json({ ok: false, code: 'not_found', message: '沒有這個端點。' }, 404);
+  return new Response('Not found', {
+    status: 404,
+    headers: { 'content-type': 'text/plain; charset=utf-8' },
+  });
+}
 
 function json(body, status) {
   return new Response(JSON.stringify(body), {

@@ -4,37 +4,53 @@
   "main": "src/index.js",
   "compatibility_date": "2026-09-01",
 
-  // 靜態檔案。Workers 會先比對這個目錄：對得到就直接送出、不叫起 Worker；
-  // 對不到才走 src/index.js。所以 /api/* 會進 Worker，/en/ 會直接吃到檔案。
   "assets": {
     "directory": "./public",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+
+    // 一切都先進 Worker。
+    //
+    // 預設行為是「先比對靜態檔案，對到就直接送出、不叫起 Worker」——
+    // 那樣未登入的人可以直接讀到 /en/index.html。這個站是邀請制的，
+    // 所以必須讓 src/index.js 先跑、驗完登入再決定要不要送檔案。
+    //
+    // 代價：每個靜態檔案請求都會算一次 Worker 請求。對私人工具無所謂。
+    "run_worker_first": true
   },
+
+  // 速率限制與 TTS 的字元上限用的計數器
+  "kv_namespaces": [
+    { "binding": "RATE", "id": "72ffcd24c56d4d7fa0057942d3b4acec" }
+  ],
+
+  // 登入工作階段與課程歷史
+  //
+  // ⚠️ database_id 要換成你自己的。建立方式：
+  //   npx wrangler d1 create wordmatch
+  // 或後台 Storage & databases → D1 → Create
+  //
+  // 建好之後套用 schema：
+  //   npx wrangler d1 execute wordmatch --remote --file=db/schema.sql
+  "d1_databases": [
+    { "binding": "DB", "database_name": "wordmatch", "database_id": "9342f329-798b-4844-966d-b5b31994db4d" }
+  ],
 
   "observability": {
     "enabled": true
   }
 
-  // ── 還要補的：KV ────────────────────────────────────────────────
-  //
-  // 速率限制與 TTS 的字元上限都靠 KV 記數。沒有綁 KV 的話 guard.js 會直接放行
-  // （刻意的：限流壞掉不該讓功能整個死掉），也就是**護欄等於沒有**。
-  //
-  // 在設定 GOOGLE_TTS_API_KEY 之前一定要先把這個補上，否則發音端點沒有任何上限。
-  //
-  // 做法：後台 Storage & databases → KV → Create namespace（取名 wordmatch_rate），
-  // 複製它的 ID 填進來，然後把下面這段取消註解：
-  //
-  // "kv_namespaces": [
-  //   { "binding": "RATE", "id": "把 namespace ID 貼在這裡" }
-  // ]
-  //
   // ── 金鑰 ────────────────────────────────────────────────────────
   //
-  // GEMINI_API_KEY 與 GOOGLE_TTS_API_KEY 是 Secret，**不寫在這個檔案裡**。
-  // 正式環境：後台 Settings → Variables and Secrets，型別選 Secret。
-  // 本機開發：存 macOS Keychain，tools/dev.sh 會自己撈出來餵給 wrangler。
+  // 都是 Secret，**不寫在這個檔案裡**（這個檔案會進 git）：
   //
-  // MODEL_ID 不是機密，但也放後台，方便換模型不用重新部署。
-  // 沒設的話程式會用預設值 gemini-3.6-flash。
+  //   GEMINI_API_KEY       Gemini 金鑰
+  //   GOOGLE_TTS_API_KEY   Google Cloud TTS 金鑰
+  //   ACCESS_CODES         登入密碼，一行一組「名字:密碼」
+  //   MODEL_ID             不是機密，但也放後台，換模型不用重新部署
+  //
+  // 正式環境：後台 Settings → Variables and Secrets，型別選 Secret。
+  // 本機開發：存 macOS Keychain，tools/dev.sh 會自己撈出來。
+  //
+  // 上面的 KV 與 D1 的 id 只是識別碼不是密碼 —— 光有 id 沒有帳號權限
+  // 存取不了任何東西，所以進 git 沒問題。
 }

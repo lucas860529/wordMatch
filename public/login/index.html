@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>三語研究室</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ECEFF1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121C22" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" href="/icons/icon-192.png">
+<style>
+:root{
+  --paper:#ECEFF1; --paper-2:#E3E8EB;
+  --ink:#16232B; --ink-2:#4B5C66; --ink-3:#72848E;
+  --rule:#C7D0D6; --rule-strong:#8FA0AA;
+  --accent:#2F4B86; --accent-deep:#22386A; --accent-faint:#DFE7F5;
+  --brick:#A8412B; --brick-faint:#F0DED8; --on-accent:#F5F8FC;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#121C22; --paper-2:#18242B;
+    --ink:#DFE7EB; --ink-2:#93A5B0; --ink-3:#74868F;
+    --rule:#2D3C45; --rule-strong:#4A5F6A;
+    --accent:#8AAEE0; --accent-deep:#AFC8EC; --accent-faint:#1B2A3E;
+    --brick:#DE7F63; --brick-faint:#32201B; --on-accent:#0A121C;
+  }
+}
+*{box-sizing:border-box}
+html{color-scheme:light dark}
+body{
+  margin:0; min-height:100dvh; background:var(--paper); color:var(--ink);
+  font-family:"Avenir Next","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+  font-size:15px; line-height:1.7;
+  display:grid; place-items:center; padding:24px;
+  -webkit-font-smoothing:antialiased;
+}
+.box{width:100%;max-width:340px}
+.mark{
+  width:46px;height:46px;border-radius:9px;background:var(--accent);
+  display:grid;align-content:center;gap:5px;padding:12px 10px;margin-bottom:20px;
+}
+.mark i{display:block;height:3px;border-radius:1px;background:var(--on-accent)}
+.mark i:nth-child(1){width:74%;margin:0 auto}
+.mark i:nth-child(2){width:52%;margin:0 auto}
+.mark i:nth-child(3){width:92%;margin:0 auto}
+h1{font-size:19px;font-weight:600;letter-spacing:.04em;margin:0 0 6px}
+.sub{color:var(--ink-3);font-size:13px;margin:0 0 26px}
+label{display:block;font-size:11px;letter-spacing:.14em;color:var(--ink-3);margin-bottom:8px}
+input{
+  width:100%;background:var(--paper-2);color:var(--ink);
+  border:1px solid var(--rule-strong);border-radius:2px;padding:12px;
+  /* 至少 16px，否則 iOS 一點輸入框整頁會自動放大而且縮不回去 */
+  font:inherit;font-size:16px;
+}
+input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-faint)}
+button{
+  width:100%;margin-top:14px;background:var(--accent);color:var(--on-accent);
+  border:none;border-radius:2px;padding:13px;font:inherit;font-size:15px;
+  letter-spacing:.04em;cursor:pointer;min-height:48px;
+}
+button:hover{background:var(--accent-deep)}
+button[disabled]{background:var(--rule-strong);cursor:default}
+.err{
+  margin-top:14px;padding:10px 13px;font-size:13.5px;line-height:1.65;
+  border-left:3px solid var(--brick);background:var(--brick-faint);color:var(--ink);
+}
+.err[hidden]{display:none}
+.foot{margin-top:28px;font-size:12px;color:var(--ink-3);line-height:1.8}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="mark" aria-hidden="true"><i></i><i></i><i></i></div>
+  <h1>三語研究室</h1>
+  <p class="sub">英文・日文・泰文</p>
+
+  <form id="f" autocomplete="on">
+    <label for="pw">密碼</label>
+    <input id="pw" name="password" type="password" autocomplete="current-password"
+           autocapitalize="off" autocorrect="off" spellcheck="false" required>
+    <button id="go" type="submit">進入</button>
+    <p class="err" id="err" role="alert" hidden></p>
+  </form>
+
+  <p class="foot">這是私人工具，只有拿到密碼的人可以使用。</p>
+</div>
+
+<script>
+(function () {
+  var form = document.getElementById("f");
+  var pw = document.getElementById("pw");
+  var go = document.getElementById("go");
+  var err = document.getElementById("err");
+
+  function fail(msg) {
+    err.textContent = msg;
+    err.hidden = false;
+    go.disabled = false;
+    go.textContent = "進入";
+    pw.select();
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    err.hidden = true;
+    go.disabled = true;
+    go.textContent = "驗證中…";
+
+    fetch("/api/login", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ password: pw.value })
+    }).then(function (res) {
+      return res.json().catch(function () { return null; }).then(function (data) {
+        if (!res.ok || !data || data.ok !== true) {
+          throw new Error((data && data.message) || "登入失敗，再試一次。");
+        }
+        // 登入後回到原本想去的地方，沒有就回語言選單
+        var next = new URLSearchParams(location.search).get("next");
+        location.replace(next && next.charAt(0) === "/" && next.charAt(1) !== "/" ? next : "/");
+      });
+    }).catch(function (e) {
+      fail(e.message || "連線出了狀況，再試一次。");
+    });
+  });
+
+  pw.focus();
+})();
+</script>
+</body>
+</html>

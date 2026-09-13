@@ -9,6 +9,7 @@
 #
 #   security add-generic-password -a "$USER" -s wordmatch-gemini -w '你的金鑰' -U
 #   security add-generic-password -a "$USER" -s wordmatch-tts    -w '你的金鑰' -U
+#   security add-generic-password -a "$USER" -s wordmatch-codes  -w 'lucas:本機密碼' -U
 #
 # 取捨說明：金鑰是用 --binding 傳給 wrangler 的，所以它會出現在
 # 這台機器的行程參數裡（ps 看得到）。換來的是磁碟上完全沒有明文、
@@ -23,6 +24,7 @@ keychain() {
 
 GEMINI=$(keychain wordmatch-gemini)
 TTS=$(keychain wordmatch-tts)
+CODES=$(keychain wordmatch-codes)
 
 if [[ -z "$GEMINI" ]]; then
   echo "⚠️  Keychain 裡找不到 wordmatch-gemini —— 課程生成會回 500。"
@@ -31,6 +33,10 @@ fi
 if [[ -z "$TTS" ]]; then
   echo "⚠️  Keychain 裡找不到 wordmatch-tts —— 發音會靜默失敗（不會跳錯誤，就是沒聲音）。"
   echo "   security add-generic-password -a \"\$USER\" -s wordmatch-tts -w '金鑰' -U"
+fi
+if [[ -z "$CODES" ]]; then
+  CODES="dev:dev"
+  echo "ℹ️  Keychain 裡沒有 wordmatch-codes，本機先用 dev:dev（密碼就是 dev）。"
 fi
 
 MODEL="${MODEL_ID:-gemini-3.6-flash}"
@@ -46,4 +52,5 @@ exec npx wrangler dev \
   --var GEMINI_API_KEY:"$GEMINI" \
   --var GOOGLE_TTS_API_KEY:"$TTS" \
   --var MODEL_ID:"$MODEL" \
+  --var ACCESS_CODES:"$CODES" \
   "$@"

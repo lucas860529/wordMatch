@@ -18,6 +18,12 @@ UI、六段渲染、ruby、localStorage、單字總表一律原樣保留。
 
 ### 已完成
 
+- **登入系統** —— 靜態密碼（Cloudflare Secret `ACCESS_CODES`，一行一組「名字:密碼」），
+  整站要登入才進得去。Session 存 D1、cookie 存的是 token 的 SHA-256。
+  密碼從 Secret 刪掉，那個人的 session 立刻失效
+- **D1 持久化歷史** —— 課程改存伺服器，localStorage 降為本機快取。
+  換裝置、清快取，紀錄都還在
+
 - **`/api/lesson`（Gemini 代理）** —— 實測可用，英文 16 秒、日文 25 秒
   - 開了 `responseMimeType: application/json` + `responseSchema`，模型吐不出 markdown 圍籬
   - 日文例句的 tokens 接回原句，五句全對
@@ -30,12 +36,15 @@ UI、六段渲染、ruby、localStorage、單字總表一律原樣保留。
 - **語言切換列**、根目錄語言選單（記得上次看的）
 - 本機開發腳本 `tools/dev.sh`，金鑰從 Keychain 撈
 
-### 這個 session 修掉的兩個真 bug
+### 這個 session 修掉的真 bug
 
 1. **`gemini-2.5-flash` 對新帳號已停止供應** —— 原始文件建議的模型直接回 404。
    改用 `gemini-3.6-flash`。
 2. **模型把 `<en>` 標記塞進 title 和 summary**，而那兩處是當純文字排版的，
    會看到字面的 `<en>Make</en>`。prompt 加了禁止條款，渲染端也加了剝除保險。
+3. 改造 HTML 時的兩個自傷：`plain()` 的正規式跳脫寫壞（`Invalid regular expression
+   flags`，整頁白畫面）、刪語音引擎時漏了 `voiceListeners` 的訂閱。
+   **兩個都是用瀏覽器實際打開才發現的** —— curl 測 API 全綠不代表畫面活著。
 
 ## 下一步
 
@@ -44,7 +53,9 @@ UI、六段渲染、ruby、localStorage、單字總表一律原樣保留。
 | 1 | `gh auth login` 授權 GitHub | 使用者 | 🟢 完成 |
 | 2 | push 到 `lucas860529/wordMatch` | Claude | 🟢 完成 |
 | 3 | Cloudflare 接 Git（Workers）、設 Secret | **使用者** | 🟡 進行中 |
-| 3b | 建 KV namespace 並填進 `wrangler.jsonc` | 兩人 | 🔴 **設 TTS 金鑰前必做** |
+| 3b | KV namespace | 使用者 | 🟢 完成（已填入） |
+| 3c | D1 database | 使用者 | 🟢 完成（已填入） |
+| 3d | **部署後套用 D1 schema** | 兩人 | 🔴 **不做的話登入會 500** |
 | 4 | Google Cloud TTS 金鑰 + US$1 預算快訊 | **使用者** | 🔴 未開始 |
 | 5 | 實測發音（三語都要出聲） | Claude | ⏸ 等 4 |
 | 6 | 泰文版 `/th/` | Claude | 🔴 **step 2，還沒開始** |

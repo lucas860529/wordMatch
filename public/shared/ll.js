@@ -23,6 +23,7 @@
     upstream: "生成服務出了狀況，再試一次。",
     bad_json: "回傳的內容格式不完整，通常再生成一次就會好。",
     offline: "目前離線。已存下來的課程可以讀，生成新課程需要連線。",
+    unauthorized: "登入已經過期，請重新登入。",
     network: "連線出了狀況，再試一次。",
     cancelled: ""
   };
@@ -36,7 +37,8 @@
   }
 
   /**
-   * 生成一堂課。
+   * 生成一堂課。回傳 { id, title, lesson } —— 課程在伺服器端就已經寫進 D1，
+   * id 是那筆紀錄的 id，前端沿用它，兩邊才對得起來。
    *
    * 前端只送 lang 與 topic —— **prompt 在伺服器端**。這是刻意的：
    * 如果前端可以送任意 prompt，任何人都能把這支 Gemini 金鑰當免費的通用 LLM 用。
@@ -58,9 +60,11 @@
         throw err("bad_json");
       }).then(function (payload) {
         if (!res.ok || !payload || payload.ok !== true) {
-          throw err((payload && payload.code) || "upstream", payload && payload.message);
+          var code = (payload && payload.code) || "upstream";
+          if (code === "unauthorized") return kickToLogin();
+          throw err(code, payload && payload.message);
         }
-        return payload.lesson;
+        return { id: payload.id, title: payload.title, lesson: payload.lesson };
       });
     });
   };
@@ -267,15 +271,80 @@
 
   /* ============================ 語言切換 ============================ */
 
+  // ready:false 的語言會顯示成不可點 —— 泰文那一頁還沒做，
+  // 現在連過去只會拿到 404
   LL.LANGS = [
-    { id: "en", path: "/en/", label: "英文" },
-    { id: "ja", path: "/ja/", label: "日文" },
-    { id: "th", path: "/th/", label: "泰文" }
+    { id: "en", path: "/en/", label: "英文", ready: true },
+    { id: "ja", path: "/ja/", label: "日文", ready: true },
+    { id: "th", path: "/th/", label: "泰文", ready: false }
   ];
 
   /** 記住最後看的語言，根目錄會導向這裡 */
   LL.remember = function (lang) {
     try { localStorage.setItem("ll.lang", lang); } catch (e) {}
+  };
+
+  /* ============================ 歷史 ============================ */
+
+  /**
+   * 課程歷史存在伺服器的 D1 裡，localStorage 只是本機快取。
+   * 這樣換手機、換瀏覽器、清快取，紀錄都還在。
+   */
+  var History = {};
+
+  /**
+   * 開頁時用伺服器的清單覆寫本機的。
+   *
+   * 只抓清單不抓內文 —— 內文等使用者真的點開那一堂再抓（見 get()）。
+   * 一次把所有課程的 JSON 拉下來會愈用愈慢。
+   */
+  History.hydrate = function (prefix, lang) {
+    return fetch("/api/history?lang=" + encodeURIComponent(lang), { credentials: "same-origin" })
+      .then(function (res) {
+        if (res.status === 401) { kickToLogin(); return null; }
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data || data.ok !== true) return null;
+        try {
+          localStorage.setItem(prefix + ".index", JSON.stringify(data.items));
+        } catch (e) { /* 無痕視窗寫不進去，畫面仍然吃得到回傳值 */ }
+        return data.items;
+      })
+      .catch(function () { return null; });
+  };
+
+  /** 取一堂課的完整內容。本機快取沒有的時候才會用到 */
+  History.get = function (id) {
+    return fetch("/api/history?id=" + encodeURIComponent(id), { credentials: "same-origin" })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) { return data && data.ok ? data.lesson : null; })
+      .catch(function () { return null; });
+  };
+
+  History.remove = function (id) {
+    return fetch("/api/history?id=" + encodeURIComponent(id), {
+      method: "DELETE",
+      credentials: "same-origin"
+    }).catch(function () { /* 刪不掉不擋畫面，本機那份已經移除了 */ });
+  };
+
+  LL.history = History;
+
+  /* ============================ 登入 ============================ */
+
+  function kickToLogin() {
+    var next = encodeURIComponent(location.pathname + location.search);
+    location.replace("/login/?next=" + next);
+    // 回一個永遠不 resolve 的 Promise，避免呼叫端在轉頁途中又跑下一步
+    return new Promise(function () {});
+  }
+
+  LL.logout = function () {
+    return fetch("/api/logout", { method: "POST", credentials: "same-origin" })
+      .catch(function () {})
+      .then(function () { location.replace("/login/"); });
   };
 
   /* ============================ PWA ============================ */

@@ -386,8 +386,12 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 .langbar a:last-child,.langbar span:last-child{border-right:none}
 .langbar a:hover{background:var(--paper-3);color:var(--ink)}
 .langbar .on{background:var(--accent);color:var(--on-accent)}
+.langbar .soon{color:var(--ink-3);opacity:.45;cursor:not-allowed}
+.logout{font-size:11.5px;color:var(--ink-3);letter-spacing:.06em;padding:4px 2px}
+.logout:hover{color:var(--brick)}
 @media (max-width:840px){
   .langbar a,.langbar span{padding:7px 13px;font-size:12.5px}
+  .logout{padding:8px 4px}
 }
 </style>
 
@@ -490,7 +494,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
   // 保險：title/summary 是當純文字排版的，模型偶爾還是會把標記塞進來，
   // 不剝掉就會看到字面的 <en>Make</en>
   function plain(text) {
-    return str(text).replace(/<(en|jp|thai)>([\\s\\S]*?)<\\/\\1>/g, function (m, t, inner) {
+    return str(text).replace(/<(en|jp|thai)>([\s\S]*?)<\/\1>/g, function (m, t, inner) {
       return inner.split("|")[0];
     });
   }
@@ -637,18 +641,18 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       setDbState(Store.ok() ? "on" : "off");
       setAiState("on");
 
+      // 伺服器的 D1 才是歷史的事實來源，localStorage 只是本機快取。
+      // 換裝置或清過快取時，這一步會把紀錄補回來。
+      LL.history.hydrate("lex", "en").then(function (items) {
+        if (live && items) setIndex(items);
+      });
+
       return function () { live = false; };
     }, []);
 
     /* ---- voices ---- */
-    useEffect(function () {
-      var fn = function () { setVoiceTick(function (n) { return n + 1; }); };
-      voiceListeners.push(fn);
-      return function () {
-        var i = voiceListeners.indexOf(fn);
-        if (i !== -1) voiceListeners.splice(i, 1);
-      };
-    }, []);
+    // 原本這裡訂閱瀏覽器的 voiceschanged 事件，等系統語音載入完再重畫。
+    // 改走 Google TTS 之後沒有「語音清單要等」這回事，整段拿掉。
 
     var activeVoice = { name: (accent === "en-GB" ? "英式 Standard" : "美式 Standard") };
 
@@ -716,13 +720,26 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
     function openLesson(id) {
       setDrawer(false);
       setView("lesson");
-      var d = Store.getLesson(id);
-      if (!d) return;
-      setLesson(d.lesson || null);
-      setTopic(str(d.topic));
-      setCurrentId(id);
-      setErr(null);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      var show = function (d) {
+        if (!d) return;
+        setLesson(d.lesson || null);
+        setTopic(str(d.topic));
+        setCurrentId(id);
+        setErr(null);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+
+      var local = Store.getLesson(id);
+      if (local) { show(local); return; }
+
+      // 本機快取沒有這一堂（換了裝置，或清過瀏覽器資料）→ 跟伺服器要，
+      // 拿到之後順手寫回本機，下次就不用再抓
+      LL.history.get(id).then(function (remote) {
+        if (!remote) return;
+        Store.putLesson(id, remote);
+        show(remote);
+      });
     }
 
     function deleteLesson(id) {
@@ -732,6 +749,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       if (currentId === id) { setLesson(null); setCurrentId(null); }
       Store.setIndex(next);
       Store.delLesson(id);
+      LL.history.remove(id);
     }
 
     function writeVocab(next) {
@@ -774,9 +792,11 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       var ctl = new AbortController();
       abortRef.current = ctl;
 
-      LL.generate("en", t, { signal: ctl.signal }).then(function (data) {
-        if (!data || typeof data !== "object") throw { code: "invalid_json", message: "not an object" };
-        var id = newId();
+      LL.generate("en", t, { signal: ctl.signal }).then(function (r) {
+        var data = r && r.lesson;
+        if (!data || typeof data !== "object") throw { code: "bad_json", message: "not an object" };
+        // 用伺服器那筆紀錄的 id，兩邊才對得起來
+        var id = r.id || newId();
         setLesson(data);
         setCurrentId(id);
         setBusy(false);
@@ -869,7 +889,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
                 h("span", null, "正在寫："),
                 h("span", { className: "status-stage" }, progress.stage),
                 h("span", { className: "status-count" }, progress.chars + " 字"))
-            : h("span", null, "Claude 正在讀題目，想一下再動筆…")
+            : h("span", null, "正在讀題目，想一下再動筆…")
         ) : null,
         err ? h("div", { className: "notice" },
           ERRORS[err.code] || ERRORS.upstream_error,
@@ -1172,10 +1192,18 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
               h("span", { className: "tagline" }, "英文用法・語感・發音"),
               h("span", { className: "masthead-sp" }),
               h("span", { className: "langbar" }, LL.LANGS.map(function (L) {
-                return L.id === "en"
-                  ? h("span", { key: L.id, className: "on" }, L.label)
-                  : h("a", { key: L.id, href: L.path }, L.label);
+                if (L.id === "en") return h("span", { key: L.id, className: "on" }, L.label);
+                // 還沒做好的語言不給連結，免得點過去是 404
+                if (!L.ready) {
+                  return h("span", { key: L.id, className: "soon", title: "還沒做好" }, L.label);
+                }
+                return h("a", { key: L.id, href: L.path }, L.label);
               })),
+              h("button", {
+                type: "button", className: "logout",
+                title: "登出", "aria-label": "登出",
+                onClick: function () { LL.logout(); }
+              }, "登出"),
               view === "vocab" ? h("button", {
                 type: "button", className: "btn-ghost",
                 onClick: function () { setView("lesson"); }

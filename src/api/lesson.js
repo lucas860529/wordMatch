@@ -6,15 +6,24 @@
  */
 
 import { promptFor, schemaFor } from './_shared/prompts.js';
+import { currentUser, sameOrigin } from './_shared/auth.js';
+import { save } from './history.js';
 import {
-  MAX_TOPIC, bump, clientIp, cleanText, fail, json, readJson, validLang,
+  MAX_TOPIC, bump, cleanText, fail, json, readJson, validLang,
 } from './_shared/guard.js';
 
-const PER_IP_PER_DAY = 30;
+// 站是邀請制的，所以額度按「人」算而不是按 IP —— 同一個人換網路不該重新計數，
+// 同一個咖啡廳的兩個人也不該互相排擠
+const PER_USER_PER_DAY = 50;
 const TIMEOUT_MS = 55_000;
 
 export async function onRequestPost({ request, env, waitUntil }) {
   const ctx = { waitUntil };
+
+  if (!sameOrigin(request)) return fail('bad_input', '來源不對。', 403);
+
+  const user = await currentUser(env, request);
+  if (!user) return fail('unauthorized', '還沒登入，或登入已經過期。', 401);
 
   const body = await readJson(request);
   if (!body) return fail('bad_input', '請求格式不對。');
@@ -29,9 +38,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
     return fail('upstream', '伺服器沒有設定 GEMINI_API_KEY。', 500);
   }
 
-  const gate = await bump(env, 'lesson', clientIp(request), 1, PER_IP_PER_DAY, { ctx });
+  const gate = await bump(env, 'lesson', user.id, 1, PER_USER_PER_DAY, { ctx });
   if (!gate.ok) {
-    return fail('rate_limited', `今天的課程生成已經用到上限（${PER_IP_PER_DAY} 次），明天再來。`, 429);
+    return fail('rate_limited', `今天的課程生成已經用到上限（${PER_USER_PER_DAY} 次），明天再來。`, 429);
   }
 
   const model = env.MODEL_ID || 'gemini-3.6-flash';
@@ -105,7 +114,29 @@ export async function onRequestPost({ request, env, waitUntil }) {
     return fail('bad_json', '回傳的內容格式不完整，通常再生成一次就會好。', 502);
   }
 
-  return json({ ok: true, lesson });
+  // 存進 D1。存不進去不要讓整堂課白生成 —— 前端仍然拿得到內容，
+  // 只是這次不會出現在歷史裡
+  const id = crypto.randomUUID();
+  const title = strip(lesson.title) || topic;
+
+  try {
+    await save(env, user.id, { id, lang, topic, title, lesson });
+  } catch (e) {
+    console.log('history save failed', e && e.message);
+  }
+
+  return json({ ok: true, id, title, lesson });
+}
+
+/**
+ * 剝掉 <en>/<jp>/<thai> 標記。
+ * 存進 D1 的 title 會被歷史清單當純文字用，留著標記會看到字面的 <en>Make</en>。
+ */
+function strip(text) {
+  return String(text || '').replace(
+    /<(en|jp|thai)>([\s\S]*?)<\/\1>/g,
+    (m, tag, inner) => inner.split('|')[0],
+  ).trim();
 }
 
 /** 直接用瀏覽器打開這個網址時給句人話，比空白的 405 好查 */
