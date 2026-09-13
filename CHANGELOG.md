@@ -45,10 +45,6 @@
 - `plain()` 的標記剝除正規式被早先的全域改名弄壞成 `<(en|word|thai)>`，
   導致 `<zh>` 標記剝不掉。改成 `<(en|jp|thai|zh)>`
 
-### 需要手動做的事
-- 部署時要跑 `db/migrations/001-lang-改成課程.sql`，把既有課程的
-  `lang` 從 `en`/`ja`/`th` 補成 `zh-en`/`zh-ja`/`zh-th`
-
 ---
 
 ## 1.1.0 — 2026-09-13

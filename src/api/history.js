@@ -71,7 +71,7 @@ export async function save(env, userId, { id, course, topic, title, lesson }) {
 function toEntry(row, withBody) {
   const out = {
     id: row.id,
-    course: row.lang,   // 欄位名還叫 lang，存的是課程 id（見 db/migrations）
+    course: row.lang,   // 欄位名還叫 lang，存的是課程 id
     topic: row.topic,
     title: row.title,
     createdAt: row.created_at,
