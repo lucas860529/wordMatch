@@ -10,11 +10,11 @@
 ```
 iPhone / Mac 上的 PWA
    │
-   ├─ 靜態檔案 ────────► Cloudflare Pages（免費）
+   ├─ 靜態檔案 ────────► Cloudflare Workers static assets（免費）
    │
    └─ 同源 fetch
-        ├─ POST /api/lesson ─► Pages Function ─► Gemini API
-        └─ POST /api/tts    ─► Pages Function ─► Google Cloud TTS
+        ├─ POST /api/lesson ─► Worker ─► Gemini API
+        └─ POST /api/tts    ─► Worker ─► Google Cloud TTS
 ```
 
 金鑰只存在 Cloudflare 的環境變數裡，前端永遠拿不到。瀏覽器只會看到 `/api/*` 兩個同源路徑。
@@ -32,11 +32,13 @@ public/
   sw.js                   service worker（只快取外殼，/api/* 一律走網路）
   manifest.webmanifest
   icons/
-functions/api/
-  lesson.js               Gemini 代理
-  tts.js                  Google TTS 代理 + 快取 + 成本護欄
-  _shared/prompts.js      三語的 prompt 與 responseSchema（伺服器端）
-  _shared/guard.js        輸入驗證與速率限制
+src/
+  index.js                Worker 進入點與路由（取代 Pages 的檔案路由）
+  api/lesson.js           Gemini 代理
+  api/tts.js              Google TTS 代理 + 快取 + 成本護欄
+  api/_shared/prompts.js  三語的 prompt 與 responseSchema（伺服器端）
+  api/_shared/guard.js    輸入驗證與速率限制
+wrangler.jsonc            Worker 設定：靜態資產目錄、KV 綁定
 tools/
   dev.sh                  本機開發（金鑰從 Keychain 撈）
   make-icons.mjs          產生 PWA 圖示（無相依，手寫 PNG）
@@ -64,30 +66,32 @@ security add-generic-password -a "$USER" -s wordmatch-tts -w '你的金鑰' -U
 
 ## 部署
 
-接上 GitHub 之後，push 到 `main` 就會自動建置上線，其他分支會拿到獨立的預覽網址。
+接上 GitHub 之後，push 到 `main` 就會自動建置上線。
 
-Cloudflare Pages 的設定：
+Cloudflare 後台（Compute → Workers & Pages → Create → Connect to Git）：
 
 | 欄位 | 值 |
 |---|---|
-| Framework preset | None |
-| Build command | 留空 |
-| Build output directory | `public` |
+| Build command | **留空**（沒有建置步驟） |
+| Deploy command | `npx wrangler deploy`（預設值） |
 
-環境變數（Production 與 Preview **兩個都要設**）：
+其餘設定在 `wrangler.jsonc` 裡，不在後台。
+
+環境變數則在後台 Settings → Variables and Secrets：
 
 | 變數名 | 型別 | 說明 |
 |---|---|---|
-| `GEMINI_API_KEY` | Secret | AI Studio 的金鑰 |
-| `GOOGLE_TTS_API_KEY` | Secret | Google Cloud 的 TTS 金鑰 |
-| `MODEL_ID` | Plain text | 例如 `gemini-3.6-flash` |
+| `GEMINI_API_KEY` | **Secret** | AI Studio 的金鑰 |
+| `GOOGLE_TTS_API_KEY` | **Secret** | Google Cloud 的 TTS 金鑰 |
+| `MODEL_ID` | Plain text | `gemini-3.6-flash`（不設就用程式的預設值） |
 
-KV：建一個 namespace（例如 `wordmatch_rate`），在 Settings → Functions → KV namespace
-bindings 用變數名 `RATE` 綁上去。**沒綁的話速率限制會整個失效**（見下）。
+> `gemini-2.5-flash` **對新帳號已經停止供應**，會直接回 404。
 
-> 這個專案刻意**不放 `wrangler.toml`**。Pages 一旦看到 `wrangler.toml`，
-> 就會用它當 bindings 的唯一事實來源，後台設定的綁定會被忽略 ——
-> 對「在後台點一點就好」的流程反而是個陷阱。
+**KV 要自己補。** 後台 Storage & databases → KV → Create namespace，
+把 ID 填進 `wrangler.jsonc` 並把 `kv_namespaces` 那段取消註解。
+**沒綁 KV 的話速率限制整個失效** —— 設 TTS 金鑰之前務必先做。
+
+為什麼是 Workers 不是 Pages：見 [ADR 0004](docs/adr/0004-用-workers-而不是-pages.md)。
 
 ## 成本護欄
 
@@ -95,11 +99,11 @@ bindings 用變數名 `RATE` 綁上去。**沒綁的話速率限制會整個失�
 
 | 服務 | 超額行為 |
 |---|---|
-| Cloudflare Pages / Functions | 拒絕服務，不收費 |
+| Cloudflare Workers | 拒絕服務，不收費 |
 | Gemini 免費層 | 回 429，不收費 |
 | **Google Cloud TTS** | **自動扣款** |
 
-所以 TTS 那支 Function 的護欄比別處厚：
+所以 TTS 那支端點的護欄比別處厚：
 
 1. `text` 上限 200 字元 —— 單次請求的成本硬上限
 2. 語音只能從伺服器白名單挑 —— 擋掉單價 4～16 倍的 Neural2／Studio

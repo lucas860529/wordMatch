@@ -3,7 +3,7 @@
 ## 這是什麼
 
 繁體中文母語者的英／日／泰學習工具。輸入主題 → 生成六段課程 → 每個外語詞可點擊發音。
-一個 PWA，部署在 Cloudflare Pages，`git push` 自動上線。
+一個 PWA，部署在 Cloudflare Workers（static assets），`git push` 自動上線。
 
 **開場先讀 `PROGRESS.md`。**
 
@@ -20,7 +20,7 @@
 - **泰文轉寫用 Paiboon**，不用 RTGS（ADR 0002）
 - **TTS 護欄按字元算不按次數**（ADR 0003）
 - **沒有打包工具** —— 原生 ES modules + 直接送目錄
-- **不放 `wrangler.toml`** —— Pages 看到它就會忽略後台的 bindings 設定
+- **用 Workers 不用 Pages**（ADR 0004）—— 路由手寫在 `src/index.js`，不用 Pages 的檔案路由
 
 ## 英文與日文的程式碼不是在這裡寫的
 
@@ -31,7 +31,7 @@
 
 ## 最重要的一條安全規則
 
-**prompt 只能存在於 `functions/api/_shared/prompts.js`（伺服器端）。**
+**prompt 只能存在於 `src/api/_shared/prompts.js`（伺服器端）。**
 
 前端只准送 `lang` 與 `topic`。如果前端可以送任意 prompt，任何人都能把這支
 Gemini 金鑰當成免費的通用 LLM 代理來用。
@@ -46,7 +46,7 @@ Gemini 金鑰當成免費的通用 LLM 代理來用。
 
 ## 成本
 
-三個服務只有 Google Cloud TTS 會真的寄帳單。改動 `functions/api/tts.js` 前，
+三個服務只有 Google Cloud TTS 會真的寄帳單。改動 `src/api/tts.js` 前，
 先讀 ADR 0003 與 README 的「成本護欄」。護欄有五層，不要因為「這樣比較方便」拆掉任何一層。
 
 **KV 寫爆之後限流會失效**（刻意失敗放行）。所以 Google Cloud 的 US$1 預算快訊是必要的第二道。

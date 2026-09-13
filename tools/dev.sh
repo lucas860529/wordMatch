@@ -38,11 +38,12 @@ echo "模型：$MODEL"
 echo "開在 http://localhost:8788"
 echo
 
-# --kv RATE 會在本機開一個模擬的 KV，速率限制才測得到
-exec npx wrangler pages dev public \
+# 金鑰用 --var 傳。wrangler dev 會自己讀 wrangler.jsonc 的 assets 與路由設定。
+# KV 在本機是自動模擬的（wrangler.jsonc 裡有宣告才會有 RATE binding；
+# 還沒宣告的話 guard.js 會放行，限流測不到 —— 這是預期行為）。
+exec npx wrangler dev \
   --port 8788 \
-  --kv RATE \
-  --binding GEMINI_API_KEY="$GEMINI" \
-  --binding GOOGLE_TTS_API_KEY="$TTS" \
-  --binding MODEL_ID="$MODEL" \
+  --var GEMINI_API_KEY:"$GEMINI" \
+  --var GOOGLE_TTS_API_KEY:"$TTS" \
+  --var MODEL_ID:"$MODEL" \
   "$@"

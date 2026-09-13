@@ -1,0 +1,40 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wordmatch",
+  "main": "src/index.js",
+  "compatibility_date": "2026-09-01",
+
+  // 靜態檔案。Workers 會先比對這個目錄：對得到就直接送出、不叫起 Worker；
+  // 對不到才走 src/index.js。所以 /api/* 會進 Worker，/en/ 會直接吃到檔案。
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+
+  "observability": {
+    "enabled": true
+  }
+
+  // ── 還要補的：KV ────────────────────────────────────────────────
+  //
+  // 速率限制與 TTS 的字元上限都靠 KV 記數。沒有綁 KV 的話 guard.js 會直接放行
+  // （刻意的：限流壞掉不該讓功能整個死掉），也就是**護欄等於沒有**。
+  //
+  // 在設定 GOOGLE_TTS_API_KEY 之前一定要先把這個補上，否則發音端點沒有任何上限。
+  //
+  // 做法：後台 Storage & databases → KV → Create namespace（取名 wordmatch_rate），
+  // 複製它的 ID 填進來，然後把下面這段取消註解：
+  //
+  // "kv_namespaces": [
+  //   { "binding": "RATE", "id": "把 namespace ID 貼在這裡" }
+  // ]
+  //
+  // ── 金鑰 ────────────────────────────────────────────────────────
+  //
+  // GEMINI_API_KEY 與 GOOGLE_TTS_API_KEY 是 Secret，**不寫在這個檔案裡**。
+  // 正式環境：後台 Settings → Variables and Secrets，型別選 Secret。
+  // 本機開發：存 macOS Keychain，tools/dev.sh 會自己撈出來餵給 wrangler。
+  //
+  // MODEL_ID 不是機密，但也放後台，方便換模型不用重新部署。
+  // 沒設的話程式會用預設值 gemini-3.6-flash。
+}

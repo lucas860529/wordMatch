@@ -10,7 +10,7 @@
 
 ## 目前進度
 
-🟡 **部署中** —— 程式已經打通，卡在 GitHub 授權。
+🟡 **部署中** —— 程式打通、已推上 GitHub，等 Cloudflare 接上。
 
 英文與日文的 app **不是這個 session 寫的**，是先前在 artifact 環境做好的成品
 （`字詞研究室.html` / `言葉研究室.html`）。這個 session 做的是**把它們變成可部署的東西**，
@@ -26,6 +26,7 @@ UI、六段渲染、ruby、localStorage、單字總表一律原樣保留。
 - **兩份 HTML 改造完成**，共 20 處替換，artifact 專屬的東西清乾淨
   （`window.claude`、診斷面板、版號徽章、`speechSynthesis`）
 - **PWA** —— manifest、service worker、圖示（手寫 PNG 產生器，無相依）
+- **從 Pages 遷移到 Workers**（ADR 0004）—— 官方已明講新專案要用 Workers
 - **語言切換列**、根目錄語言選單（記得上次看的）
 - 本機開發腳本 `tools/dev.sh`，金鑰從 Keychain 撈
 
@@ -40,9 +41,10 @@ UI、六段渲染、ruby、localStorage、單字總表一律原樣保留。
 
 | # | 事情 | 誰做 | 狀態 |
 |---|---|---|---|
-| 1 | `gh auth login` 授權 GitHub | **使用者** | 🔴 卡住 |
-| 2 | push 到 `lucas860529/wordMatch` | Claude | ⏸ 等 1 |
-| 3 | Cloudflare 接 Git、設環境變數與 KV | **使用者** | ⏸ 等 2 |
+| 1 | `gh auth login` 授權 GitHub | 使用者 | 🟢 完成 |
+| 2 | push 到 `lucas860529/wordMatch` | Claude | 🟢 完成 |
+| 3 | Cloudflare 接 Git（Workers）、設 Secret | **使用者** | 🟡 進行中 |
+| 3b | 建 KV namespace 並填進 `wrangler.jsonc` | 兩人 | 🔴 **設 TTS 金鑰前必做** |
 | 4 | Google Cloud TTS 金鑰 + US$1 預算快訊 | **使用者** | 🔴 未開始 |
 | 5 | 實測發音（三語都要出聲） | Claude | ⏸ 等 4 |
 | 6 | 泰文版 `/th/` | Claude | 🔴 **step 2，還沒開始** |
@@ -59,7 +61,7 @@ UI、六段渲染、ruby、localStorage、單字總表一律原樣保留。
 - 行高 ≥ 2.2、字型要有頭圈（Sarabun、Noto Sans Thai）
 - 骨架從日文版複製 —— 兩者同樣不用空白斷詞、同樣走 token 陣列
 
-`functions/api/_shared/prompts.js` 裡的泰文 prompt 與 schema **已經寫好了**，
+`src/api/_shared/prompts.js` 裡的泰文 prompt 與 schema **已經寫好了**，
 缺的只是前端那一頁。
 
 ## 跟泰文字卡專案（`~/Developer/thai`）的關係
@@ -81,6 +83,7 @@ wordMatch 管「問一個主題、生成一份講解」。要不要接起來（�
 - [ADR 0001](docs/adr/0001-三頁而不是單一-spa.md) — 為什麼是三頁不是一個合併的 SPA
 - [ADR 0002](docs/adr/0002-泰文轉寫用-paiboon.md) — 泰文轉寫選 Paiboon 不選 RTGS
 - [ADR 0003](docs/adr/0003-tts-成本護欄按字元計算.md) — TTS 護欄為什麼算字元不算次數
+- [ADR 0004](docs/adr/0004-用-workers-而不是-pages.md) — 部署改用 Workers，不用 Pages
 
 ---
 
