@@ -87,6 +87,25 @@ h1{font-size:19px;font-weight:600;letter-spacing:.03em;margin:0 0 4px}
   border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
 }
 
+/* ---------- 這個 app 在幹嘛 ---------- */
+/* 放在選單**下面**不是上面：選課程才是這一頁的主要動作，
+   說明是給第一次來的人看的，不該把按鈕擠到摺線以下 */
+.intro{margin-top:34px;padding-top:24px;border-top:1px solid var(--rule)}
+.intro-item{display:flex;gap:12px;margin-bottom:20px}
+.intro-item:last-child{margin-bottom:0}
+.intro-num{
+  flex:0 0 auto;width:19px;height:19px;margin-top:3px;
+  border:1px solid var(--rule-strong);border-radius:50%;
+  display:grid;place-items:center;
+  font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;
+}
+.intro-body{min-width:0}
+.intro-h{font-size:13.5px;font-weight:600;margin:0 0 4px;color:var(--ink)}
+.intro-p{font-size:12.5px;color:var(--ink-2);margin:0;line-height:1.85}
+.intro.th .intro-h,.intro.th .intro-p{font-family:var(--thai)}
+.intro.th .intro-h{font-size:14px}
+.intro.th .intro-p{font-size:13px;line-height:1.95}
+
 .foot{margin-top:26px;font-size:11.5px;color:var(--ink-3);line-height:1.9}
 .foot.th{font-family:var(--thai)}
 </style>
@@ -107,6 +126,8 @@ h1{font-size:19px;font-weight:600;letter-spacing:.03em;margin:0 0 4px}
     <div class="targets" id="targets"></div>
   </div>
 
+  <div class="intro" id="intro"></div>
+
   <p class="foot" id="foot"></p>
 </div>
 
@@ -125,14 +146,34 @@ h1{font-size:19px;font-weight:600;letter-spacing:.03em;margin:0 0 4px}
       l1: "我的語言",
       l2: "想學的語言",
       none: "這個語言目前還沒有課程。",
-      foot: "選擇會記起來，下次直接進入上次的課程。進去之後右上角可以隨時切換。"
+      foot: "選擇會記起來，下次直接進入上次的課程。進去之後右上角可以隨時切換。",
+      intro: [
+        {
+          h: "主題式學習",
+          p: "大多數時候，你只需要學你真正感興趣的東西，而不是照著課本從第一課排到最後一課。這個 app 讓你自己決定教材 —— 想到什麼就問什麼。"
+        },
+        {
+          h: "AI 生成，但不只是 AI",
+          p: "AI 寫的內容有個老問題：看過就忘了。所以光有 AI 不夠，還要有工具把學過的東西留下來、看得見自己的進度。傳統學習工具的紀律，加上 AI 的即時與廣度。"
+        }
+      ]
     },
     th: {
       sub: "เลือกภาษาของคุณ และภาษาที่อยากเรียน",
       l1: "ภาษาของฉัน",
       l2: "ภาษาที่อยากเรียน",
       none: "ยังไม่มีบทเรียนสำหรับภาษานี้",
-      foot: "ระบบจะจำตัวเลือกไว้ และเปิดบทเรียนล่าสุดให้อัตโนมัติ เปลี่ยนได้ตลอดเวลาที่มุมขวาบน"
+      foot: "ระบบจะจำตัวเลือกไว้ และเปิดบทเรียนล่าสุดให้อัตโนมัติ เปลี่ยนได้ตลอดเวลาที่มุมขวาบน",
+      intro: [
+        {
+          h: "เรียนตามหัวข้อที่สนใจ",
+          p: "ส่วนใหญ่แล้วคุณแค่ต้องเรียนสิ่งที่คุณสนใจจริง ๆ ไม่ใช่ไล่ตามตำราไปทีละบท แอปนี้ให้คุณเป็นคนกำหนดเนื้อหาเอง นึกอะไรออกก็ถามได้เลย"
+        },
+        {
+          h: "สร้างด้วย AI แต่ไม่ได้มีแค่ AI",
+          p: "เนื้อหาที่ AI เขียนมีปัญหาเดิม ๆ คือ อ่านแล้วก็ลืม ลำพัง AI จึงไม่พอ ต้องมีเครื่องมือที่เก็บสิ่งที่เรียนไว้และเห็นความคืบหน้าของตัวเองได้ด้วย ความมีวินัยของเครื่องมือแบบดั้งเดิม บวกกับความเร็วและความกว้างของ AI"
+        }
+      ]
     }
   };
 
@@ -167,6 +208,36 @@ h1{font-size:19px;font-weight:600;letter-spacing:.03em;margin:0 0 4px}
     text("l2", copy.l2);
     text("foot", copy.foot);
     document.getElementById("foot").className = "foot" + (isThai ? " th" : "");
+
+    var intro = document.getElementById("intro");
+    intro.textContent = "";
+    intro.className = "intro" + (isThai ? " th" : "");
+    copy.intro.forEach(function (item, i) {
+      var row = document.createElement("div");
+      row.className = "intro-item";
+
+      var num = document.createElement("span");
+      num.className = "intro-num";
+      num.setAttribute("aria-hidden", "true");
+      num.textContent = String(i + 1);
+
+      var body = document.createElement("div");
+      body.className = "intro-body";
+
+      var hh = document.createElement("h2");
+      hh.className = "intro-h";
+      hh.textContent = item.h;
+
+      var pp = document.createElement("p");
+      pp.className = "intro-p";
+      pp.textContent = item.p;
+
+      body.appendChild(hh);
+      body.appendChild(pp);
+      row.appendChild(num);
+      row.appendChild(body);
+      intro.appendChild(row);
+    });
     document.getElementById("uis").setAttribute("aria-label", copy.l1);
 
     var uis = document.getElementById("uis");
