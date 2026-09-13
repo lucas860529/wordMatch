@@ -10,7 +10,10 @@
 
 ## 目前進度
 
-🟡 **部署中** —— 程式打通、已推上 GitHub，等 Cloudflare 接上。
+🟢 **已上線** —— https://wordmatch.lucas860529.workers.dev
+
+等 Secret 設好就能用。線上已驗證：未登入抓任何頁面都會被轉到登入頁，
+`/api/lesson` 與 `/api/tts` 回 401 —— **會花錢的端點在沒登入時打不動**。
 
 英文與日文的 app **不是這個 session 寫的**，是先前在 artifact 環境做好的成品
 （`字詞研究室.html` / `言葉研究室.html`）。這個 session 做的是**把它們變成可部署的東西**，
@@ -52,10 +55,11 @@ UI、六段渲染、ruby、localStorage、單字總表一律原樣保留。
 |---|---|---|---|
 | 1 | `gh auth login` 授權 GitHub | 使用者 | 🟢 完成 |
 | 2 | push 到 `lucas860529/wordMatch` | Claude | 🟢 完成 |
-| 3 | Cloudflare 接 Git（Workers）、設 Secret | **使用者** | 🟡 進行中 |
+| 3 | 部署到 Cloudflare Workers | Claude | 🟢 完成 |
 | 3b | KV namespace | 使用者 | 🟢 完成（已填入） |
 | 3c | D1 database | 使用者 | 🟢 完成（已填入） |
-| 3d | **部署後套用 D1 schema** | 兩人 | 🔴 **不做的話登入會 500** |
+| 3d | 套用正式 D1 schema | Claude | 🟢 完成（三張表都在） |
+| 3e | 設 `ACCESS_CODES` 與 `GEMINI_API_KEY` | **使用者** | 🔴 **設完才能用** |
 | 4 | Google Cloud TTS 金鑰 + US$1 預算快訊 | **使用者** | 🔴 未開始 |
 | 5 | 實測發音（三語都要出聲） | Claude | ⏸ 等 4 |
 | 6 | 泰文版 `/th/` | Claude | 🔴 **step 2，還沒開始** |
@@ -82,6 +86,13 @@ UI、六段渲染、ruby、localStorage、單字總表一律原樣保留。
 兩者的分工目前是：`thai/` 管 SRS 間隔重複與 3,132 張卡的字庫；
 wordMatch 管「問一個主題、生成一份講解」。要不要接起來（例如單字總表流進字卡庫）
 還沒決定。
+
+## 線上網址
+
+https://wordmatch.lucas860529.workers.dev
+
+部署指令（wrangler 已授權）：`npx wrangler deploy`。
+後台也可以接 Git 讓 push 自動部署，接不接都行 —— Worker 已經存在了。
 
 ## 怎麼跑起來
 
