@@ -1,0 +1,22 @@
+{
+  "name": "三語研究室",
+  "short_name": "三語",
+  "description": "繁體中文母語者的英／日／泰學習工具",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ECEFF1",
+  "theme_color": "#ECEFF1",
+  "lang": "zh-Hant",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "英文", "url": "/en/" },
+    { "name": "日文", "url": "/ja/" },
+    { "name": "泰文", "url": "/th/" }
+  ]
+}

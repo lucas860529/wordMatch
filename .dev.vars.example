@@ -1,0 +1,4 @@
+# 複製成 .dev.vars 再填。.dev.vars 已在 .gitignore 裡，絕對不要進 git。
+GEMINI_API_KEY=
+GOOGLE_TTS_API_KEY=
+MODEL_ID=gemini-3.6-flash

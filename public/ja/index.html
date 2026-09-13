@@ -1,0 +1,1195 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="繁體中文母語者的英／日／泰學習工具">
+<meta name="theme-color" content="#ECEFF1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121C22" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="言葉研究室">
+<title>言葉研究室</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&display=swap">
+<style>
+:root{
+  --paper:#ECEFF1;
+  --paper-2:#E3E8EB;
+  --paper-3:#D9E0E4;
+  --ink:#16232B;
+  --ink-2:#4B5C66;
+  --ink-3:#72848E;
+  --rule:#C7D0D6;
+  --rule-strong:#8FA0AA;
+  --accent:#2F4B86;
+  --accent-deep:#22386A;
+  --accent-wash:#C9D8F0;
+  --accent-faint:#DFE7F5;
+  --brick:#A8412B;
+  --brick-faint:#F0DED8;
+  --mustard:#9A7418;
+  --on-accent:#F5F8FC;
+
+  --jpser:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","Source Han Serif JP",serif;
+  --jpsans:"Hiragino Sans","Yu Gothic","YuGothic","Noto Sans JP",sans-serif;
+  --sans:"Avenir Next","PingFang TC","Microsoft JhengHei","Noto Sans TC","Hiragino Sans",sans-serif;
+
+  --measure:62ch;
+  --col:760px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#121C22;
+    --paper-2:#18242B;
+    --paper-3:#1F2D35;
+    --ink:#DFE7EB;
+    --ink-2:#93A5B0;
+    --ink-3:#74868F;
+    --rule:#2D3C45;
+    --rule-strong:#4A5F6A;
+    --accent:#8AAEE0;
+    --accent-deep:#AFC8EC;
+    --accent-wash:#263A5E;
+    --accent-faint:#1B2A3E;
+    --brick:#DE7F63;
+    --brick-faint:#32201B;
+    --mustard:#CCA13F;
+    --on-accent:#0A121C;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#121C22;
+  --paper-2:#18242B;
+  --paper-3:#1F2D35;
+  --ink:#DFE7EB;
+  --ink-2:#93A5B0;
+  --ink-3:#74868F;
+  --rule:#2D3C45;
+  --rule-strong:#4A5F6A;
+  --accent:#8AAEE0;
+  --accent-deep:#AFC8EC;
+  --accent-wash:#263A5E;
+  --accent-faint:#1B2A3E;
+  --brick:#DE7F63;
+  --brick-faint:#32201B;
+  --mustard:#CCA13F;
+  --on-accent:#0A121C;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
+input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+
+/* ---------- ruby / furigana ---------- */
+ruby{ruby-position:over;-webkit-ruby-position:before}
+rt{
+  font-family:var(--jpsans);
+  font-size:.5em;
+  font-weight:400;
+  color:var(--ink-2);
+  letter-spacing:.02em;
+  line-height:1.2;
+}
+/* Hidden, not removed — the line keeps its height so toggling doesn't
+   shift the text you are reading. */
+.nofuri rt{visibility:hidden}
+.jp.on rt{color:var(--on-accent);opacity:.75}
+
+/* ---------- shell ---------- */
+.shell{display:flex;align-items:flex-start;min-height:100vh}
+
+.rail{
+  width:264px;flex:0 0 264px;
+  border-right:1px solid var(--rule);
+  background:var(--paper-2);
+  min-height:100vh;
+  position:sticky;top:0;
+  max-height:100vh;overflow-y:auto;
+  padding:22px 0 40px;
+}
+.rail-head{display:flex;gap:2px;padding:0 18px 14px}
+.rail-tab{font-size:12px;letter-spacing:.09em;padding:5px 9px;color:var(--ink-3);border-bottom:2px solid transparent}
+.rail-tab[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.rail-tab:hover{color:var(--ink)}
+.rail-empty{padding:4px 18px;color:var(--ink-3);font-size:13px;line-height:1.75}
+
+.hist-item{display:block;width:100%;text-align:left;padding:11px 18px}
+.hist-item:hover{background:var(--paper-3)}
+.hist-item[aria-current="true"]{background:var(--paper-3);box-shadow:inset 3px 0 0 var(--accent)}
+.hist-title{font-size:14px;line-height:1.5;margin-bottom:3px}
+.hist-meta{font-size:11.5px;color:var(--ink-3);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.hist-row{display:flex;align-items:stretch;border-top:1px solid var(--rule)}
+.hist-row:first-child{border-top:none}
+.hist-del{flex:0 0 auto;padding:0 14px;color:var(--ink-3);font-size:12px;opacity:0;transition:opacity .12s}
+.hist-row:hover .hist-del,.hist-del:focus-visible{opacity:1}
+.hist-del.armed{opacity:1;color:var(--brick);font-weight:600}
+@media (hover:none){.hist-del{opacity:1}}
+
+/* ---------- main ---------- */
+.main{flex:1 1 auto;min-width:0;padding:0 28px 140px}
+.col{max-width:var(--col);margin:0 auto}
+
+.masthead{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:baseline;padding:26px 0 16px;border-bottom:1px solid var(--rule)}
+.wordmark{font-family:var(--jpser);font-size:22px;letter-spacing:.03em;margin:0;font-weight:600}
+.wordmark em{font-style:normal;color:var(--accent)}
+.tagline{font-size:12.5px;color:var(--ink-3);letter-spacing:.02em}
+.build{font-size:11px;color:var(--ink-3);letter-spacing:.06em;font-variant-numeric:tabular-nums;border:1px solid var(--rule);border-radius:2px;padding:1px 8px;white-space:nowrap}
+.masthead-sp{flex:1 1 auto}
+
+.voicebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.seg{display:flex;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
+.seg button{padding:3px 10px;font-size:12px;color:var(--ink-2);border-right:1px solid var(--rule-strong);white-space:nowrap}
+.seg button:last-child{border-right:none}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.seg button:not([aria-pressed="true"]):hover{background:var(--paper-3)}
+.voicename{font-size:11.5px;color:var(--ink-3);letter-spacing:.02em}
+.voicename b{font-weight:500;color:var(--ink-2);font-family:var(--jpser)}
+.drawer-btn{display:none}
+
+/* composer */
+.composer{padding:22px 0 20px;border-bottom:1px solid var(--rule)}
+.composer-row{display:flex;gap:10px;flex-wrap:wrap}
+#topic{flex:1 1 260px;min-width:0;background:var(--paper-2);border:1px solid var(--rule-strong);border-radius:2px;padding:9px 12px;font-size:15px}
+#topic::placeholder{color:var(--ink-3)}
+#topic:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-faint)}
+.btn-go{flex:0 0 auto;background:var(--accent);color:var(--on-accent);padding:9px 20px;border-radius:2px;font-size:14px;letter-spacing:.04em}
+.btn-go:hover{background:var(--accent-deep)}
+.btn-go[disabled]{background:var(--rule-strong);cursor:default}
+.btn-stop{flex:0 0 auto;padding:9px 16px;border:1px solid var(--rule-strong);border-radius:2px;font-size:13px;color:var(--ink-2)}
+.btn-stop:hover{border-color:var(--brick);color:var(--brick)}
+
+.status{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:13px;color:var(--ink-2)}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:0 0 auto;animation:pulse 1.3s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+.status-stage{font-family:var(--jpser);color:var(--ink)}
+.status-count{font-variant-numeric:tabular-nums;color:var(--ink-3);font-size:12px}
+
+.notice{margin-top:14px;padding:10px 14px;font-size:13.5px;line-height:1.65;border-left:3px solid var(--brick);background:var(--brick-faint);color:var(--ink)}
+.notice button{color:var(--brick);text-decoration:underline;text-underline-offset:3px;margin-left:8px}
+.notice .code{display:block;margin-top:7px;font-family:var(--jpser);font-size:11.5px;color:var(--ink-2);letter-spacing:.03em}
+.diag{margin-top:14px;font-size:11.5px;color:var(--ink-3)}
+.diag summary{cursor:pointer;letter-spacing:.08em;padding:2px 0}
+.diag dl{margin:9px 0 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.6}
+.diag dt{color:var(--ink-3);white-space:nowrap}
+.diag dd{margin:0;color:var(--ink-2);overflow-wrap:anywhere}
+
+/* ---------- lesson ---------- */
+.lesson-head{padding:26px 0 18px}
+h1.title{font-family:var(--sans);font-size:27px;line-height:1.35;font-weight:600;margin:0 0 10px;text-wrap:balance;letter-spacing:-.005em}
+.summary{margin:0;color:var(--ink-2);font-size:15px;max-width:var(--measure)}
+.lesson-topic{font-size:11.5px;letter-spacing:.1em;color:var(--ink-3);margin-bottom:12px}
+
+section.block{padding:24px 0;border-top:1px solid var(--rule)}
+h2.label{font-size:11px;letter-spacing:.16em;font-weight:600;color:var(--ink-3);margin:0 0 14px}
+.prose{margin:0;max-width:var(--measure);font-size:15.5px;line-height:2.05}
+
+/* clickable japanese */
+.jp{
+  font-family:var(--jpser);
+  border-bottom:1px solid var(--rule-strong);
+  cursor:pointer;padding:0 1px;border-radius:2px;
+  transition:background-color .1s,color .1s;
+}
+.jp:hover{background:var(--accent-faint)}
+.jp.on{background:var(--accent);color:var(--on-accent);border-bottom-color:transparent}
+.tok{font-family:var(--jpser);cursor:pointer;border-radius:2px;padding:0 .5px}
+.tok:hover{background:var(--accent-faint)}
+.tok.on{background:var(--accent);color:var(--on-accent)}
+.tok.plain{cursor:default}
+.tok.plain:hover{background:none}
+
+/* compare table */
+.tablewrap{overflow-x:auto;max-width:100%}
+table.compare{border-collapse:collapse;width:100%;min-width:440px}
+table.compare th{text-align:left;font-size:11px;letter-spacing:.14em;font-weight:600;color:var(--ink-3);padding:0 12px 7px 0;border-bottom:2px solid var(--rule-strong)}
+table.compare th:last-child,table.compare td:last-child{padding-right:0}
+table.compare td{padding:13px 12px 13px 0;border-bottom:1px solid var(--rule);vertical-align:baseline;font-size:14.5px}
+td.c-jp{white-space:nowrap}
+td.c-jp .jp{font-size:18px}
+td.c-acc{font-family:var(--jpsans);color:var(--ink-2);white-space:nowrap;font-size:12.5px}
+td.c-note{color:var(--ink);min-width:210px;line-height:1.85}
+td.c-add{width:1%;text-align:right;white-space:nowrap}
+.addbtn{font-size:11px;letter-spacing:.06em;color:var(--ink-3);border:1px solid var(--rule);border-radius:2px;padding:2px 7px}
+.addbtn:hover{border-color:var(--accent);color:var(--accent)}
+.addbtn.saved{color:var(--accent);border-color:var(--accent-wash);background:var(--accent-faint)}
+
+/* examples */
+.ex{display:flex;gap:12px;padding:15px 0;border-bottom:1px solid var(--rule)}
+.ex:last-child{border-bottom:none}
+.ex:first-child{padding-top:0}
+.play{flex:0 0 auto;width:26px;height:26px;border:1px solid var(--rule-strong);border-radius:50%;display:grid;place-items:center;margin-top:6px;color:var(--ink-2)}
+.play:hover{border-color:var(--accent);color:var(--accent)}
+.play.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.play svg{width:9px;height:9px;display:block}
+.ex-body{min-width:0}
+.ex-jp{font-family:var(--jpser);font-size:19px;line-height:2.1;max-width:var(--measure)}
+.ex-zh{color:var(--ink-2);font-size:13.5px;margin-top:6px;max-width:var(--measure)}
+
+/* traps */
+.trap{border-left:3px solid var(--brick);padding:2px 0 2px 15px;margin-bottom:20px}
+.trap:last-child{margin-bottom:0}
+.trap-point{font-size:14.5px;margin-bottom:8px;max-width:var(--measure)}
+.wr{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:16.5px;margin-bottom:5px;line-height:2}
+.wr-tag{font-size:10.5px;letter-spacing:.1em;flex:0 0 auto;width:22px;font-family:var(--sans)}
+.wr-x .wr-tag{color:var(--brick)}
+.wr-o .wr-tag{color:var(--accent)}
+.wr-x .jp{text-decoration:line-through;text-decoration-color:var(--brick);text-decoration-thickness:1px}
+.trap-why{color:var(--ink-2);font-size:13.5px;margin-top:8px;max-width:var(--measure);line-height:1.95}
+
+/* collocations */
+.colls{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1px 26px}
+.coll{display:flex;gap:10px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--rule)}
+.coll-jp{font-size:16.5px;min-width:0}
+.coll-zh{color:var(--ink-2);font-size:12.5px;margin-left:auto;text-align:right;flex:0 1 auto}
+
+/* notes */
+.notes{border-left:3px solid var(--mustard);padding:2px 0 2px 15px}
+.notes .prose{font-size:14.5px;color:var(--ink)}
+
+/* ---------- vocab ---------- */
+.vocab-head{display:flex;flex-wrap:wrap;gap:12px;align-items:baseline;padding:26px 0 16px}
+.vocab-head h1{font-size:24px;font-weight:600;margin:0}
+.vocab-count{font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.vocab-actions{margin-left:auto;display:flex;gap:8px}
+.btn-ghost{border:1px solid var(--rule-strong);border-radius:2px;padding:5px 12px;font-size:12.5px;color:var(--ink-2)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.vrow{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;padding:14px 0;border-top:1px solid var(--rule)}
+.vrow .v-jp{font-size:18px}
+.v-acc{font-family:var(--jpsans);color:var(--ink-2);font-size:12.5px}
+.v-zh{color:var(--ink);font-size:13.5px;flex:1 1 180px;min-width:0}
+.v-src{font-size:11.5px;color:var(--ink-3)}
+.v-src:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.v-del{font-size:11.5px;color:var(--ink-3)}
+.v-del:hover{color:var(--brick)}
+.v-del.armed{color:var(--brick);font-weight:600}
+
+/* ---------- empty ---------- */
+.empty{padding:34px 0 10px;max-width:var(--measure)}
+.empty h1{font-family:var(--sans);font-size:25px;font-weight:600;margin:0 0 12px;text-wrap:balance}
+.empty p{color:var(--ink-2);margin:0 0 24px;font-size:15px}
+.contents{border-top:1px solid var(--rule);margin-bottom:26px}
+.contents div{display:flex;gap:14px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--rule);font-size:13.5px}
+.contents dt{flex:0 0 88px;color:var(--ink);margin:0}
+.contents dd{margin:0;color:var(--ink-2);font-size:13px}
+.try-label{font-size:11px;letter-spacing:.16em;color:var(--ink-3);margin-bottom:10px}
+.try{display:flex;flex-direction:column;gap:1px}
+.try button{text-align:left;padding:11px 0;border-top:1px solid var(--rule);font-size:14.5px;display:flex;gap:10px;align-items:baseline}
+.try button:last-child{border-bottom:1px solid var(--rule)}
+.try button:hover{color:var(--accent)}
+.try .arrow{color:var(--accent);flex:0 0 auto;font-family:var(--jpser)}
+
+/* ---------- speech pill ---------- */
+.pill{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
+  display:flex;align-items:center;gap:11px;
+  background:var(--ink);color:var(--paper);
+  padding:8px 16px;border-radius:999px;
+  font-size:13px;max-width:min(560px,calc(100vw - 32px));
+  box-shadow:0 6px 24px rgba(10,25,32,.22);
+  z-index:50;
+}
+.pill-text{font-family:var(--jpser);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill-voice{font-size:11px;opacity:.6;white-space:nowrap;flex:0 0 auto}
+.pill-stop{font-size:11px;opacity:.75;flex:0 0 auto;border-left:1px solid rgba(255,255,255,.2);padding-left:11px}
+.pill-stop:hover{opacity:1}
+.pill-enter{animation:pillin .18s ease-out}
+@keyframes pillin{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+.footnote{padding:26px 0 0;border-top:1px solid var(--rule);font-size:12.5px;color:var(--ink-3);max-width:var(--measure);line-height:1.9}
+
+/* ---------- responsive ---------- */
+@media (max-width:840px){
+  .shell{display:block}
+  .rail{display:none;width:auto;flex:none;position:static;max-height:none;min-height:0;border-right:none;border-bottom:1px solid var(--rule);padding:14px 0 18px}
+  .rail.open{display:block}
+  .main{padding:0 16px 150px}
+  .drawer-btn{display:inline-block;font-size:12px;letter-spacing:.06em;color:var(--ink-2);border:1px solid var(--rule-strong);border-radius:2px;padding:3px 10px}
+  h1.title{font-size:23px}
+  td.c-jp{white-space:normal}
+  .colls{grid-template-columns:1fr;gap:0}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+/* ---------- 語言切換 ---------- */
+.langbar{display:flex;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden;flex:0 0 auto}
+.langbar a,.langbar span{
+  padding:5px 11px;font-size:12px;color:var(--ink-2);text-decoration:none;
+  border-right:1px solid var(--rule-strong);white-space:nowrap;line-height:1.6;
+}
+.langbar a:last-child,.langbar span:last-child{border-right:none}
+.langbar a:hover{background:var(--paper-3);color:var(--ink)}
+.langbar .on{background:var(--accent);color:var(--on-accent)}
+@media (max-width:840px){
+  .langbar a,.langbar span{padding:7px 13px;font-size:12.5px}
+}
+</style>
+
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="/shared/ll.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var h = React.createElement;
+  var Frag = React.Fragment;
+  var useState = React.useState;
+  var useEffect = React.useEffect;
+  var useRef = React.useRef;
+  var useCallback = React.useCallback;
+
+
+  /* ====== speech ====== */
+  // 發音走 /api/tts（Google Cloud TTS），實作在 /shared/ll.js。
+  // 原本的 window.speechSynthesis 已經拿掉：品質看裝置，泰文更是常常沒有語音。
+
+  /* ============================ storage ============================ */
+
+  var SEED = {"index":[{"id":"Jkanjitrap01","topic":"漢字看得懂，意思卻不一樣的日文詞","title":"漢字陷阱：看得懂卻會錯意的詞","createdAt":1789200000000}],"vocab":[],"lessons":{"Jkanjitrap01":{"id":"Jkanjitrap01","topic":"漢字看得懂，意思卻不一樣的日文詞","createdAt":1789200000000,"lesson":{"title":"漢字陷阱：看得懂卻會錯意的詞","summary":"台灣人學日文最大的優勢是漢字，最大的陷阱也是漢字。真正危險的不是完全看不懂的詞，而是你確信自己懂、但其實意思已經分岔的那些。","core":"日文裡的漢語詞大致有三種來源：從中國傳入後意思保留的、傳入後意思偏移的，以及日本自己用漢字造出來的和製漢語。讀日文時大腦會自動套用中文語感，第一種沒事，第三種多半也安全（像 <jp>経済|けいざい</jp>、<jp>社会|しゃかい</jp> 這些反而是從日本回流到中文的），出事的是第二種。<jp>勉強|べんきょう</jp> 就是典型：字形熟悉、語感錯誤、而且句子照樣通順，所以錯了也不會有人提醒你。","compare":[{"jp":"勉強","kana":"べんきょう","accent":"0型（平板）","note":"日文是「讀書、學習」。中文那個「不情願地硬做」在日文要用 <jp>無理|むり</jp>。商業場合另有「算便宜一點」的用法。"},{"jp":"手紙","kana":"てがみ","accent":"0型（平板）","note":"日文是「信件」。衛生紙是 <jp>トイレットペーパー</jp>，兩者毫無關係。"},{"jp":"大丈夫","kana":"だいじょうぶ","accent":"3型（中高）","note":"日文是「沒問題、不要緊」，被招待時說出口通常等於婉拒。中文的「大丈夫」在日文是 <jp>立派な男|りっぱなおとこ</jp>。"},{"jp":"邪魔","kana":"じゃま","accent":"0型（平板）","note":"日文是「妨礙、打擾」，<jp>お邪魔します|おじゃまします</jp> 是進別人家的招呼語。中文的「邪魔」是 <jp>悪魔|あくま</jp>。"},{"jp":"我慢","kana":"がまん","accent":"1型（頭高）","note":"日文是「忍耐、忍住」，帶正面色彩。中文沒有這個詞，容易被拆成「我」「慢」誤讀。"},{"jp":"汽車","kana":"きしゃ","accent":"2型（尾高）","note":"日文專指蒸汽火車。現代的汽車是 <jp>車|くるま</jp> 或 <jp>自動車|じどうしゃ</jp>。"}],"examples":[{"jp":"毎日二時間日本語を勉強しています。","kana":"まいにちにじかんにほんごをべんきょうしています。","tokens":[{"w":"毎日","r":"まいにち"},{"w":"二時間","r":"にじかん"},{"w":"日本語","r":"にほんご"},{"w":"を"},{"w":"勉強","r":"べんきょう"},{"w":"しています"},{"w":"。"}],"zh":"我每天讀兩小時日文。"},{"jp":"友達から手紙が届きました。","kana":"ともだちからてがみがとどきました。","tokens":[{"w":"友達","r":"ともだち"},{"w":"から"},{"w":"手紙","r":"てがみ"},{"w":"が"},{"w":"届きました","r":"とどきました"},{"w":"。"}],"zh":"朋友寄的信到了。"},{"jp":"「コーヒーいかがですか。」「あ、大丈夫です。」","kana":"「コーヒーいかがですか。」「あ、だいじょうぶです。」","tokens":[{"w":"「"},{"w":"コーヒー"},{"w":"いかが"},{"w":"ですか"},{"w":"。」"},{"w":"「あ、"},{"w":"大丈夫","r":"だいじょうぶ"},{"w":"です"},{"w":"。」"}],"zh":"「要不要來杯咖啡？」「啊，不用了。」—— 這裡的大丈夫是婉拒，不是「我沒事」。"},{"jp":"お邪魔します。","kana":"おじゃまします。","tokens":[{"w":"お"},{"w":"邪魔","r":"じゃま"},{"w":"します"},{"w":"。"}],"zh":"打擾了。進別人家門時說的固定招呼。"},{"jp":"もう少し我慢してください。","kana":"もうすこしがまんしてください。","tokens":[{"w":"もう"},{"w":"少し","r":"すこし"},{"w":"我慢","r":"がまん"},{"w":"してください"},{"w":"。"}],"zh":"請再忍耐一下。"}],"traps":[{"point":"把中文的「勉強」直接搬進日文句子","wrong":"彼は勉強してこの仕事をしています。","right":"彼は無理してこの仕事をしています。","why":"日文的 <jp>勉強|べんきょう</jp> 只有「學習」的意思。要說「不情願地硬做」得用 <jp>無理|むり</jp>。錯誤那句日本人會理解成「他一邊唸書一邊做這份工作」，完全是另一件事。"},{"point":"想答應邀約，卻回了「大丈夫です」","wrong":"「もう一杯いかがですか。」「大丈夫です。」（心裡想要）","right":"「もう一杯いかがですか。」「はい、お願いします。」","why":"被招待時的 <jp>大丈夫です|だいじょうぶです</jp> 幾乎固定理解成「不用了」。想答應要明確說 <jp>お願いします|おねがいします</jp>，否則對方會直接把杯子收走。"},{"point":"把「汽車」當成一般汽車","wrong":"汽車で会社に行きます。","right":"車で会社に行きます。","why":"<jp>汽車|きしゃ</jp> 在現代日文專指蒸汽火車。開車上班要用 <jp>車|くるま</jp>。這句錯誤講出來，對方會想像你每天搭蒸汽火車通勤。"}],"collocations":[{"jp":"勉強になる","kana":"べんきょうになる","zh":"學到了、受教了（聽完別人說話的常用回應）"},{"jp":"お邪魔します","kana":"おじゃまします","zh":"打擾了（進門時）"},{"jp":"大丈夫ですか","kana":"だいじょうぶですか","zh":"你還好嗎？"},{"jp":"我慢できない","kana":"がまんできない","zh":"受不了、忍不住"},{"jp":"手紙を出す","kana":"てがみをだす","zh":"寄信"},{"jp":"無理しないで","kana":"むりしないで","zh":"別逞強、別勉強自己"}],"notes":"這些詞多半在江戶到明治之間意思分岔。<jp>汽車|きしゃ</jp> 是最清楚的例子：蒸汽火車傳入時日本命名為「汽車」，中文後來把這兩個字給了 automobile，兩邊就此分家。反方向則是和製漢語 —— <jp>経済|けいざい</jp>、<jp>社会|しゃかい</jp>、<jp>哲学|てつがく</jp> 都是日本人用漢字新造後回流中文的，所以這類詞中日同義，讀起來反而最安全。アクセント方面，這一課的詞以平板型居多（<jp>勉強|べんきょう</jp>、<jp>手紙|てがみ</jp>、<jp>邪魔|じゃま</jp>），只有 <jp>我慢|がまん</jp> 是頭高型、<jp>大丈夫|だいじょうぶ</jp> 是中高型，唸的時候注意起伏位置。"}}}};
+
+  var Store = (function () {
+    var healthy = true;
+    var K = { index: "kotoba.index", vocab: "kotoba.vocab", seeded: "kotoba.seeded" };
+    function lk(id) { return "kotoba.lesson." + id; }
+
+    function read(key, fallback) {
+      try {
+        var raw = window.localStorage.getItem(key);
+        if (raw == null) return fallback;
+        return JSON.parse(raw);
+      } catch (e) { healthy = false; return fallback; }
+    }
+    function write(key, value) {
+      try { window.localStorage.setItem(key, JSON.stringify(value)); return true; }
+      catch (e) { healthy = false; return false; }
+    }
+    function drop(key) {
+      try { window.localStorage.removeItem(key); } catch (e) { healthy = false; }
+    }
+
+    return {
+      ok: function () { return healthy; },
+      seed: function () {
+        if (read(K.seeded, null)) return;
+        if (!read(K.index, null)) {
+          SEED.index.forEach(function (it) {
+            if (SEED.lessons[it.id]) write(lk(it.id), SEED.lessons[it.id]);
+          });
+          write(K.index, SEED.index);
+          write(K.vocab, SEED.vocab);
+        }
+        write(K.seeded, 1);
+      },
+      index: function () { var v = read(K.index, []); return Array.isArray(v) ? v : []; },
+      setIndex: function (items) { write(K.index, items); },
+      vocab: function () { var v = read(K.vocab, []); return Array.isArray(v) ? v : []; },
+      setVocab: function (items) { write(K.vocab, items); },
+      getLesson: function (id) { return read(lk(id), null); },
+      putLesson: function (id, body) { write(lk(id), body); },
+      delLesson: function (id) { drop(lk(id)); }
+    };
+  })();
+
+  /* ============================ helpers ============================ */
+
+  function fmtDate(ts) {
+    try {
+      var d = new Date(ts);
+      var p = function (n) { return n < 10 ? "0" + n : "" + n; };
+      return d.getFullYear() + "." + p(d.getMonth() + 1) + "." + p(d.getDate()) + " " +
+        p(d.getHours()) + ":" + p(d.getMinutes());
+    } catch (e) { return ""; }
+  }
+
+  function newId() {
+    return "J" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  function arr(x) { return Array.isArray(x) ? x : []; }
+  function str(x) { return typeof x === "string" ? x : ""; }
+
+  // 保險：title/summary 是當純文字排版的，模型偶爾還是會把標記塞進來，
+  // 不剝掉就會看到字面的 <en>Make</en>
+  function plain(text) {
+    return str(text).replace(/<(en|jp|thai)>([\\s\\S]*?)<\\/\\1>/g, function (m, t, inner) {
+      return inner.split("|")[0];
+    });
+  }
+
+
+  // Punctuation and particles alone are not worth a pronunciation click.
+  function speakable(token) {
+    return /[぀-ヿ㐀-鿿ｦ-ﾟa-zA-Z]/.test(token);
+  }
+
+  /* ====== prompt ====== */
+  // prompt 在伺服器端（functions/api/_shared/prompts.js）。
+  // 前端只送 lang 與 topic —— 否則任何人都能把這支 Gemini 金鑰當免費的通用 LLM 用。
+
+  var STAGES = [
+    ['"summary"', "核心重點"],
+    ['"core"', "核心解釋"],
+    ['"compare"', "對照表"],
+    ['"examples"', "例句"],
+    ['"traps"', "常見錯誤"],
+    ['"collocations"', "常用搭配"],
+    ['"notes"', "延伸筆記"]
+  ];
+
+  function stageOf(text) {
+    var label = "課程標題";
+    for (var i = 0; i < STAGES.length; i++) {
+      if (text.indexOf(STAGES[i][0]) !== -1) label = STAGES[i][1];
+    }
+    return label;
+  }
+
+  var ERRORS = {
+    rate_limited: "今天的生成次數到上限了，或 Gemini 的免費額度暫時滿了。等一下再試。",
+    bad_input: "主題是空的或太長了，改一下再送出。",
+    upstream: "生成服務出了狀況，再試一次。",
+    bad_json: "回傳的內容格式不完整，通常再生成一次就會好。",
+    offline: "目前離線。已存下來的課程可以讀，生成新課程需要連線。",
+    network: "連線出了狀況，再試一次。"
+  };
+
+  /* ============================ japanese rendering ============================ */
+
+  // One clickable Japanese word. Furigana rides above the kanji as real ruby;
+  // clicking speaks the READING rather than the surface form, because a single
+  // kanji word out of context is exactly where TTS picks the wrong reading.
+  function JpWord(props) {
+    var surface = props.surface;
+    var reading = props.reading;
+    var key = props.speakKey;
+    var onSpeak = props.onSpeak;
+    var cls = (props.cls || "jp") + (props.speaking === key ? " on" : "");
+    var body = reading
+      ? h("ruby", null, surface, h("rt", null, reading))
+      : surface;
+    var fire = function (e) {
+      e.stopPropagation();
+      onSpeak(reading || surface, key);
+    };
+    return h("span", {
+      className: cls,
+      lang: "ja",
+      role: "button",
+      tabIndex: 0,
+      title: "點一下發音",
+      onClick: fire,
+      onKeyDown: function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fire(e); }
+      }
+    }, body);
+  }
+
+  // Splits a Chinese paragraph on <jp>surface|reading</jp>.
+  function renderWithJp(text, onSpeak, speaking, keyBase) {
+    var parts = String(text).split(/(<jp>[\s\S]*?<\/jp>)/g);
+    return parts.map(function (part, i) {
+      var m = part.match(/^<jp>([\s\S]*?)<\/jp>$/);
+      if (!m) return h("span", { key: keyBase + "-t" + i }, part);
+      var bits = m[1].split("|");
+      return h(JpWord, {
+        key: keyBase + "-j" + i,
+        surface: bits[0],
+        reading: bits.length > 1 ? bits[1] : "",
+        speakKey: keyBase + "-j" + i,
+        onSpeak: onSpeak,
+        speaking: speaking
+      });
+    });
+  }
+
+  // Japanese writes without spaces, so the sentence arrives pre-segmented as
+  // tokens rather than being split here.
+  function renderJpTokens(ex, onSpeak, speaking, keyBase) {
+    var tokens = arr(ex.tokens);
+    if (!tokens.length) {
+      return h(JpWord, {
+        surface: str(ex.jp),
+        reading: "",
+        speakKey: keyBase + "-whole",
+        onSpeak: onSpeak,
+        speaking: speaking,
+        cls: "tok"
+      });
+    }
+    return tokens.map(function (t, i) {
+      var w = str(t.w);
+      var r = str(t.r);
+      var k = keyBase + "-k" + i;
+      if (!speakable(w)) {
+        return h("span", { key: k, className: "tok plain", lang: "ja" }, w);
+      }
+      return h(JpWord, {
+        key: k,
+        surface: w,
+        reading: r,
+        speakKey: k,
+        onSpeak: onSpeak,
+        speaking: speaking,
+        cls: "tok"
+      });
+    });
+  }
+
+  function PlayIcon() {
+    return h("svg", { viewBox: "0 0 10 10", "aria-hidden": "true" },
+      h("path", { d: "M1 0.5 L9 5 L1 9.5 Z", fill: "currentColor" }));
+  }
+
+  /* ============================ app ============================ */
+
+  function App() {
+    var s1 = useState(""); var topic = s1[0], setTopic = s1[1];
+    var s2 = useState(null); var lesson = s2[0], setLesson = s2[1];
+    var s3 = useState(false); var busy = s3[0], setBusy = s3[1];
+    var s4 = useState(null); var progress = s4[0], setProgress = s4[1];
+    var s5 = useState(null); var err = s5[0], setErr = s5[1];
+    var s6 = useState([]); var index = s6[0], setIndex = s6[1];
+    var s7 = useState([]); var vocab = s7[0], setVocab = s7[1];
+    var s8 = useState("history"); var tab = s8[0], setTab = s8[1];
+    var s9 = useState("lesson"); var view = s9[0], setView = s9[1];
+    var s10 = useState("female"); var gender = s10[0], setGender = s10[1];
+    var s11 = useState(1); var rate = s11[0], setRate = s11[1];
+    var s12 = useState(null); var speaking = s12[0], setSpeaking = s12[1];
+    var s13 = useState(null); var nowPlaying = s13[0], setNowPlaying = s13[1];
+    var s14 = useState(0); var voiceTick = s14[0], setVoiceTick = s14[1];
+    var s15 = useState(null); var armed = s15[0], setArmed = s15[1];
+    var s16 = useState(false); var drawer = s16[0], setDrawer = s16[1];
+    var s17 = useState("loading"); var storeState = s17[0], setStoreState = s17[1];
+    var s18 = useState("loading"); var aiState = s18[0], setAiState = s18[1];
+    var s19 = useState(null); var currentId = s19[0], setCurrentId = s19[1];
+    var sD = useState({}); var diag = sD[0], setDiag = sD[1];
+    var s20 = useState(true); var furi = s20[0], setFuri = s20[1];
+
+    var abortRef = useRef(null);
+    var utterSeq = useRef(0);
+    var queueRef = useRef(null);
+    var indexRef = useRef([]);
+    var vocabRef = useRef([]);
+
+    indexRef.current = index;
+    vocabRef.current = vocab;
+
+    /* ---- storage + capability ---- */
+    useEffect(function () {
+      var live = true;
+
+      Store.seed();
+      setIndex(Store.index());
+      setVocab(Store.vocab());
+      setStoreState(Store.ok() ? "on" : "off");
+      setAiState("on");
+
+      return function () { live = false; };
+    }, []);
+
+    /* ---- voices ---- */
+    useEffect(function () {
+      var fn = function () { setVoiceTick(function (n) { return n + 1; }); };
+      voiceListeners.push(fn);
+      return function () {
+        var i = voiceListeners.indexOf(fn);
+        if (i !== -1) voiceListeners.splice(i, 1);
+      };
+    }, []);
+
+    var activeVoice = { name: (gender === "male" ? "男聲 Standard" : "女聲 Standard") };
+
+    /* ---- speech ---- */
+    var stopSpeech = useCallback(function () {
+      queueRef.current = null;
+      utterSeq.current += 1;
+      LL.speech.stop();
+      setSpeaking(null);
+      setNowPlaying(null);
+    }, []);
+
+    var speak = useCallback(function (text, key, onDone) {
+      if (!text) return;
+      utterSeq.current += 1;
+      var seq = utterSeq.current;
+      setSpeaking(key);
+      setNowPlaying({ text: text, voice: (gender === "male" ? "男聲 Standard" : "女聲 Standard") });
+      // 失敗靜默降級成不發音 —— 點一個詞念不出來就跳錯誤，讀一段課文會被打斷十次
+      LL.speech.speak("ja", text, key, { rate: rate, voice: gender })
+        .then(function () {
+          if (utterSeq.current !== seq) return;
+          setSpeaking(null);
+          setNowPlaying(null);
+          if (onDone) onDone();
+        });
+    }, [gender, rate]);
+
+    var playQueue = useCallback(function (items) {
+      if (!items.length) return;
+      var i = 0;
+      var token = {};
+      var step = function () {
+        if (queueRef.current !== token) return;
+        if (i >= items.length) { queueRef.current = null; return; }
+        var it = items[i]; i += 1;
+        speak(it.text, it.key, step);
+      };
+      queueRef.current = token;
+      step();
+    }, [speak]);
+
+    useEffect(function () {
+      return function () { LL.speech.stop(); };
+    }, []);
+
+    /* ---- persistence ---- */
+    function saveLesson(id, topicText, data) {
+      var entry = {
+        id: id,
+        topic: topicText,
+        title: plain(data.title) || topicText,
+        createdAt: Date.now()
+      };
+      Store.putLesson(id, {
+        id: id, topic: topicText, createdAt: entry.createdAt, lesson: data
+      });
+      var next = [entry]
+        .concat(indexRef.current.filter(function (x) { return x.id !== id; }))
+        .slice(0, 300);
+      setIndex(next);
+      Store.setIndex(next);
+    }
+
+    function openLesson(id) {
+      setDrawer(false);
+      setView("lesson");
+      var d = Store.getLesson(id);
+      if (!d) return;
+      setLesson(d.lesson || null);
+      setTopic(str(d.topic));
+      setCurrentId(id);
+      setErr(null);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function deleteLesson(id) {
+      var next = indexRef.current.filter(function (x) { return x.id !== id; });
+      setIndex(next);
+      setArmed(null);
+      if (currentId === id) { setLesson(null); setCurrentId(null); }
+      Store.setIndex(next);
+      Store.delLesson(id);
+    }
+
+    function writeVocab(next) {
+      setVocab(next);
+      Store.setVocab(next.slice(0, 800));
+    }
+
+    function addWord(jp, kana, accent, zh) {
+      var key = jp;
+      if (vocabRef.current.some(function (v) { return str(v.jp) === key; })) return;
+      var next = [{
+        jp: jp,
+        kana: str(kana),
+        accent: str(accent),
+        zh: str(zh),
+        lessonId: currentId,
+        lessonTitle: lesson ? str(lesson.title) : "",
+        addedAt: Date.now()
+      }].concat(vocabRef.current);
+      writeVocab(next);
+    }
+
+    function hasWord(jp) {
+      return vocab.some(function (v) { return str(v.jp) === jp; });
+    }
+
+    /* ---- generation ---- */
+    function generate(topicText, fresh) {
+      var t = String(topicText || "").trim();
+      if (!t || busy) return;
+
+      setBusy(true);
+      setErr(null);
+      setView("lesson");
+      setDrawer(false);
+      setLesson(null);
+      setCurrentId(null);
+      setProgress({ stage: "課程標題", chars: 0, started: false });
+
+      var ctl = new AbortController();
+      abortRef.current = ctl;
+
+      LL.generate("ja", t, { signal: ctl.signal }).then(function (data) {
+        if (!data || typeof data !== "object") throw { code: "invalid_json", message: "not an object" };
+        var id = newId();
+        setLesson(data);
+        setCurrentId(id);
+        setBusy(false);
+        setProgress(null);
+        abortRef.current = null;
+        saveLesson(id, t, data);
+      }).catch(function (e) {
+        abortRef.current = null;
+        setBusy(false);
+        setProgress(null);
+        var code = e && e.code ? e.code : "upstream_error";
+        if (code === "cancelled") return;
+        setErr({ code: code, topic: t });
+      });
+    }
+
+    function stopGeneration() {
+      if (abortRef.current) abortRef.current.abort();
+      abortRef.current = null;
+      setBusy(false);
+      setProgress(null);
+    }
+
+    /* ---- pieces ---- */
+
+    var onSpeak = function (text, key) { speak(text, key); };
+
+    function VoiceBar() {
+      var voiceLabel = activeVoice.name;
+      return h("div", { className: "voicebar" },
+        h("div", { className: "seg", role: "group", "aria-label": "語音" },
+          h("button", {
+            type: "button", "aria-pressed": gender === "female",
+            onClick: function () { setGender("female"); }
+          }, "女聲"),
+          h("button", {
+            type: "button", "aria-pressed": gender === "male",
+            onClick: function () { setGender("male"); }
+          }, "男聲")
+        ),
+        h("div", { className: "seg", role: "group", "aria-label": "語速" },
+          h("button", {
+            type: "button", "aria-pressed": rate === 1,
+            onClick: function () { setRate(1); }
+          }, "正常"),
+          h("button", {
+            type: "button", "aria-pressed": rate === 0.7,
+            onClick: function () { setRate(0.7); }
+          }, "慢"),
+          h("button", {
+            type: "button", "aria-pressed": rate === 0.5,
+            onClick: function () { setRate(0.5); }
+          }, "很慢")
+        ),
+        h("div", { className: "seg", role: "group", "aria-label": "假名" },
+          h("button", {
+            type: "button", "aria-pressed": furi,
+            onClick: function () { setFuri(true); }
+          }, "假名"),
+          h("button", {
+            type: "button", "aria-pressed": !furi,
+            onClick: function () { setFuri(false); }
+          }, "隱藏")
+        ),
+        h("span", { className: "voicename" }, "語音　", h("b", null, voiceLabel)),
+        h("span", { className: "masthead-sp" }),
+        h("button", {
+          type: "button", className: "drawer-btn",
+          "aria-expanded": drawer,
+          onClick: function () { setDrawer(!drawer); }
+        }, drawer ? "收起清單" : "歷史與單字")
+      );
+    }
+
+    function Composer() {
+      var disabled = busy || aiState === "off" || aiState === "loading";
+      return h("div", { className: "composer" },
+        h("div", { className: "composer-row" },
+          h("input", {
+            id: "topic",
+            type: "text",
+            value: topic,
+            placeholder: "想學什麼？例如「は と が 到底差在哪」",
+            "aria-label": "課程主題",
+            onChange: function (e) { setTopic(e.target.value); },
+            onKeyDown: function (e) { if (e.key === "Enter") generate(topic, false); }
+          }),
+          h("button", {
+            type: "button", className: "btn-go", disabled: disabled,
+            onClick: function () { generate(topic, false); }
+          }, busy ? "生成中…" : "生成課程"),
+          busy ? h("button", {
+            type: "button", className: "btn-stop", onClick: stopGeneration
+          }, "停止") : null
+        ),
+        busy && progress ? h("div", { className: "status" },
+          h("span", { className: "pulse" }),
+          progress.started
+            ? h(Frag, null,
+                h("span", null, "正在寫："),
+                h("span", { className: "status-stage" }, progress.stage),
+                h("span", { className: "status-count" }, progress.chars + " 字"))
+            : h("span", null, "Claude 正在讀題目，想一下再動筆…")
+        ) : null,
+        err ? h("div", { className: "notice" },
+          ERRORS[err.code] || ERRORS.upstream_error,
+          err.topic ? h("button", {
+            type: "button", onClick: function () { generate(err.topic, true); }
+          }, "重試") : null,
+          h("span", { className: "code" }, "錯誤代碼　" + err.code)
+        ) : null
+      );
+    }
+
+    function CompareTable(rows) {
+      return h("div", { className: "tablewrap" },
+        h("table", { className: "compare" },
+          h("thead", null, h("tr", null,
+            h("th", null, "詞"),
+            h("th", null, "アクセント"),
+            h("th", null, "語感與使用場合"),
+            h("th", null, "")
+          )),
+          h("tbody", null, rows.map(function (r, i) {
+            var jp = str(r.jp);
+            var kana = str(r.kana);
+            var saved = hasWord(jp);
+            return h("tr", { key: "cmp" + i },
+              h("td", { className: "c-jp" }, h(JpWord, {
+                surface: jp, reading: kana, speakKey: "cmp" + i,
+                onSpeak: onSpeak, speaking: speaking
+              })),
+              h("td", { className: "c-acc" }, str(r.accent)),
+              h("td", { className: "c-note" },
+                renderWithJp(str(r.note), onSpeak, speaking, "cmpn" + i)),
+              h("td", { className: "c-add" }, h("button", {
+                type: "button",
+                className: "addbtn" + (saved ? " saved" : ""),
+                "aria-label": saved ? ("「" + jp + "」已在單字總表") : ("把「" + jp + "」加入單字總表"),
+                onClick: function () { if (!saved) addWord(jp, kana, r.accent, r.note); }
+              }, saved ? "已收錄" : "＋ 總表"))
+            );
+          }))
+        )
+      );
+    }
+
+    function LessonView() {
+      if (!lesson) return null;
+      var compare = arr(lesson.compare);
+      var examples = arr(lesson.examples);
+      var traps = arr(lesson.traps);
+      var colls = arr(lesson.collocations);
+      var notes = str(lesson.notes).trim();
+      var core = str(lesson.core).trim();
+
+      return h("article", null,
+        h("header", { className: "lesson-head" },
+          h("div", { className: "lesson-topic" }, "主題　" + (topic || "")),
+          h("h1", { className: "title" }, plain(lesson.title) || topic),
+          plain(lesson.summary) ? h("p", { className: "summary" }, plain(lesson.summary)) : null
+        ),
+
+        core ? h("section", { className: "block" },
+          h("h2", { className: "label" }, "核心解釋"),
+          h("p", { className: "prose" }, renderWithJp(core, onSpeak, speaking, "core"))
+        ) : null,
+
+        compare.length ? h("section", { className: "block" },
+          h("h2", { className: "label" }, "對照表"),
+          CompareTable(compare)
+        ) : null,
+
+        examples.length ? h("section", { className: "block" },
+          h("h2", { className: "label" }, "例句"),
+          examples.map(function (ex, i) {
+            var key = "ex" + i;
+            var sentence = str(ex.jp);
+            return h("div", { className: "ex", key: key },
+              h("button", {
+                type: "button",
+                className: "play" + (speaking === key ? " on" : ""),
+                "aria-label": "朗讀整句：" + sentence,
+                // The whole sentence is spoken from its kanji form: TTS reads
+                // Japanese better with context than from bare kana.
+                onClick: function () { speak(sentence, key); }
+              }, h(PlayIcon)),
+              h("div", { className: "ex-body" },
+                h("div", { className: "ex-jp", lang: "ja" },
+                  renderJpTokens(ex, onSpeak, speaking, key)),
+                str(ex.zh) ? h("div", { className: "ex-zh" }, str(ex.zh)) : null
+              )
+            );
+          })
+        ) : null,
+
+        traps.length ? h("section", { className: "block" },
+          h("h2", { className: "label" }, "常見錯誤"),
+          traps.map(function (t, i) {
+            return h("div", { className: "trap", key: "trap" + i },
+              h("div", { className: "trap-point" }, str(t.point)),
+              str(t.wrong) ? h("div", { className: "wr wr-x" },
+                h("span", { className: "wr-tag" }, "✕"),
+                h(JpWord, {
+                  surface: str(t.wrong), reading: "", speakKey: "trapw" + i,
+                  onSpeak: onSpeak, speaking: speaking
+                })
+              ) : null,
+              str(t.right) ? h("div", { className: "wr wr-o" },
+                h("span", { className: "wr-tag" }, "✓"),
+                h(JpWord, {
+                  surface: str(t.right), reading: "", speakKey: "trapr" + i,
+                  onSpeak: onSpeak, speaking: speaking
+                })
+              ) : null,
+              str(t.why) ? h("div", { className: "trap-why" },
+                renderWithJp(str(t.why), onSpeak, speaking, "trapy" + i)) : null
+            );
+          })
+        ) : null,
+
+        colls.length ? h("section", { className: "block" },
+          h("h2", { className: "label" }, "常用搭配"),
+          h("div", { className: "colls" }, colls.map(function (c, i) {
+            var jp = str(c.jp);
+            var kana = str(c.kana);
+            var saved = hasWord(jp);
+            return h("div", { className: "coll", key: "col" + i },
+              h("span", { className: "coll-jp" }, h(JpWord, {
+                surface: jp, reading: kana, speakKey: "col" + i,
+                onSpeak: onSpeak, speaking: speaking
+              })),
+              h("span", { className: "coll-zh" }, str(c.zh)),
+              h("button", {
+                type: "button",
+                className: "addbtn" + (saved ? " saved" : ""),
+                "aria-label": saved ? ("「" + jp + "」已在單字總表") : ("把「" + jp + "」加入單字總表"),
+                onClick: function () { if (!saved) addWord(jp, kana, "", c.zh); }
+              }, saved ? "已收錄" : "＋"))
+            ;
+          }))
+        ) : null,
+
+        notes ? h("section", { className: "block" },
+          h("h2", { className: "label" }, "延伸筆記"),
+          h("div", { className: "notes" },
+            h("p", { className: "prose" }, renderWithJp(notes, onSpeak, speaking, "notes"))
+          )
+        ) : null,
+
+        h("div", { className: "block" },
+          h("p", { className: "footnote" },
+            "課程由 Gemini 依你的主題即時生成，用法與讀音建議當作起點而非定論；關鍵用字再對照一次辭典。課程存在這台裝置的瀏覽器裡，不會同步到其他裝置。")
+        )
+      );
+    }
+
+    function VocabView() {
+      var items = vocab;
+      return h("div", null,
+        h("div", { className: "vocab-head" },
+          h("h1", null, "單字總表"),
+          h("span", { className: "vocab-count" }, items.length + " 個詞"),
+          h("div", { className: "vocab-actions" },
+            items.length ? h("button", {
+              type: "button", className: "btn-ghost",
+              onClick: function () {
+                playQueue(items.map(function (v, i) {
+                  return { text: str(v.kana) || str(v.jp), key: "vq" + i };
+                }));
+              }
+            }, "連續播放") : null,
+            nowPlaying ? h("button", {
+              type: "button", className: "btn-ghost", onClick: stopSpeech
+            }, "停止") : null
+          )
+        ),
+        !items.length
+          ? h("p", { className: "rail-empty", style: { padding: "0" } },
+              "課程裡的對照表和常用搭配右邊有「＋ 總表」，點下去就會收錄到這裡，跨課程累積。")
+          : items.map(function (v, i) {
+              var k = "vq" + i;
+              var armKey = "v:" + str(v.jp);
+              return h("div", { className: "vrow", key: "v" + i },
+                h("span", { className: "v-jp" }, h(JpWord, {
+                  surface: str(v.jp), reading: str(v.kana), speakKey: k,
+                  onSpeak: onSpeak, speaking: speaking
+                })),
+                str(v.accent) ? h("span", { className: "v-acc" }, str(v.accent)) : null,
+                h("span", { className: "v-zh" },
+                  renderWithJp(str(v.zh), onSpeak, speaking, "vz" + i)),
+                v.lessonId ? h("button", {
+                  type: "button", className: "v-src",
+                  onClick: function () { openLesson(v.lessonId); }
+                }, str(v.lessonTitle) || "回到課程") : null,
+                h("button", {
+                  type: "button",
+                  className: "v-del" + (armed === armKey ? " armed" : ""),
+                  onClick: function () {
+                    if (armed !== armKey) { setArmed(armKey); return; }
+                    setArmed(null);
+                    writeVocab(vocabRef.current.filter(function (x) { return str(x.jp) !== str(v.jp); }));
+                  },
+                  onBlur: function () { if (armed === armKey) setArmed(null); }
+                }, armed === armKey ? "確認移除" : "移除")
+              );
+            })
+      );
+    }
+
+    var TRY = [
+      "あげる・くれる・もらう：到底誰給誰",
+      "建設公司相關的日文",
+      "は と が 的差別"
+    ];
+
+    function EmptyView() {
+      return h("div", { className: "empty" },
+        h("h1", null, "丟一個主題進來，換一份標好假名、唸得出聲的辭典條目"),
+        h("p", null, "不管是一組容易混淆的動詞、一個助詞的用法，還是一個行業的用語，都可以問。每份課程固定六段："),
+        h("dl", { className: "contents" },
+          h("div", null, h("dt", null, "核心解釋"), h("dd", null, "主要用法、語感、敬體常體的分別")),
+          h("div", null, h("dt", null, "對照表"), h("dd", null, "近義詞差異，附假名讀音與アクセント型")),
+          h("div", null, h("dt", null, "例句"), h("dd", null, "真實語境，漢字標假名、逐詞可點發音")),
+          h("div", null, h("dt", null, "常見錯誤"), h("dd", null, "漢字同形異義、助詞、自他動詞、敬語")),
+          h("div", null, h("dt", null, "常用搭配"), h("dd", null, "母語者真正會說的慣用講法")),
+          h("div", null, h("dt", null, "延伸筆記"), h("dd", null, "語源、音読み訓読み、和製漢語"))
+        ),
+        h("div", { className: "try-label" }, "先試試看"),
+        h("div", { className: "try" }, TRY.map(function (t, i) {
+          return h("button", {
+            key: "try" + i, type: "button",
+            onClick: function () { setTopic(t); generate(t, false); }
+          }, h("span", { className: "arrow" }, "→"), h("span", null, t));
+        }))
+      );
+    }
+
+    function Rail() {
+      return h("aside", { className: "rail" + (drawer ? " open" : "") },
+        h("div", { className: "rail-head" },
+          h("button", {
+            type: "button", className: "rail-tab", "aria-pressed": tab === "history",
+            onClick: function () { setTab("history"); }
+          }, "歷史紀錄"),
+          h("button", {
+            type: "button", className: "rail-tab", "aria-pressed": tab === "vocab",
+            onClick: function () { setTab("vocab"); setView("vocab"); setDrawer(false); }
+          }, "單字總表 " + (vocab.length || ""))
+        ),
+        tab === "history"
+          ? (index.length
+              ? index.map(function (it) {
+                  var armKey = "h:" + it.id;
+                  return h("div", { className: "hist-row", key: it.id },
+                    h("button", {
+                      type: "button", className: "hist-item",
+                      "aria-current": currentId === it.id && view === "lesson",
+                      onClick: function () { openLesson(it.id); }
+                    },
+                      h("div", { className: "hist-title" }, it.title || it.topic),
+                      h("div", { className: "hist-meta" }, fmtDate(it.createdAt))
+                    ),
+                    h("button", {
+                      type: "button",
+                      className: "hist-del" + (armed === armKey ? " armed" : ""),
+                      "aria-label": "刪除「" + (it.title || it.topic) + "」",
+                      onClick: function () {
+                        if (armed !== armKey) { setArmed(armKey); return; }
+                        deleteLesson(it.id);
+                      },
+                      onBlur: function () { if (armed === armKey) setArmed(null); }
+                    }, armed === armKey ? "確認" : "刪除")
+                  );
+                })
+              : h("p", { className: "rail-empty" },
+                  storeState === "off"
+                    ? "這個瀏覽器不讓頁面保存資料（無痕視窗通常會這樣），課程只留到你關掉分頁為止。"
+                    : "還沒有課程。生成的每一份都會留在這台裝置的瀏覽器裡。"))
+          : h("div", null,
+              h("button", {
+                type: "button", className: "hist-item",
+                onClick: function () { setView("vocab"); setDrawer(false); }
+              },
+                h("div", { className: "hist-title" }, "開啟單字總表"),
+                h("div", { className: "hist-meta" }, vocab.length + " 個詞")
+              ),
+              vocab.slice(0, 12).map(function (v, i) {
+                return h("div", { className: "hist-row", key: "rv" + i },
+                  h("button", {
+                    type: "button", className: "hist-item",
+                    onClick: function () { speak(str(v.kana) || str(v.jp), "rv" + i); }
+                  },
+                    h("div", {
+                      className: "hist-title", lang: "ja",
+                      style: { fontFamily: "var(--jpser)", fontSize: "16px" }
+                    }, str(v.jp)),
+                    h("div", { className: "hist-meta" }, str(v.kana))
+                  )
+                );
+              })
+            )
+      );
+    }
+
+    var body;
+    if (view === "vocab") body = VocabView();
+    else if (lesson) body = LessonView();
+    else if (busy) body = null;
+    else body = EmptyView();
+
+    return h(Frag, null,
+      h("div", { className: "shell" + (furi ? "" : " nofuri") },
+        Rail(),
+        h("main", { className: "main" },
+          h("div", { className: "col" },
+            h("div", { className: "masthead" },
+              h("h1", { className: "wordmark", lang: "ja" }, "言葉", h("em", null, "研究室")),
+              h("span", { className: "tagline" }, "日文用法・語感・發音"),
+              h("span", { className: "masthead-sp" }),
+              h("span", { className: "langbar" }, LL.LANGS.map(function (L) {
+                return L.id === "ja"
+                  ? h("span", { key: L.id, className: "on" }, L.label)
+                  : h("a", { key: L.id, href: L.path }, L.label);
+              })),
+              view === "vocab" ? h("button", {
+                type: "button", className: "btn-ghost",
+                onClick: function () { setView("lesson"); }
+              }, "回到課程") : null
+            ),
+            VoiceBar(),
+            Composer(),
+            body
+          )
+        )
+      ),
+      nowPlaying ? h("div", { className: "pill pill-enter", role: "status" },
+        h("span", { className: "pill-text", lang: "ja" }, nowPlaying.text),
+        h("span", { className: "pill-voice" }, nowPlaying.voice),
+        h("button", { type: "button", className: "pill-stop", onClick: stopSpeech }, "停止")
+      ) : null
+    );
+  }
+
+  LL.remember("ja");
+
+  ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+})();
+</script>
+</body>
+</html>

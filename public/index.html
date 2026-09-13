@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>三語研究室</title>
+<meta name="theme-color" content="#ECEFF1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121C22" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" href="/icons/icon-192.png">
+<style>
+  :root{ --paper:#ECEFF1; --ink:#16232B; --ink-3:#72848E; --rule:#C7D0D6; --accent:#2F4B86; --on-accent:#F5F8FC; }
+  @media (prefers-color-scheme:dark){
+    :root{ --paper:#121C22; --ink:#DFE7EB; --ink-3:#74868F; --rule:#2D3C45; --accent:#8AAEE0; --on-accent:#0A121C; }
+  }
+  html{color-scheme:light dark}
+  body{
+    margin:0; min-height:100dvh; background:var(--paper); color:var(--ink);
+    font-family:"Avenir Next","PingFang TC","Noto Sans TC",sans-serif;
+    display:grid; place-items:center; padding:24px;
+  }
+  .box{width:100%;max-width:320px;text-align:center}
+  h1{font-size:20px;font-weight:600;letter-spacing:.04em;margin:0 0 6px}
+  p{color:var(--ink-3);font-size:13px;margin:0 0 28px}
+  a{
+    display:block; padding:16px; margin-bottom:10px;
+    border:1px solid var(--rule); border-radius:2px;
+    color:var(--ink); text-decoration:none; font-size:15px;
+    min-height:52px; box-sizing:border-box;
+  }
+  a:hover{border-color:var(--accent);color:var(--accent)}
+  a .sub{display:block;font-size:11.5px;color:var(--ink-3);letter-spacing:.08em;margin-top:3px}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>三語研究室</h1>
+  <p>選一個語言</p>
+  <a href="/en/">英文<span class="sub">用法・語感・發音</span></a>
+  <a href="/ja/">日文<span class="sub">用法・アクセント・発音</span></a>
+  <a href="/th/">泰文<span class="sub">用法・聲調・發音</span></a>
+</div>
+<script>
+  // 記得上次看的語言就直接跳過去。replace 不留歷史，按上一頁不會彈回這裡。
+  try {
+    var last = localStorage.getItem("ll.lang");
+    if (last && /^(en|ja|th)$/.test(last)) location.replace("/" + last + "/");
+  } catch (e) { /* 無痕視窗讀不到就留在選單 */ }
+</script>
+</body>
+</html>
