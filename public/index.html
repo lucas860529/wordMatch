@@ -3,50 +3,218 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>三語研究室</title>
+<title>wordMatch</title>
 <meta name="theme-color" content="#ECEFF1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121C22" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="icon" href="/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap">
 <style>
-  :root{ --paper:#ECEFF1; --ink:#16232B; --ink-3:#72848E; --rule:#C7D0D6; --accent:#2F4B86; --on-accent:#F5F8FC; }
-  @media (prefers-color-scheme:dark){
-    :root{ --paper:#121C22; --ink:#DFE7EB; --ink-3:#74868F; --rule:#2D3C45; --accent:#8AAEE0; --on-accent:#0A121C; }
+:root{
+  --paper:#ECEFF1; --paper-2:#E3E8EB; --paper-3:#D9E0E4;
+  --ink:#16232B; --ink-2:#4B5C66; --ink-3:#72848E;
+  --rule:#C7D0D6; --rule-strong:#8FA0AA;
+  --accent:#2F4B86; --accent-faint:#DFE7F5; --on-accent:#F5F8FC;
+  --sans:"Avenir Next","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+  --thai:"Sarabun","Noto Sans Thai","Thonburi",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#121C22; --paper-2:#18242B; --paper-3:#1F2D35;
+    --ink:#DFE7EB; --ink-2:#93A5B0; --ink-3:#74868F;
+    --rule:#2D3C45; --rule-strong:#4A5F6A;
+    --accent:#8AAEE0; --accent-faint:#1B2A3E; --on-accent:#0A121C;
   }
-  html{color-scheme:light dark}
-  body{
-    margin:0; min-height:100dvh; background:var(--paper); color:var(--ink);
-    font-family:"Avenir Next","PingFang TC","Noto Sans TC",sans-serif;
-    display:grid; place-items:center; padding:24px;
-  }
-  .box{width:100%;max-width:320px;text-align:center}
-  h1{font-size:20px;font-weight:600;letter-spacing:.04em;margin:0 0 6px}
-  p{color:var(--ink-3);font-size:13px;margin:0 0 28px}
-  a{
-    display:block; padding:16px; margin-bottom:10px;
-    border:1px solid var(--rule); border-radius:2px;
-    color:var(--ink); text-decoration:none; font-size:15px;
-    min-height:52px; box-sizing:border-box;
-  }
-  a:hover{border-color:var(--accent);color:var(--accent)}
-  a .sub{display:block;font-size:11.5px;color:var(--ink-3);letter-spacing:.08em;margin-top:3px}
+}
+*{box-sizing:border-box}
+html{color-scheme:light dark}
+body{
+  margin:0; min-height:100dvh; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:15px; line-height:1.7;
+  display:grid; place-items:center; padding:28px 20px;
+  -webkit-font-smoothing:antialiased;
+}
+.box{width:100%;max-width:380px}
+
+.mark{
+  width:42px;height:42px;border-radius:9px;background:var(--accent);
+  display:grid;align-content:center;gap:5px;padding:11px 9px;margin-bottom:18px;
+}
+.mark i{display:block;height:3px;border-radius:1px;background:var(--on-accent)}
+.mark i:nth-child(1){width:74%;margin:0 auto}
+.mark i:nth-child(2){width:52%;margin:0 auto}
+.mark i:nth-child(3){width:92%;margin:0 auto}
+
+h1{font-size:19px;font-weight:600;letter-spacing:.03em;margin:0 0 4px}
+.sub{color:var(--ink-3);font-size:12.5px;margin:0 0 26px;min-height:1.7em}
+
+/* ---------- 兩個軸 ---------- */
+.step{margin-bottom:24px}
+.step-label{
+  font-size:10.5px;letter-spacing:.16em;color:var(--ink-3);
+  margin-bottom:9px;display:flex;align-items:baseline;gap:8px;
+}
+.step-label b{font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.seg{display:flex;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
+.seg button{
+  flex:1 1 0;padding:12px 8px;font:inherit;font-size:14px;color:var(--ink-2);
+  background:none;border:none;border-right:1px solid var(--rule-strong);
+  cursor:pointer;min-height:48px;
+}
+.seg button:last-child{border-right:none}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.seg button:not([aria-pressed="true"]):hover{background:var(--paper-3)}
+.seg .th{font-family:var(--thai)}
+
+.targets{display:flex;flex-direction:column}
+.targets button{
+  display:flex;align-items:baseline;gap:12px;
+  text-align:left;padding:15px 2px;font:inherit;font-size:15.5px;
+  background:none;border:none;border-top:1px solid var(--rule);
+  color:var(--ink);cursor:pointer;min-height:52px;width:100%;
+}
+.targets button:last-child{border-bottom:1px solid var(--rule)}
+.targets button:hover{color:var(--accent)}
+.targets button:hover .arrow{transform:translateX(3px)}
+.targets .arrow{margin-left:auto;color:var(--accent);transition:transform .12s}
+.targets .th{font-family:var(--thai)}
+
+.none{
+  padding:15px 2px;color:var(--ink-3);font-size:13.5px;margin:0;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+}
+
+.foot{margin-top:26px;font-size:11.5px;color:var(--ink-3);line-height:1.9}
+.foot.th{font-family:var(--thai)}
 </style>
 </head>
 <body>
 <div class="box">
-  <h1>三語研究室</h1>
-  <p>選一個語言</p>
-  <a href="/en/">英文<span class="sub">用法・語感・發音</span></a>
-  <a href="/ja/">日文<span class="sub">用法・アクセント・発音</span></a>
-  <a href="/th/">泰文<span class="sub">用法・聲調・發音</span></a>
+  <div class="mark" aria-hidden="true"><i></i><i></i><i></i></div>
+  <h1>wordMatch</h1>
+  <p class="sub" id="sub"></p>
+
+  <div class="step">
+    <div class="step-label"><b>1</b><span id="l1"></span></div>
+    <div class="seg" id="uis" role="group"></div>
+  </div>
+
+  <div class="step">
+    <div class="step-label"><b>2</b><span id="l2"></span></div>
+    <div class="targets" id="targets"></div>
+  </div>
+
+  <p class="foot" id="foot"></p>
 </div>
+
+<script src="/shared/ll.js"></script>
 <script>
-  // 記得上次看的語言就直接跳過去。replace 不留歷史，按上一頁不會彈回這裡。
-  try {
-    var last = localStorage.getItem("ll.lang");
-    if (last && /^(en|ja|th)$/.test(last)) location.replace("/" + last + "/");
-  } catch (e) { /* 無痕視窗讀不到就留在選單 */ }
+(function () {
+  "use strict";
+
+  /**
+   * 入口的文案跟著「母語」走 —— 一按泰文，整頁就變泰文。
+   * 泰國使用者從第一個畫面開始就不用看中文。
+   */
+  var COPY = {
+    zh: {
+      sub: "選擇你的語言，以及想學什麼",
+      l1: "我的語言",
+      l2: "想學的語言",
+      none: "這個語言目前還沒有課程。",
+      foot: "選擇會記起來，下次直接進入上次的課程。進去之後右上角可以隨時切換。"
+    },
+    th: {
+      sub: "เลือกภาษาของคุณ และภาษาที่อยากเรียน",
+      l1: "ภาษาของฉัน",
+      l2: "ภาษาที่อยากเรียน",
+      none: "ยังไม่มีบทเรียนสำหรับภาษานี้",
+      foot: "ระบบจะจำตัวเลือกไว้ และเปิดบทเรียนล่าสุดให้อัตโนมัติ เปลี่ยนได้ตลอดเวลาที่มุมขวาบน"
+    }
+  };
+
+  var UIS = [
+    { id: "zh", label: "繁體中文", thai: false },
+    { id: "th", label: "ภาษาไทย", thai: true }
+  ];
+
+  var ui = initialUi();
+  render();
+
+  /** 上次選過的課程優先，其次看瀏覽器語言，都沒有就繁中 */
+  function initialUi() {
+    var last = LL.lastCourse && LL.lastCourse();
+    if (last) {
+      for (var i = 0; i < LL.COURSES.length; i++) {
+        if (LL.COURSES[i].id === last) return LL.COURSES[i].ui;
+      }
+    }
+    return String(navigator.language || "").toLowerCase().indexOf("th") === 0 ? "th" : "zh";
+  }
+
+  function text(id, value) { document.getElementById(id).textContent = value; }
+
+  function render() {
+    var copy = COPY[ui];
+    var isThai = ui === "th";
+
+    document.documentElement.lang = isThai ? "th" : "zh-Hant";
+    text("sub", copy.sub);
+    text("l1", copy.l1);
+    text("l2", copy.l2);
+    text("foot", copy.foot);
+    document.getElementById("foot").className = "foot" + (isThai ? " th" : "");
+    document.getElementById("uis").setAttribute("aria-label", copy.l1);
+
+    var uis = document.getElementById("uis");
+    uis.textContent = "";
+    UIS.forEach(function (u) {
+      var b = document.createElement("button");
+      b.type = "button";
+      if (u.thai) b.className = "th";
+      b.textContent = u.label;
+      b.setAttribute("aria-pressed", String(u.id === ui));
+      b.onclick = function () { ui = u.id; render(); };
+      uis.appendChild(b);
+    });
+
+    var box = document.getElementById("targets");
+    box.textContent = "";
+
+    var list = LL.siblings(ui);
+    if (!list.length) {
+      var p = document.createElement("p");
+      p.className = "none";
+      p.textContent = copy.none;
+      box.appendChild(p);
+      return;
+    }
+
+    list.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button";
+
+      var name = document.createElement("span");
+      name.textContent = c.label;
+      if (isThai) name.className = "th";
+
+      var arrow = document.createElement("span");
+      arrow.className = "arrow";
+      arrow.textContent = "→";
+
+      b.appendChild(name);
+      b.appendChild(arrow);
+      b.onclick = function () {
+        LL.remember(c.id);
+        location.href = c.path;
+      };
+      box.appendChild(b);
+    });
+  }
+})();
 </script>
 </body>
 </html>

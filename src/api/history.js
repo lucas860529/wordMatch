@@ -8,7 +8,8 @@
  */
 
 import { currentUser, sameOrigin } from './_shared/auth.js';
-import { fail, json, validLang } from './_shared/guard.js';
+import { validCourse } from './_shared/courses.js';
+import { fail, json } from './_shared/guard.js';
 
 const LIST_LIMIT = 200;
 
@@ -29,8 +30,8 @@ export async function onRequestGet({ request, env }) {
     return json({ ok: true, lesson: toEntry(row, true) });
   }
 
-  const lang = url.searchParams.get('lang');
-  if (!validLang(lang)) return fail('bad_input', '語言代碼不在 en / ja / th 之內。');
+  const course = url.searchParams.get('course');
+  if (!validCourse(course)) return fail('bad_input', '課程代碼不對。');
 
   // 清單不帶 body —— 歷史列表只需要標題跟時間，把整份課程 JSON 一起拉出來
   // 會讓這支端點隨著使用愈來愈慢
@@ -38,7 +39,7 @@ export async function onRequestGet({ request, env }) {
     `SELECT id, lang, topic, title, created_at FROM lessons
       WHERE user_id = ? AND lang = ?
       ORDER BY created_at DESC LIMIT ?`,
-  ).bind(user.id, lang, LIST_LIMIT).all();
+  ).bind(user.id, course, LIST_LIMIT).all();
 
   return json({ ok: true, items: (results || []).map((r) => toEntry(r, false)) });
 }
@@ -60,17 +61,17 @@ export async function onRequestDelete({ request, env }) {
 }
 
 /** 存課程。由 /api/lesson 在生成成功後直接呼叫，前端不用多送一次請求 */
-export async function save(env, userId, { id, lang, topic, title, lesson }) {
+export async function save(env, userId, { id, course, topic, title, lesson }) {
   await env.DB.prepare(
     `INSERT INTO lessons (id, user_id, lang, topic, title, body, created_at)
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
-  ).bind(id, userId, lang, topic, title, JSON.stringify(lesson), Date.now()).run();
+  ).bind(id, userId, course, topic, title, JSON.stringify(lesson), Date.now()).run();
 }
 
 function toEntry(row, withBody) {
   const out = {
     id: row.id,
-    lang: row.lang,
+    course: row.lang,   // 欄位名還叫 lang，存的是課程 id（見 db/migrations）
     topic: row.topic,
     title: row.title,
     createdAt: row.created_at,

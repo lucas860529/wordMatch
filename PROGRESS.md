@@ -64,6 +64,23 @@ UI、六段渲染、ruby、localStorage、單字總表一律原樣保留。
 | 5 | 實測發音（三語都要出聲） | Claude | ⏸ 等 4 |
 | 6 | 泰文版 `/th/` | Claude | 🟢 **完成**，待你同意才進版 |
 | 7 | 進版到 1.1.0 並部署 | **使用者決定** | ⏸ 等同意 |
+| 8 | 課程制（母語 × 學習語言） | Claude | 🟢 完成 |
+| 9 | 泰語學中文 `/th-zh/`、泰語學英文 `/th-en/` | Claude | 🟢 完成，**prompt 品質未實測** |
+| 10 | 入口選擇頁 | Claude | 🟢 完成 |
+
+## 兩個泰語課程的未驗證項目
+
+介面、路由、排版都在本機驗過了，但**兩個新 prompt 的實際產出還沒看過** ——
+本機的 Gemini 金鑰在使用者輪替之後失效了。
+
+泰文版當初實測發現模型的 Paiboon 拼法跟字卡庫逐字一致，這種驗證對新課程同樣重要：
+
+- **th-zh**：拼音的聲調符號對不對、tone 欄位的音節數對不對、
+  切詞接不接得回原句、簡體字有沒有混到繁體
+- **th-en**：traps 有沒有真的講泰語母語者的錯（尾音、子音串、冠詞），
+  還是退回成通用的英文教學
+
+要測的話先放金鑰：`security add-generic-password -a "$USER" -s wordmatch-gemini -w '金鑰' -U`
 
 ## 版本
 
@@ -114,11 +131,16 @@ https://wordmatch.lucas860529.workers.dev
 部署指令（wrangler 已授權）：`npx wrangler deploy`。
 後台也可以接 Git 讓 push 自動部署，接不接都行 —— Worker 已經存在了。
 
-## 怎麼跑起來
+## 怎麼跑起來（本機預覽）
 
 ```bash
 ~/Developer/wordMatch/tools/dev.sh
 ```
+
+會印出兩個位址：本機的 `localhost:8788`，以及**區網位址**讓同一個 Wi-Fi 的
+手機也能開 —— 行動端的版面要用真的手機看才準。
+
+本機的登入密碼存在 Keychain 的 `wordmatch-codes`，沒設的話就是 `dev`。
 
 ## 決策紀錄
 

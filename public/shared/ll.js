@@ -47,14 +47,14 @@
    * 前端只送 lang 與 topic —— **prompt 在伺服器端**。這是刻意的：
    * 如果前端可以送任意 prompt，任何人都能把這支 Gemini 金鑰當免費的通用 LLM 用。
    */
-  LL.generate = function (lang, topic, opts) {
+  LL.generate = function (course, topic, opts) {
     opts = opts || {};
     if (!navigator.onLine) return Promise.reject(err("offline"));
 
     return fetch("/api/lesson", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ lang: lang, topic: topic }),
+      body: JSON.stringify({ course: course, topic: topic }),
       signal: opts.signal
     }).catch(function (e) {
       if (e && e.name === "AbortError") throw err("cancelled");
@@ -275,17 +275,33 @@
 
   /* ============================ 語言切換 ============================ */
 
-  // ready:false 的語言會顯示成不可點 —— 泰文那一頁還沒做，
-  // 現在連過去只會拿到 404
-  LL.LANGS = [
-    { id: "en", path: "/en/", label: "英文", ready: true },
-    { id: "ja", path: "/ja/", label: "日文", ready: true },
-    { id: "th", path: "/th/", label: "泰文", ready: true }
+  /**
+   * 課程 = 母語 × 學習語言。
+   *
+   * 加入「泰語母語者學中文」之前只有一個軸（學習語言），說明語言寫死繁中。
+   * 現在兩個軸都要選，所以網址變成 /{母語}-{學習語言}/。
+   * 舊網址 /en/ /ja/ /th/ 由 Worker 做 301 轉址，已經加到主畫面的 app 不會壞。
+   */
+  LL.COURSES = [
+    { id: "zh-en", ui: "zh", target: "en", path: "/zh-en/", label: "英文",     uiLabel: "繁體中文" },
+    { id: "zh-ja", ui: "zh", target: "ja", path: "/zh-ja/", label: "日文",     uiLabel: "繁體中文" },
+    { id: "zh-th", ui: "zh", target: "th", path: "/zh-th/", label: "泰文",     uiLabel: "繁體中文" },
+    { id: "th-zh", ui: "th", target: "zh", path: "/th-zh/", label: "ภาษาจีน",     uiLabel: "ภาษาไทย" },
+    { id: "th-en", ui: "th", target: "en", path: "/th-en/", label: "ภาษาอังกฤษ", uiLabel: "ภาษาไทย" }
   ];
 
-  /** 記住最後看的語言，根目錄會導向這裡 */
-  LL.remember = function (lang) {
-    try { localStorage.setItem("ll.lang", lang); } catch (e) {}
+  /** 同一個母語底下有哪些學習語言 —— 語言列只列這些，不會混到別的母語 */
+  LL.siblings = function (ui) {
+    return LL.COURSES.filter(function (c) { return c.ui === ui; });
+  };
+
+  /** 記住最後看的課程，根目錄會導向這裡 */
+  LL.remember = function (course) {
+    try { localStorage.setItem("ll.course", course); } catch (e) {}
+  };
+
+  LL.lastCourse = function () {
+    try { return localStorage.getItem("ll.course"); } catch (e) { return null; }
   };
 
   /* ============================ 歷史 ============================ */
@@ -302,8 +318,8 @@
    * 只抓清單不抓內文 —— 內文等使用者真的點開那一堂再抓（見 get()）。
    * 一次把所有課程的 JSON 拉下來會愈用愈慢。
    */
-  History.hydrate = function (prefix, lang) {
-    return fetch("/api/history?lang=" + encodeURIComponent(lang), { credentials: "same-origin" })
+  History.hydrate = function (prefix, course) {
+    return fetch("/api/history?course=" + encodeURIComponent(course), { credentials: "same-origin" })
       .then(function (res) {
         if (res.status === 401) { kickToLogin(); return null; }
         if (!res.ok) return null;

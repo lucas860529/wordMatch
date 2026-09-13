@@ -6,10 +6,11 @@
  */
 
 import { promptFor, schemaFor } from './_shared/prompts.js';
+import { readCourse } from './_shared/courses.js';
 import { currentUser, sameOrigin } from './_shared/auth.js';
 import { save } from './history.js';
 import {
-  MAX_TOPIC, bump, cleanText, fail, json, readJson, validLang,
+  MAX_TOPIC, bump, cleanText, fail, json, readJson,
 } from './_shared/guard.js';
 
 // 站是邀請制的，所以額度按「人」算而不是按 IP —— 同一個人換網路不該重新計數，
@@ -28,8 +29,10 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const body = await readJson(request);
   if (!body) return fail('bad_input', '請求格式不對。');
 
-  const lang = body.lang;
-  if (!validLang(lang)) return fail('bad_input', '語言代碼不在 en / ja / th 之內。');
+  // readCourse 同時吃新的 { course } 與舊的 { lang } —— 部署後使用者瀏覽器裡
+  // 可能還跑著 service worker 快取的舊版 JS
+  const course = readCourse(body);
+  if (!course) return fail('bad_input', '課程代碼不對。');
 
   const topic = cleanText(body.topic, MAX_TOPIC);
   if (!topic) return fail('bad_input', `主題是空的，或超過 ${MAX_TOPIC} 個字。`);
@@ -56,11 +59,11 @@ export async function onRequestPost({ request, env, waitUntil }) {
         'x-goog-api-key': env.GEMINI_API_KEY,
       },
       body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: promptFor(lang, topic) }] }],
+        contents: [{ role: 'user', parts: [{ text: promptFor(course, topic) }] }],
         generationConfig: {
           // 有了 responseSchema 模型就吐不出 markdown 圍籬，bad_json 幾乎消失
           responseMimeType: 'application/json',
-          responseSchema: schemaFor(lang),
+          responseSchema: schemaFor(course),
           temperature: 0.75,
         },
       }),
@@ -120,7 +123,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const title = strip(lesson.title) || topic;
 
   try {
-    await save(env, user.id, { id, lang, topic, title, lesson });
+    await save(env, user.id, { id, course, topic, title, lesson });
   } catch (e) {
     console.log('history save failed', e && e.message);
   }

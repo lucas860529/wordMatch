@@ -6,7 +6,8 @@
  * 所以這裡才是整套系統真正的收費防線。
  */
 
-export const LANGS = ['en', 'ja', 'th'];
+// 這是「說出來的語言」清單，給 TTS 用。課程的組合另見 courses.js
+export const LANGS = ['en', 'ja', 'th', 'zh'];
 
 export const MAX_TOPIC = 100;     // 字元
 export const MAX_TTS_TEXT = 200;  // 字元。這是每次請求的成本硬上限

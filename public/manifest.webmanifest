@@ -1,7 +1,7 @@
 {
-  "name": "三語研究室",
-  "short_name": "三語",
-  "description": "繁體中文母語者的英／日／泰學習工具",
+  "name": "wordMatch",
+  "short_name": "wordMatch",
+  "description": "多語言互學工具",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -15,8 +15,10 @@
     { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "英文", "url": "/en/" },
-    { "name": "日文", "url": "/ja/" },
-    { "name": "泰文", "url": "/th/" }
+    { "name": "英文", "url": "/zh-en/" },
+    { "name": "日文", "url": "/zh-ja/" },
+    { "name": "泰文", "url": "/zh-th/" },
+    { "name": "ภาษาจีน", "url": "/th-zh/" },
+    { "name": "ภาษาอังกฤษ", "url": "/th-en/" }
   ]
 }

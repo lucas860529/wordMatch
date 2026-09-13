@@ -40,14 +40,24 @@ if [[ -z "$CODES" ]]; then
 fi
 
 MODEL="${MODEL_ID:-gemini-3.6-flash}"
+
+# 區網位址 —— 手機連同一個 Wi-Fi 就能開，行動端的版面要用真的手機看才準
+LAN=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || true)
+
 echo "模型：$MODEL"
-echo "開在 http://localhost:8788"
+echo
+echo "  本機      http://localhost:8788"
+[[ -n "$LAN" ]] && echo "  手機      http://$LAN:8788   （同一個 Wi-Fi）"
+echo
+echo "  本機的登入密碼看 Keychain 的 wordmatch-codes；沒設的話就是 dev"
 echo
 
 # 金鑰用 --var 傳。wrangler dev 會自己讀 wrangler.jsonc 的 assets 與路由設定。
 # KV 在本機是自動模擬的（wrangler.jsonc 裡有宣告才會有 RATE binding；
 # 還沒宣告的話 guard.js 會放行，限流測不到 —— 這是預期行為）。
+# --ip 0.0.0.0 才會聽區網介面，不然只有這台機器連得到
 exec npx wrangler dev \
+  --ip 0.0.0.0 \
   --port 8788 \
   --var GEMINI_API_KEY:"$GEMINI" \
   --var GOOGLE_TTS_API_KEY:"$TTS" \

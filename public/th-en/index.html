@@ -1,20 +1,18 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="th">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="繁體中文母語者的英／日／泰學習工具">
+<meta name="description" content="เครื่องมือเรียนภาษาสำหรับผู้พูดภาษาไทย">
 <meta name="theme-color" content="#ECEFF1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121C22" media="(prefers-color-scheme: dark)">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="icon" href="/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="泰文研究室">
-<title>泰文研究室</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&display=swap">
+<meta name="apple-mobile-web-app-title" content="ห้องเรียนภาษาอังกฤษ">
+<title>ห้องเรียนภาษาอังกฤษ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Charis+SIL:ital,wght@0,400;0,700;1,400&family=Sarabun:wght@400;600&display=swap">
 <style>
 :root{
   --paper:#ECEFF1;
@@ -25,20 +23,18 @@
   --ink-3:#72848E;
   --rule:#C7D0D6;
   --rule-strong:#8FA0AA;
-  --accent:#2F4B86;
-  --accent-deep:#22386A;
-  --accent-wash:#C9D8F0;
-  --accent-faint:#DFE7F5;
+  --teal:#0F6E7A;
+  --teal-deep:#0A525B;
+  --teal-wash:#BFE3E6;
+  --teal-faint:#D9EDEF;
   --brick:#A8412B;
   --brick-faint:#F0DED8;
   --mustard:#9A7418;
-  --on-accent:#F5F8FC;
+  --mustard-faint:#EDE4CE;
+  --on-teal:#F4FAFB;
 
-  /* 泰文字型必須有頭圈 —— Kanit 那類無頭圈的現代字體會拿掉辨認字母的依據 */
-  --thai:"Sarabun","Noto Sans Thai","Thonburi","Leelawadee UI",sans-serif;
+  --serif:"Charter","Charis SIL","Iowan Old Style",Palatino,Georgia,"Times New Roman",serif;
   --thsans:"Sarabun","Noto Sans Thai","Thonburi",sans-serif;
-  /* 母音與聲調符號疊在子音上下，行高從 2.2 起跳，容器也不能 overflow:hidden */
-  --thlh:2.2;
   --sans:"Avenir Next","PingFang TC","Microsoft JhengHei","Noto Sans TC","Hiragino Sans",sans-serif;
 
   --measure:62ch;
@@ -54,14 +50,15 @@
     --ink-3:#74868F;
     --rule:#2D3C45;
     --rule-strong:#4A5F6A;
-    --accent:#8AAEE0;
-    --accent-deep:#AFC8EC;
-    --accent-wash:#263A5E;
-    --accent-faint:#1B2A3E;
+    --teal:#5CBCC6;
+    --teal-deep:#8AD5DC;
+    --teal-wash:#174B54;
+    --teal-faint:#16323A;
     --brick:#DE7F63;
     --brick-faint:#32201B;
     --mustard:#CCA13F;
-    --on-accent:#0A121C;
+    --mustard-faint:#2C2517;
+    --on-teal:#08181C;
   }
 }
 :root[data-theme="dark"]{
@@ -73,14 +70,15 @@
   --ink-3:#74868F;
   --rule:#2D3C45;
   --rule-strong:#4A5F6A;
-  --accent:#8AAEE0;
-  --accent-deep:#AFC8EC;
-  --accent-wash:#263A5E;
-  --accent-faint:#1B2A3E;
+  --teal:#5CBCC6;
+  --teal-deep:#8AD5DC;
+  --teal-wash:#174B54;
+  --teal-faint:#16323A;
   --brick:#DE7F63;
   --brick-faint:#32201B;
   --mustard:#CCA13F;
-  --on-accent:#0A121C;
+  --mustard-faint:#2C2517;
+  --on-teal:#08181C;
 }
 
 *{box-sizing:border-box}
@@ -88,33 +86,14 @@ body{
   margin:0;
   background:var(--paper);
   color:var(--ink);
-  font-family:var(--sans);
+  font-family:var(--thsans),var(--sans);
   font-size:15px;
   line-height:1.7;
   -webkit-font-smoothing:antialiased;
 }
 button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
 input{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
-
-/* ---------- 轉寫的呈現 ----------
-   泰文不用 ruby。日文的假名標在漢字上方沒問題，因為漢字上下是空的；
-   泰文不一樣 —— 母音符號（ิ ี ึ ื）在上、聲調符號（่ ้ ๊ ๋）更在上、
-   另一組母音（ ุ ู）在下，上下都被佔滿了，轉寫再疊上去只會糊成一團。
-   所以改成：句子裡的詞上下堆疊，內文裡的詞用括號跟在後面。 */
-
-/* 內文：泰文後面接小字轉寫 */
-.rom{font-size:.8em;color:var(--ink-2);letter-spacing:.01em;margin-left:2px}
-.thai.on .rom{color:var(--on-accent);opacity:.8}
-
-/* 例句：泰文在上、轉寫在下，各自一欄 */
-.stack{display:inline-flex;flex-direction:column;align-items:center;vertical-align:top;margin:0 3px 4px}
-.stack .w{font-family:var(--thai);font-size:20px;line-height:var(--thlh)}
-.stack .r{font-size:11.5px;color:var(--ink-2);line-height:1.35;white-space:nowrap}
-.stack.on .w{background:var(--accent);color:var(--on-accent);border-radius:2px}
-
-/* 藏起來時用 visibility 不用 display —— 行高保留，切換時版面才不會跳 */
-.norom .rom,.norom .stack .r,.norom .c-rom{visibility:hidden}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:2px}
 
 /* ---------- shell ---------- */
 .shell{display:flex;align-items:flex-start;min-height:100vh}
@@ -128,20 +107,35 @@ input{font:inherit;color:inherit}
   max-height:100vh;overflow-y:auto;
   padding:22px 0 40px;
 }
-.rail-head{display:flex;gap:2px;padding:0 18px 14px}
-.rail-tab{font-size:12px;letter-spacing:.09em;padding:5px 9px;color:var(--ink-3);border-bottom:2px solid transparent}
-.rail-tab[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.rail-head{
+  display:flex;gap:2px;padding:0 18px 14px;
+}
+.rail-tab{
+  font-size:12px;letter-spacing:.09em;
+  padding:5px 9px;color:var(--ink-3);
+  border-bottom:2px solid transparent;
+}
+.rail-tab[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--teal)}
 .rail-tab:hover{color:var(--ink)}
+
 .rail-empty{padding:4px 18px;color:var(--ink-3);font-size:13px;line-height:1.75}
 
-.hist-item{display:block;width:100%;text-align:left;padding:11px 18px}
+.hist-item{
+  display:block;width:100%;text-align:left;
+  padding:11px 18px;border-top:1px solid var(--rule);
+}
+.hist-item:first-of-type{border-top:none}
 .hist-item:hover{background:var(--paper-3)}
-.hist-item[aria-current="true"]{background:var(--paper-3);box-shadow:inset 3px 0 0 var(--accent)}
+.hist-item[aria-current="true"]{background:var(--paper-3);box-shadow:inset 3px 0 0 var(--teal)}
 .hist-title{font-size:14px;line-height:1.5;margin-bottom:3px}
 .hist-meta{font-size:11.5px;color:var(--ink-3);letter-spacing:.02em;font-variant-numeric:tabular-nums}
 .hist-row{display:flex;align-items:stretch;border-top:1px solid var(--rule)}
 .hist-row:first-child{border-top:none}
-.hist-del{flex:0 0 auto;padding:0 14px;color:var(--ink-3);font-size:12px;opacity:0;transition:opacity .12s}
+.hist-row .hist-item{border-top:none}
+.hist-del{
+  flex:0 0 auto;padding:0 14px;color:var(--ink-3);font-size:12px;
+  opacity:0;transition:opacity .12s;
+}
 .hist-row:hover .hist-del,.hist-del:focus-visible{opacity:1}
 .hist-del.armed{opacity:1;color:var(--brick);font-weight:600}
 @media (hover:none){.hist-del{opacity:1}}
@@ -150,44 +144,64 @@ input{font:inherit;color:inherit}
 .main{flex:1 1 auto;min-width:0;padding:0 28px 140px}
 .col{max-width:var(--col);margin:0 auto}
 
-.masthead{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:baseline;padding:26px 0 16px;border-bottom:1px solid var(--rule)}
-.wordmark{font-family:var(--thai);font-size:22px;letter-spacing:.03em;margin:0;font-weight:600}
-.wordmark em{font-style:normal;color:var(--accent)}
+.masthead{
+  display:flex;flex-wrap:wrap;gap:14px 20px;align-items:baseline;
+  padding:26px 0 16px;border-bottom:1px solid var(--rule);
+}
+.wordmark{font-family:var(--serif);font-size:21px;letter-spacing:.01em;margin:0;font-weight:700}
+.wordmark em{font-style:normal;color:var(--teal)}
 .tagline{font-size:12.5px;color:var(--ink-3);letter-spacing:.02em}
 .build{font-size:11px;color:var(--ink-3);letter-spacing:.06em;font-variant-numeric:tabular-nums;border:1px solid var(--rule);border-radius:2px;padding:1px 8px;white-space:nowrap}
 .masthead-sp{flex:1 1 auto}
 
 .voicebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:12px 0;border-bottom:1px solid var(--rule)}
 .seg{display:flex;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
-.seg button{padding:3px 10px;font-size:12px;color:var(--ink-2);border-right:1px solid var(--rule-strong);white-space:nowrap}
+.seg button{
+  padding:3px 10px;font-size:12px;color:var(--ink-2);
+  border-right:1px solid var(--rule-strong);white-space:nowrap;
+}
 .seg button:last-child{border-right:none}
-.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.seg button[aria-pressed="true"]{background:var(--teal);color:var(--on-teal)}
 .seg button:not([aria-pressed="true"]):hover{background:var(--paper-3)}
 .voicename{font-size:11.5px;color:var(--ink-3);letter-spacing:.02em}
-.voicename b{font-weight:500;color:var(--ink-2);font-family:var(--thai)}
+.voicename b{font-weight:500;color:var(--ink-2);font-family:var(--serif)}
 .drawer-btn{display:none}
 
 /* composer */
 .composer{padding:22px 0 20px;border-bottom:1px solid var(--rule)}
 .composer-row{display:flex;gap:10px;flex-wrap:wrap}
-#topic{flex:1 1 260px;min-width:0;background:var(--paper-2);border:1px solid var(--rule-strong);border-radius:2px;padding:9px 12px;font-size:15px}
+#topic{
+  flex:1 1 260px;min-width:0;
+  background:var(--paper-2);
+  border:1px solid var(--rule-strong);
+  border-radius:2px;padding:9px 12px;font-size:15px;
+}
 #topic::placeholder{color:var(--ink-3)}
-#topic:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-faint)}
-.btn-go{flex:0 0 auto;background:var(--accent);color:var(--on-accent);padding:9px 20px;border-radius:2px;font-size:14px;letter-spacing:.04em}
-.btn-go:hover{background:var(--accent-deep)}
+#topic:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-faint)}
+.btn-go{
+  flex:0 0 auto;background:var(--teal);color:var(--on-teal);
+  padding:9px 20px;border-radius:2px;font-size:14px;letter-spacing:.04em;
+}
+.btn-go:hover{background:var(--teal-deep)}
 .btn-go[disabled]{background:var(--rule-strong);cursor:default}
 .btn-stop{flex:0 0 auto;padding:9px 16px;border:1px solid var(--rule-strong);border-radius:2px;font-size:13px;color:var(--ink-2)}
 .btn-stop:hover{border-color:var(--brick);color:var(--brick)}
 
 .status{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:13px;color:var(--ink-2)}
-.pulse{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:0 0 auto;animation:pulse 1.3s ease-in-out infinite}
+.pulse{
+  width:7px;height:7px;border-radius:50%;background:var(--teal);flex:0 0 auto;
+  animation:pulse 1.3s ease-in-out infinite;
+}
 @keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
-.status-stage{font-family:var(--thai);color:var(--ink)}
+.status-stage{font-family:var(--serif);color:var(--ink)}
 .status-count{font-variant-numeric:tabular-nums;color:var(--ink-3);font-size:12px}
 
-.notice{margin-top:14px;padding:10px 14px;font-size:13.5px;line-height:1.65;border-left:3px solid var(--brick);background:var(--brick-faint);color:var(--ink)}
+.notice{
+  margin-top:14px;padding:10px 14px;font-size:13.5px;line-height:1.65;
+  border-left:3px solid var(--brick);background:var(--brick-faint);color:var(--ink);
+}
 .notice button{color:var(--brick);text-decoration:underline;text-underline-offset:3px;margin-left:8px}
-.notice .code{display:block;margin-top:7px;font-family:var(--thai);font-size:11.5px;color:var(--ink-2);letter-spacing:.03em}
+.notice .code{display:block;margin-top:7px;font-family:var(--serif);font-size:11.5px;color:var(--ink-2);letter-spacing:.03em}
 .diag{margin-top:14px;font-size:11.5px;color:var(--ink-3)}
 .diag summary{cursor:pointer;letter-spacing:.08em;padding:2px 0}
 .diag dl{margin:9px 0 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.6}
@@ -195,76 +209,98 @@ input{font:inherit;color:inherit}
 .diag dd{margin:0;color:var(--ink-2);overflow-wrap:anywhere}
 
 /* ---------- lesson ---------- */
+.lesson{padding-top:8px}
 .lesson-head{padding:26px 0 18px}
-h1.title{font-family:var(--sans);font-size:27px;line-height:1.35;font-weight:600;margin:0 0 10px;text-wrap:balance;letter-spacing:-.005em}
+h1.title{
+  font-family:var(--sans);font-size:27px;line-height:1.35;font-weight:600;
+  margin:0 0 10px;text-wrap:balance;letter-spacing:-.005em;
+}
 .summary{margin:0;color:var(--ink-2);font-size:15px;max-width:var(--measure)}
 .lesson-topic{font-size:11.5px;letter-spacing:.1em;color:var(--ink-3);margin-bottom:12px}
 
 section.block{padding:24px 0;border-top:1px solid var(--rule)}
-h2.label{font-size:11px;letter-spacing:.16em;font-weight:600;color:var(--ink-3);margin:0 0 14px}
-.prose{margin:0;max-width:var(--measure);font-size:15.5px;line-height:2.05}
+h2.label{
+  font-size:11px;letter-spacing:.16em;font-weight:600;color:var(--ink-3);
+  margin:0 0 14px;
+}
+.prose{margin:0;max-width:var(--measure);font-size:15.5px}
+.prose+.prose{margin-top:12px}
 
-/* clickable japanese */
-.thai{
-  font-family:var(--thai);
+/* clickable english */
+.en{
+  font-family:var(--serif);
   border-bottom:1px solid var(--rule-strong);
   cursor:pointer;padding:0 1px;border-radius:2px;
   transition:background-color .1s,color .1s;
 }
-.thai:hover{background:var(--accent-faint)}
-.thai.on{background:var(--accent);color:var(--on-accent);border-bottom-color:transparent}
-.tok{font-family:var(--thai);cursor:pointer;border-radius:2px;padding:0 .5px}
-.tok:hover{background:var(--accent-faint)}
-.tok.on{background:var(--accent);color:var(--on-accent)}
-.tok.plain{cursor:default}
-.tok.plain:hover{background:none}
+.en:hover{background:var(--teal-faint)}
+.en.on{background:var(--teal);color:var(--on-teal);border-bottom-color:transparent}
+.tok{font-family:var(--serif);cursor:pointer;border-radius:2px;padding:0 .5px}
+.tok:hover{background:var(--teal-faint)}
+.tok.on{background:var(--teal);color:var(--on-teal)}
 
 /* compare table */
 .tablewrap{overflow-x:auto;max-width:100%}
-table.compare{border-collapse:collapse;width:100%;min-width:440px}
-table.compare th{text-align:left;font-size:11px;letter-spacing:.14em;font-weight:600;color:var(--ink-3);padding:0 12px 7px 0;border-bottom:2px solid var(--rule-strong)}
+table.compare{border-collapse:collapse;width:100%;min-width:420px}
+table.compare th{
+  text-align:left;font-size:11px;letter-spacing:.14em;font-weight:600;
+  color:var(--ink-3);padding:0 12px 7px 0;
+  border-bottom:2px solid var(--rule-strong);
+}
 table.compare th:last-child,table.compare td:last-child{padding-right:0}
-table.compare td{padding:13px 12px 13px 0;border-bottom:1px solid var(--rule);vertical-align:baseline;font-size:14.5px}
-td.c-word{white-space:nowrap;line-height:var(--thlh)}
-td.c-word .thai{font-size:19px}
-td.c-tone{font-family:var(--thsans);color:var(--ink-2);white-space:nowrap;font-size:12.5px}
-td.c-note{color:var(--ink);min-width:210px;line-height:1.85}
+table.compare td{
+  padding:11px 12px 11px 0;border-bottom:1px solid var(--rule);
+  vertical-align:baseline;font-size:14.5px;
+}
+td.c-en{white-space:nowrap}
+td.c-en .en{font-size:16.5px}
+td.c-ipa{font-family:var(--serif);color:var(--ink-2);white-space:nowrap;font-size:14px}
+td.c-note{color:var(--ink);min-width:200px}
 td.c-add{width:1%;text-align:right;white-space:nowrap}
-.addbtn{font-size:11px;letter-spacing:.06em;color:var(--ink-3);border:1px solid var(--rule);border-radius:2px;padding:2px 7px}
-.addbtn:hover{border-color:var(--accent);color:var(--accent)}
-.addbtn.saved{color:var(--accent);border-color:var(--accent-wash);background:var(--accent-faint)}
+.addbtn{
+  font-size:11px;letter-spacing:.06em;color:var(--ink-3);
+  border:1px solid var(--rule);border-radius:2px;padding:2px 7px;
+}
+.addbtn:hover{border-color:var(--teal);color:var(--teal)}
+.addbtn.saved{color:var(--teal);border-color:var(--teal-wash);background:var(--teal-faint)}
 
 /* examples */
-.ex{display:flex;gap:12px;padding:15px 0;border-bottom:1px solid var(--rule)}
+.ex{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--rule)}
 .ex:last-child{border-bottom:none}
 .ex:first-child{padding-top:0}
-.play{flex:0 0 auto;width:26px;height:26px;border:1px solid var(--rule-strong);border-radius:50%;display:grid;place-items:center;margin-top:6px;color:var(--ink-2)}
-.play:hover{border-color:var(--accent);color:var(--accent)}
-.play.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.play{
+  flex:0 0 auto;width:26px;height:26px;border:1px solid var(--rule-strong);
+  border-radius:50%;display:grid;place-items:center;margin-top:2px;color:var(--ink-2);
+}
+.play:hover{border-color:var(--teal);color:var(--teal)}
+.play.on{background:var(--teal);border-color:var(--teal);color:var(--on-teal)}
 .play svg{width:9px;height:9px;display:block}
 .ex-body{min-width:0}
-.ex-thai{font-family:var(--thai);font-size:19px;line-height:2.1;max-width:var(--measure)}
-.ex-zh{color:var(--ink-2);font-size:13.5px;margin-top:6px;max-width:var(--measure)}
+.ex-en{font-family:var(--serif);font-size:17px;line-height:1.6;max-width:var(--measure)}
+.ex-zh{color:var(--ink-2);font-size:13.5px;margin-top:4px;max-width:var(--measure)}
 
 /* traps */
-.trap{border-left:3px solid var(--brick);padding:2px 0 2px 15px;margin-bottom:20px}
+.trap{border-left:3px solid var(--brick);padding:2px 0 2px 15px;margin-bottom:18px}
 .trap:last-child{margin-bottom:0}
-.trap-point{font-size:14.5px;margin-bottom:8px;max-width:var(--measure)}
-.wr{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:16.5px;margin-bottom:5px;line-height:2}
-.wr-tag{font-size:10.5px;letter-spacing:.1em;flex:0 0 auto;width:22px;font-family:var(--sans)}
+.trap-point{font-size:14.5px;margin-bottom:7px;max-width:var(--measure)}
+.wr{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:15.5px;margin-bottom:3px}
+.wr-tag{
+  font-size:10.5px;letter-spacing:.1em;flex:0 0 auto;width:22px;
+  font-family:var(--sans);
+}
 .wr-x .wr-tag{color:var(--brick)}
-.wr-o .wr-tag{color:var(--accent)}
-.wr-x .thai{text-decoration:line-through;text-decoration-color:var(--brick);text-decoration-thickness:1px}
-.trap-why{color:var(--ink-2);font-size:13.5px;margin-top:8px;max-width:var(--measure);line-height:1.95}
+.wr-o .wr-tag{color:var(--teal)}
+.wr-x .en{text-decoration:line-through;text-decoration-color:var(--brick);text-decoration-thickness:1px}
+.trap-why{color:var(--ink-2);font-size:13.5px;margin-top:6px;max-width:var(--measure)}
 
 /* collocations */
-.colls{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1px 26px}
-.coll{display:flex;gap:10px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--rule)}
-.coll-thai{font-size:16.5px;min-width:0}
-.coll-zh{color:var(--ink-2);font-size:12.5px;margin-left:auto;text-align:right;flex:0 1 auto}
+.colls{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1px 26px}
+.coll{display:flex;gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--rule)}
+.coll-en{font-size:15.5px;min-width:0}
+.coll-zh{color:var(--ink-2);font-size:12.5px;margin-left:auto;text-align:right;flex:0 0 auto}
 
 /* notes */
-.notes{border-left:3px solid var(--mustard);padding:2px 0 2px 15px}
+.notes{border-left:3px solid var(--mustard);padding:2px 0 2px 15px;background:transparent}
 .notes .prose{font-size:14.5px;color:var(--ink)}
 
 /* ---------- vocab ---------- */
@@ -273,13 +309,13 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 .vocab-count{font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .vocab-actions{margin-left:auto;display:flex;gap:8px}
 .btn-ghost{border:1px solid var(--rule-strong);border-radius:2px;padding:5px 12px;font-size:12.5px;color:var(--ink-2)}
-.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
-.vrow{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;padding:14px 0;border-top:1px solid var(--rule)}
-.vrow .v-thai{font-size:19px}
-.v-tone{font-family:var(--thsans);color:var(--ink-2);font-size:12.5px}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+.vrow{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;padding:12px 0;border-top:1px solid var(--rule)}
+.vrow .v-en{font-size:17px}
+.v-ipa{font-family:var(--serif);color:var(--ink-2);font-size:13.5px}
 .v-zh{color:var(--ink);font-size:13.5px;flex:1 1 180px;min-width:0}
 .v-src{font-size:11.5px;color:var(--ink-3)}
-.v-src:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.v-src:hover{color:var(--teal);text-decoration:underline;text-underline-offset:3px}
 .v-del{font-size:11.5px;color:var(--ink-3)}
 .v-del:hover{color:var(--brick)}
 .v-del.armed{color:var(--brick);font-weight:600}
@@ -294,10 +330,13 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 .contents dd{margin:0;color:var(--ink-2);font-size:13px}
 .try-label{font-size:11px;letter-spacing:.16em;color:var(--ink-3);margin-bottom:10px}
 .try{display:flex;flex-direction:column;gap:1px}
-.try button{text-align:left;padding:11px 0;border-top:1px solid var(--rule);font-size:14.5px;display:flex;gap:10px;align-items:baseline}
+.try button{
+  text-align:left;padding:11px 0;border-top:1px solid var(--rule);
+  font-size:14.5px;display:flex;gap:10px;align-items:baseline;
+}
 .try button:last-child{border-bottom:1px solid var(--rule)}
-.try button:hover{color:var(--accent)}
-.try .arrow{color:var(--accent);flex:0 0 auto;font-family:var(--thai)}
+.try button:hover{color:var(--teal)}
+.try .arrow{color:var(--teal);flex:0 0 auto;font-family:var(--serif)}
 
 /* ---------- speech pill ---------- */
 .pill{
@@ -309,7 +348,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
   box-shadow:0 6px 24px rgba(10,25,32,.22);
   z-index:50;
 }
-.pill-text{font-family:var(--thai);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill-text{font-family:var(--serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pill-voice{font-size:11px;opacity:.6;white-space:nowrap;flex:0 0 auto}
 .pill-stop{font-size:11px;opacity:.75;flex:0 0 auto;border-left:1px solid rgba(255,255,255,.2);padding-left:11px}
 .pill-stop:hover{opacity:1}
@@ -317,17 +356,23 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 @keyframes pillin{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
 .ver{opacity:.55;font-variant-numeric:tabular-nums;letter-spacing:.04em}
-.footnote{padding:26px 0 0;border-top:1px solid var(--rule);font-size:12.5px;color:var(--ink-3);max-width:var(--measure);line-height:1.9}
+.footnote{padding:26px 0 0;border-top:1px solid var(--rule);font-size:12.5px;color:var(--ink-3);max-width:var(--measure)}
 
 /* ---------- responsive ---------- */
 @media (max-width:840px){
   .shell{display:block}
-  .rail{display:none;width:auto;flex:none;position:static;max-height:none;min-height:0;border-right:none;border-bottom:1px solid var(--rule);padding:14px 0 18px}
+  .rail{
+    display:none;width:auto;flex:none;position:static;max-height:none;min-height:0;
+    border-right:none;border-bottom:1px solid var(--rule);padding:14px 0 18px;
+  }
   .rail.open{display:block}
   .main{padding:0 16px 150px}
-  .drawer-btn{display:inline-block;font-size:12px;letter-spacing:.06em;color:var(--ink-2);border:1px solid var(--rule-strong);border-radius:2px;padding:3px 10px}
+  .drawer-btn{
+    display:inline-block;font-size:12px;letter-spacing:.06em;color:var(--ink-2);
+    border:1px solid var(--rule-strong);border-radius:2px;padding:3px 10px;
+  }
   h1.title{font-size:23px}
-  td.c-word{white-space:normal}
+  td.c-en{white-space:normal}
   .colls{grid-template-columns:1fr;gap:0}
 }
 
@@ -375,14 +420,21 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
   // 發音走 /api/tts（Google Cloud TTS），實作在 /shared/ll.js。
   // 原本的 window.speechSynthesis 已經拿掉：品質看裝置，泰文更是常常沒有語音。
 
+  function clean(word) {
+    return String(word).replace(/^[^A-Za-z0-9'’]+/, "").replace(/[^A-Za-z0-9'’%]+$/, "");
+  }
+
   /* ============================ storage ============================ */
 
-  var SEED = {"index": [{"id": "Tkrapka01", "topic": "ครับ 和 ค่ะ 怎麼用", "title": "泰文禮貌句尾詞 ครับ 與 ค่ะ 的正確用法", "createdAt": 1789200000000}], "vocab": [], "lessons": {"Tkrapka01": {"id": "Tkrapka01", "topic": "ครับ 和 ค่ะ 怎麼用", "createdAt": 1789200000000, "lesson": {"title": "泰文禮貌句尾詞 ครับ 與 ค่ะ 的正確用法", "summary": "掌握泰語男性專用詞 ครับ 與女性專用詞 ค่ะ/คะ 的時機與聲調變化，避免性別與句型誤用。", "core": "泰語的句尾禮貌詞依說話者的性別而有嚴格劃分。男性說話者不論在陳述句、疑問句或單獨回答時，一律使用 <thai>ครับ|kráp</thai>；女性說話者則需依據語境切換：用於陳述句與回答時使用降調的 <thai>ค่ะ|kâ</thai>，用於疑問句與呼喚回應時則使用高調的 <thai>คะ|ká</thai>。使用禮貌詞能大幅提升講話的客氣程度與社交親和力。", "compare": [{"th": "ครับ", "rom": "kráp", "tone": "高", "note": "男性專用禮貌詞，可用於陳述句、疑問句及單獨回答「好的、是的」。"}, {"th": "ค่ะ", "rom": "kâ", "tone": "降", "note": "女性專用禮貌詞，用於陳述句、否定句及單獨回答「好的、是的」。"}, {"th": "คะ", "rom": "ká", "tone": "高", "note": "女性專用禮貌詞，用於疑問句、祈使句及回應他人呼喚（相當於「在！／什麼事？」）。"}, {"th": "นะคะ", "rom": "ná-ká", "tone": "高-高", "note": "女性專用溫柔叮嚀語氣詞，用於提醒、請求或結語（不可寫成 นะค่ะ）。"}], "examples": [{"th": "ผมเป็นคนไต้หวันครับ", "rom": "pǒm bpen kon dtâi-wǎn kráp", "tokens": [{"w": "ผม", "r": "pǒm"}, {"w": "เป็น", "r": "bpen"}, {"w": "คน", "r": "kon"}, {"w": "ไต้หวัน", "r": "dtâi-wǎn"}, {"w": "ครับ", "r": "kráp"}], "zh": "我是台灣人。（男性說）"}, {"th": "ขอบคุณมากค่ะ", "rom": "kɔ̀ɔp-kun mâak kâ", "tokens": [{"w": "ขอบคุณ", "r": "kɔ̀ɔp-kun"}, {"w": "มาก", "r": "mâak"}, {"w": "ค่ะ", "r": "kâ"}], "zh": "非常感謝。（女性說）"}, {"th": "สบายดีไหมคะ", "rom": "sà-baai-dii mǎi ká", "tokens": [{"w": "สบายดี", "r": "sà-baai-dii"}, {"w": "ไหม", "r": "mǎi"}, {"w": "คะ", "r": "ká"}], "zh": "你好嗎？（女性問）"}, {"th": "เข้าใจแล้วค่ะ", "rom": "kâo-jai lɛ́ɛo kâ", "tokens": [{"w": "เข้าใจ", "r": "kâo-jai"}, {"w": "แล้ว", "r": "lɛ́ɛo"}, {"w": "ค่ะ", "r": "kâ"}], "zh": "我明白了。（女性說）"}], "traps": [{"point": "女性混淆 ค่ะ (降調) 與 คะ (高調) 的句型", "wrong": "สบายดีไหมค่ะ", "right": "สบายดีไหมคะ", "why": "疑問句結尾女性應使用高調的 <thai>คะ|ká</thai>，而不是降調的 <thai>ค่ะ|kâ</thai>。降調的 <thai>ค่ะ|kâ</thai> 僅能用於陳述句或回答。"}, {"point": "女性誤寫並誤讀 <thai>นะคะ|ná-ká</thai> 為 <thai>นะค่ะ|ná-kâ</thai>", "wrong": "ขอบคุณนะค่ะ", "right": "ขอบคุณนะคะ", "why": "<thai>นะ|ná</thai> 後面搭配女性禮貌詞時必須使用高調的 <thai>คะ|ká</thai>，組成 <thai>นะคะ|ná-ká</thai>。泰文寫作 <thai>นะค่ะ|ná-kâ</thai> 是極常見的拼寫與發音錯誤。"}, {"point": "男性誤用女性禮貌詞或在疑問句更換 ครับ 的聲調", "wrong": "ผมสบายดีค่ะ", "right": "ผมสบายดีครับ", "why": "男性在任何句型（陳述、疑問、回答）中皆統一使用 <thai>ครับ|kráp</thai>，無需像女性一樣根據句型切換聲調或字形。第一人稱代名詞 <thai>ผม|pǒm</thai> 搭配女性禮貌詞 <thai>ค่ะ|kâ</thai> 會造成性別矛盾。"}], "collocations": [{"th": "ครับผม", "rom": "kráp-pǒm", "zh": "好的／是的（男性極具禮貌、恭敬的回應）"}, {"th": "ใช่ครับ", "rom": "châi kráp", "zh": "是的（男性回答）"}, {"th": "ใช่ค่ะ", "rom": "châi kâ", "zh": "是的（女性回答）"}, {"th": "อะไรคะ", "rom": "à-rai ká", "zh": "什麼事呢？／什麼？（女性疑問）"}, {"th": "ขอบคุณนะคะ", "rom": "kɔ̀ɔp-kun ná-ká", "zh": "謝謝捏／謝謝喔（女性親切表達感謝）"}, {"th": "ยินดีครับ", "rom": "yin-dii kráp", "zh": "不客氣／我的榮幸（男性回答）"}], "notes": "在聲調規則上，<thai>ครับ|kráp</thai> 的低子音 <thai>ค|kɔɔ-kwaai</thai> 搭配短母音與死音尾音 <thai>บ|bɔɔ-baimaai</thai>，依規則發高調。女性詞 <thai>คะ|ká</thai> 為低子音搭配短母音開音節，同樣發高調；而 <thai>ค่ะ|kâ</thai> 加上一聲調符號（Mai Ek）後變為降調。男性不論陳述或疑問一律使用 <thai>ครับ|kráp</thai>，女性則必須依據句型分清降調的 <thai>ค่ะ|kâ</thai>（陳述/回答）與高調的 <thai>คะ|ká</thai>（疑問/呼喚）。"}}}};
+  // Lessons live in this browser's localStorage: one key per lesson plus a
+  // lightweight index, so opening the history list never parses every lesson.
+  // 沒有示範課程：歷史存在伺服器，首次開啟本來就是空的
+  var SEED = { index: [], vocab: [], lessons: {} };
 
   var Store = (function () {
     var healthy = true;
-    var K = { index: "siam.index", vocab: "siam.vocab", seeded: "siam.seeded" };
-    function lk(id) { return "siam.lesson." + id; }
+    var K = { index: "ength.index", vocab: "ength.vocab", seeded: "ength.seeded" };
+    function lk(id) { return "ength.lesson." + id; }
 
     function read(key, fallback) {
       try {
@@ -401,6 +453,8 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 
     return {
       ok: function () { return healthy; },
+      // First visit gets the two lessons this page shipped with, so it opens
+      // on something real instead of an empty shell.
       seed: function () {
         if (read(K.seeded, null)) return;
         if (!read(K.index, null)) {
@@ -434,7 +488,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
   }
 
   function newId() {
-    return "T" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    return "E" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   }
 
   function arr(x) { return Array.isArray(x) ? x : []; }
@@ -443,34 +497,28 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
   // 保險：title/summary 是當純文字排版的，模型偶爾還是會把標記塞進來，
   // 不剝掉就會看到字面的 <en>Make</en>
   function plain(text) {
-    return str(text).replace(/<(en|word|thai)>([\s\S]*?)<\/\1>/g, function (m, t, inner) {
+    return str(text).replace(/<(en|jp|thai|zh)>([\s\S]*?)<\/\1>/g, function (m, t, inner) {
       return inner.split("|")[0];
     });
   }
 
-
-  // Punctuation and particles alone are not worth a pronunciation click.
-  function speakable(token) {
-    // 泰文字元範圍。標點、空白、數字單獨點下去只會播出一段怪音
-    return /[\u0E00-\u0E5B]/.test(token);
-  }
 
   /* ====== prompt ====== */
   // prompt 在伺服器端（functions/api/_shared/prompts.js）。
   // 前端只送 lang 與 topic —— 否則任何人都能把這支 Gemini 金鑰當免費的通用 LLM 用。
 
   var STAGES = [
-    ['"summary"', "核心重點"],
-    ['"core"', "核心解釋"],
-    ['"compare"', "對照表"],
-    ['"examples"', "例句"],
-    ['"traps"', "常見錯誤"],
-    ['"collocations"', "常用搭配"],
-    ['"notes"', "延伸筆記"]
+    ['"summary"', "ใจความสำคัญ"],
+    ['"core"', "คำอธิบายหลัก"],
+    ['"compare"', "ตารางเปรียบเทียบ"],
+    ['"examples"', "ประโยคตัวอย่าง"],
+    ['"traps"', "ข้อผิดพลาดที่พบบ่อย"],
+    ['"collocations"', "คำที่ใช้คู่กันบ่อย"],
+    ['"notes"', "บันทึกเพิ่มเติม"]
   ];
 
   function stageOf(text) {
-    var label = "課程標題";
+    var label = "ชื่อบทเรียน";
     for (var i = 0; i < STAGES.length; i++) {
       if (text.indexOf(STAGES[i][0]) !== -1) label = STAGES[i][1];
     }
@@ -478,116 +526,73 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
   }
 
   var ERRORS = {
-    rate_limited: "今天的生成次數到上限了，或 Gemini 的免費額度暫時滿了。等一下再試。",
-    bad_input: "主題是空的或太長了，改一下再送出。",
-    upstream: "生成服務出了狀況，再試一次。",
-    bad_json: "回傳的內容格式不完整，通常再生成一次就會好。",
-    offline: "目前離線。已存下來的課程可以讀，生成新課程需要連線。",
-    network: "連線出了狀況，再試一次。"
+    rate_limited: "วันนี้สร้างบทเรียนครบจำนวนแล้ว หรือโควตาของ Gemini เต็มชั่วคราว กรุณาลองใหม่ภายหลัง",
+    bad_input: "หัวข้อว่างเปล่าหรือยาวเกินไป กรุณาแก้ไขแล้วส่งใหม่",
+    upstream: "ระบบสร้างบทเรียนมีปัญหา กรุณาลองใหม่",
+    bad_json: "เนื้อหาที่ได้รับไม่สมบูรณ์ ปกติสร้างใหม่อีกครั้งก็จะหาย",
+    offline: "ขณะนี้ออฟไลน์ อ่านบทเรียนที่บันทึกไว้ได้ แต่การสร้างบทเรียนใหม่ต้องเชื่อมต่ออินเทอร์เน็ต",
+    network: "การเชื่อมต่อมีปัญหา กรุณาลองใหม่"
   };
 
-  /* ============================ japanese rendering ============================ */
+  /* ============================ english rendering ============================ */
 
-  // One clickable Japanese word. Furigana rides above the kanji as real ruby;
-  // clicking speaks the READING rather than the surface form, because a single
-  // kanji word out of context is exactly where TTS picks the wrong reading.
-  function ThaiWord(props) {
-    var surface = props.surface;
-    var reading = props.reading;
-    var key = props.speakKey;
+  function EnWord(props) {
+    var speakKey = props.speakKey;
     var onSpeak = props.onSpeak;
-    var cls = (props.cls || "thai") + (props.speaking === key ? " on" : "");
-
-    // ⚠️ 一定要念 surface（泰文字），不是 reading（Paiboon 轉寫）——
-    // TTS 讀不懂轉寫，餵給它只會念出一串亂七八糟的英文音
-    var fire = function (e) {
-      e.stopPropagation();
-      onSpeak(surface, key);
-    };
-
-    var body = reading
-      ? [surface, h("span", { className: "rom", key: "r" }, "（" + reading + "）")]
-      : [surface];
-
+    var text = props.text;
+    var cls = (props.cls || "en") + (props.speaking === speakKey ? " on" : "");
     return h("span", {
       className: cls,
-      lang: "th",
       role: "button",
       tabIndex: 0,
-      title: reading ? reading : "點一下發音",
-      onClick: fire,
+      title: "แตะเพื่อฟังเสียง",
+      onClick: function (e) { e.stopPropagation(); onSpeak(text, speakKey); },
       onKeyDown: function (e) {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fire(e); }
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault(); e.stopPropagation(); onSpeak(text, speakKey);
+        }
       }
-    }, body);
+    }, text);
   }
 
-  // Splits a Chinese paragraph on <thai>surface|reading</thai>.
-  function renderWithThai(text, onSpeak, speaking, keyBase) {
-    var parts = String(text).split(/(<thai>[\s\S]*?<\/thai>)/g);
+  // Splits a Chinese paragraph on <en>...</en> and makes each tagged word clickable.
+  function renderWithEn(text, onSpeak, speaking, keyBase) {
+    var parts = String(text).split(/(<en>[\s\S]*?<\/en>)/g);
     return parts.map(function (part, i) {
-      var m = part.match(/^<thai>([\s\S]*?)<\/thai>$/);
+      var m = part.match(/^<en>([\s\S]*?)<\/en>$/);
       if (!m) return h("span", { key: keyBase + "-t" + i }, part);
-      var bits = m[1].split("|");
-      return h(ThaiWord, {
-        key: keyBase + "-j" + i,
-        surface: bits[0],
-        reading: bits.length > 1 ? bits[1] : "",
-        speakKey: keyBase + "-j" + i,
+      var word = m[1];
+      return h(EnWord, {
+        key: keyBase + "-e" + i,
+        text: word,
+        speakKey: keyBase + "-e" + i,
         onSpeak: onSpeak,
         speaking: speaking
       });
     });
   }
 
-  // Japanese writes without spaces, so the sentence arrives pre-segmented as
-  // tokens rather than being split here.
-  // 泰文跟日文一樣不用空白斷詞，所以例句是模型切好 token 送過來的。
-  // 但呈現方式不同：每個詞做成「泰文在上、轉寫在下」的一欄，
-  // 這樣邊讀邊對得上音，又不會像 ruby 那樣跟聲調符號打架。
-  function renderThaiTokens(ex, onSpeak, speaking, keyBase) {
-    var tokens = arr(ex.tokens);
-    var sentence = str(ex.th);
-
-    // 切詞接不回原句就整句不切 —— 錯的切詞比沒有切詞更誤導人
-    var joined = tokens.map(function (t) { return str(t.w); }).join("");
-    if (!tokens.length || joined !== sentence) {
-      return h(ThaiWord, {
-        surface: sentence,
-        reading: "",
-        speakKey: keyBase + "-whole",
-        onSpeak: onSpeak,
-        speaking: speaking,
-        cls: "tok"
-      });
-    }
-
-    return tokens.map(function (t, i) {
-      var w = str(t.w);
-      var r = str(t.r);
-      var k = keyBase + "-k" + i;
-
-      if (!speakable(w)) {
-        return h("span", { key: k, className: "stack", lang: "th" },
-          h("span", { className: "w" }, w),
-          h("span", { className: "r" }, "\u00a0"));
-      }
-
-      var fire = function (e) { e.stopPropagation(); onSpeak(w, k); };
+  // Splits an English sentence into individually clickable word tokens.
+  function renderTokens(sentence, onSpeak, speaking, keyBase) {
+    var tokens = String(sentence).split(/(\s+)/);
+    return tokens.map(function (tok, i) {
+      if (/^\s+$/.test(tok) || tok === "") return h("span", { key: keyBase + "-s" + i }, tok);
+      var bare = clean(tok);
+      if (!bare) return h("span", { key: keyBase + "-p" + i }, tok);
+      var k = keyBase + "-w" + i;
       return h("span", {
         key: k,
-        className: "stack tok" + (speaking === k ? " on" : ""),
-        lang: "th",
+        className: "tok" + (speaking === k ? " on" : ""),
         role: "button",
         tabIndex: 0,
-        title: r || "點一下發音",
-        onClick: fire,
+        title: "อ่านเฉพาะคำนี้",
+        onClick: function (e) { e.stopPropagation(); onSpeak(bare, k); },
         onKeyDown: function (e) {
-          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fire(e); }
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault(); e.stopPropagation(); onSpeak(bare, k);
+          }
         }
-      },
-        h("span", { className: "w" }, w),
-        h("span", { className: "r" }, r || "\u00a0"));
+      }, tok);
     });
   }
 
@@ -608,18 +613,17 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
     var s7 = useState([]); var vocab = s7[0], setVocab = s7[1];
     var s8 = useState("history"); var tab = s8[0], setTab = s8[1];
     var s9 = useState("lesson"); var view = s9[0], setView = s9[1];
-    // 泰文的 Standard 只有一個音色（th-TH-Standard-A），沒有男女可選
+    var s10 = useState("en-US"); var accent = s10[0], setAccent = s10[1];
     var s11 = useState(1); var rate = s11[0], setRate = s11[1];
     var s12 = useState(null); var speaking = s12[0], setSpeaking = s12[1];
     var s13 = useState(null); var nowPlaying = s13[0], setNowPlaying = s13[1];
     var s14 = useState(0); var voiceTick = s14[0], setVoiceTick = s14[1];
     var s15 = useState(null); var armed = s15[0], setArmed = s15[1];
     var s16 = useState(false); var drawer = s16[0], setDrawer = s16[1];
-    var s17 = useState("loading"); var storeState = s17[0], setStoreState = s17[1];
+    var s17 = useState("loading"); var dbState = s17[0], setDbState = s17[1];
     var s18 = useState("loading"); var aiState = s18[0], setAiState = s18[1];
     var s19 = useState(null); var currentId = s19[0], setCurrentId = s19[1];
     var sD = useState({}); var diag = sD[0], setDiag = sD[1];
-    var s20 = useState(true); var rom = s20[0], setRom = s20[1];
 
     var abortRef = useRef(null);
     var utterSeq = useRef(0);
@@ -637,12 +641,12 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       Store.seed();
       setIndex(Store.index());
       setVocab(Store.vocab());
-      setStoreState(Store.ok() ? "on" : "off");
+      setDbState(Store.ok() ? "on" : "off");
       setAiState("on");
 
       // 伺服器的 D1 才是歷史的事實來源，localStorage 只是本機快取。
       // 換裝置或清過快取時，這一步會把紀錄補回來。
-      LL.history.hydrate("siam", "th").then(function (items) {
+      LL.history.hydrate("ength", "th-en").then(function (items) {
         if (live && items) setIndex(items);
       });
 
@@ -653,7 +657,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
     // 原本這裡訂閱瀏覽器的 voiceschanged 事件，等系統語音載入完再重畫。
     // 改走 Google TTS 之後沒有「語音清單要等」這回事，整段拿掉。
 
-    var activeVoice = { name: "th-TH Standard" };
+    var activeVoice = { name: (accent === "en-GB" ? "อังกฤษ Standard" : "อเมริกัน Standard") };
 
     /* ---- speech ---- */
     var stopSpeech = useCallback(function () {
@@ -669,16 +673,16 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       utterSeq.current += 1;
       var seq = utterSeq.current;
       setSpeaking(key);
-      setNowPlaying({ text: text, voice: "th-TH Standard" });
+      setNowPlaying({ text: text, voice: (accent === "en-GB" ? "อังกฤษ Standard" : "อเมริกัน Standard") });
       // 失敗靜默降級成不發音 —— 點一個詞念不出來就跳錯誤，讀一段課文會被打斷十次
-      LL.speech.speak("th", text, key, { rate: rate, voice: "female" })
+      LL.speech.speak("en", text, key, { rate: rate, voice: (accent === "en-GB" ? "uk" : "us") })
         .then(function () {
           if (utterSeq.current !== seq) return;
           setSpeaking(null);
           setNowPlaying(null);
           if (onDone) onDone();
         });
-    }, [rate]);
+    }, [accent, rate]);
 
     var playQueue = useCallback(function (items) {
       if (!items.length) return;
@@ -756,14 +760,13 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       Store.setVocab(next.slice(0, 800));
     }
 
-    function addWord(word, rom, tone, zh) {
-      var key = word;
-      if (vocabRef.current.some(function (v) { return str(v.th) === key; })) return;
+    function addWord(en, ipa, tr) {
+      var key = en.toLowerCase();
+      if (vocabRef.current.some(function (v) { return String(v.en).toLowerCase() === key; })) return;
       var next = [{
-        th: word,
-        rom: str(rom),
-        tone: str(tone),
-        zh: str(zh),
+        en: en,
+        ipa: str(ipa),
+        tr: str(tr),
         lessonId: currentId,
         lessonTitle: lesson ? str(lesson.title) : "",
         addedAt: Date.now()
@@ -771,8 +774,9 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       writeVocab(next);
     }
 
-    function hasWord(word) {
-      return vocab.some(function (v) { return str(v.th) === word; });
+    function hasWord(en) {
+      var key = String(en).toLowerCase();
+      return vocab.some(function (v) { return String(v.en).toLowerCase() === key; });
     }
 
     /* ---- generation ---- */
@@ -786,12 +790,12 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       setDrawer(false);
       setLesson(null);
       setCurrentId(null);
-      setProgress({ stage: "課程標題", chars: 0, started: false });
+      setProgress({ stage: "ชื่อบทเรียน", chars: 0, started: false });
 
       var ctl = new AbortController();
       abortRef.current = ctl;
 
-      LL.generate("th", t, { signal: ctl.signal }).then(function (r) {
+      LL.generate("th-en", t, { signal: ctl.signal }).then(function (r) {
         var data = r && r.lesson;
         if (!data || typeof data !== "object") throw { code: "bad_json", message: "not an object" };
         // 用伺服器那筆紀錄的 id，兩邊才對得起來
@@ -826,38 +830,37 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
     function VoiceBar() {
       var voiceLabel = activeVoice.name;
       return h("div", { className: "voicebar" },
-        // 泰文的 Standard 只有 th-TH-Standard-A 一個音色，沒得選，所以不放切換
-        h("div", { className: "seg", role: "group", "aria-label": "語速" },
+        h("div", { className: "seg", role: "group", "aria-label": "สำเนียง" },
+          h("button", {
+            type: "button", "aria-pressed": accent === "en-US",
+            onClick: function () { setAccent("en-US"); }
+          }, "อเมริกัน"),
+          h("button", {
+            type: "button", "aria-pressed": accent === "en-GB",
+            onClick: function () { setAccent("en-GB"); }
+          }, "อังกฤษ")
+        ),
+        h("div", { className: "seg", role: "group", "aria-label": "ความเร็ว" },
           h("button", {
             type: "button", "aria-pressed": rate === 1,
             onClick: function () { setRate(1); }
-          }, "正常"),
+          }, "ปกติ"),
           h("button", {
             type: "button", "aria-pressed": rate === 0.7,
             onClick: function () { setRate(0.7); }
-          }, "慢"),
+          }, "ช้า"),
           h("button", {
             type: "button", "aria-pressed": rate === 0.5,
             onClick: function () { setRate(0.5); }
-          }, "很慢")
+          }, "ช้ามาก")
         ),
-        h("div", { className: "seg", role: "group", "aria-label": "轉寫" },
-          h("button", {
-            type: "button", "aria-pressed": rom,
-            onClick: function () { setRom(true); }
-          }, "轉寫"),
-          h("button", {
-            type: "button", "aria-pressed": !rom,
-            onClick: function () { setRom(false); }
-          }, "隱藏")
-        ),
-        h("span", { className: "voicename" }, "語音　", h("b", null, voiceLabel)),
+        h("span", { className: "voicename" }, "เสียง　", h("b", null, voiceLabel)),
         h("span", { className: "masthead-sp" }),
         h("button", {
           type: "button", className: "drawer-btn",
           "aria-expanded": drawer,
           onClick: function () { setDrawer(!drawer); }
-        }, drawer ? "收起清單" : "歷史與單字")
+        }, drawer ? "ซ่อนรายการ" : "ประวัติและคำศัพท์")
       );
     }
 
@@ -869,34 +872,34 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
             id: "topic",
             type: "text",
             value: topic,
-            placeholder: "想學什麼？例如「ครับ 和 ค่ะ 怎麼用」",
-            "aria-label": "課程主題",
+            placeholder: "อยากเรียนอะไร? เช่น「a กับ the ใช้ต่างกันอย่างไร」",
+            "aria-label": "หัวข้อบทเรียน",
             onChange: function (e) { setTopic(e.target.value); },
             onKeyDown: function (e) { if (e.key === "Enter") generate(topic, false); }
           }),
           h("button", {
             type: "button", className: "btn-go", disabled: disabled,
             onClick: function () { generate(topic, false); }
-          }, busy ? "生成中…" : "生成課程"),
+          }, busy ? "กำลังสร้าง…" : "สร้างบทเรียน"),
           busy ? h("button", {
             type: "button", className: "btn-stop", onClick: stopGeneration
-          }, "停止") : null
+          }, "หยุด") : null
         ),
         busy && progress ? h("div", { className: "status" },
           h("span", { className: "pulse" }),
           progress.started
             ? h(Frag, null,
-                h("span", null, "正在寫："),
+                h("span", null, "กำลังเขียน: "),
                 h("span", { className: "status-stage" }, progress.stage),
-                h("span", { className: "status-count" }, progress.chars + " 字"))
-            : h("span", null, "正在讀題目，想一下再動筆…")
+                h("span", { className: "status-count" }, progress.chars + " ตัวอักษร"))
+            : h("span", null, "กำลังอ่านหัวข้อ ขอคิดสักครู่…")
         ) : null,
         err ? h("div", { className: "notice" },
           ERRORS[err.code] || ERRORS.upstream_error,
           err.topic ? h("button", {
             type: "button", onClick: function () { generate(err.topic, true); }
-          }, "重試") : null,
-          h("span", { className: "code" }, "錯誤代碼　" + err.code)
+          }, "ลองใหม่") : null,
+          h("span", { className: "code" }, "รหัสข้อผิดพลาด　" + err.code)
         ) : null
       );
     }
@@ -905,29 +908,26 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       return h("div", { className: "tablewrap" },
         h("table", { className: "compare" },
           h("thead", null, h("tr", null,
-            h("th", null, "詞"),
-            h("th", null, "聲調"),
-            h("th", null, "語感與使用場合"),
+            h("th", null, "คำ"),
+            h("th", null, "สัทอักษร"),
+            h("th", null, "ความหมายและสถานการณ์ที่ใช้"),
             h("th", null, "")
           )),
           h("tbody", null, rows.map(function (r, i) {
-            var word = str(r.th);
-            var rom = str(r.rom);
-            var saved = hasWord(word);
+            var en = str(r.en);
+            var saved = hasWord(en);
             return h("tr", { key: "cmp" + i },
-              h("td", { className: "c-word" }, h(ThaiWord, {
-                surface: word, reading: rom, speakKey: "cmp" + i,
-                onSpeak: onSpeak, speaking: speaking
+              h("td", { className: "c-en" }, h(EnWord, {
+                text: en, speakKey: "cmp" + i, onSpeak: onSpeak, speaking: speaking
               })),
-              h("td", { className: "c-tone" }, str(r.tone)),
-              h("td", { className: "c-note" },
-                renderWithThai(str(r.note), onSpeak, speaking, "cmpn" + i)),
+              h("td", { className: "c-ipa" }, str(r.ipa)),
+              h("td", { className: "c-note" }, str(r.note)),
               h("td", { className: "c-add" }, h("button", {
                 type: "button",
                 className: "addbtn" + (saved ? " saved" : ""),
-                "aria-label": saved ? ("「" + word + "」已在單字總表") : ("把「" + word + "」加入單字總表"),
-                onClick: function () { if (!saved) addWord(word, rom, str(r.tone), r.note); }
-              }, saved ? "已收錄" : "＋ 總表"))
+                "aria-label": saved ? ("「" + en + "」อยู่ในรายการแล้ว") : ("เพิ่ม「" + en + "」ลงในรายการคำศัพท์"),
+                onClick: function () { if (!saved) addWord(en, r.ipa, r.note); }
+              }, saved ? "เก็บแล้ว" : "+ เก็บ"))
             );
           }))
         )
@@ -943,103 +943,95 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       var notes = str(lesson.notes).trim();
       var core = str(lesson.core).trim();
 
-      return h("article", null,
+      return h("article", { className: "lesson" },
         h("header", { className: "lesson-head" },
-          h("div", { className: "lesson-topic" }, "主題　" + (topic || "")),
+          h("div", { className: "lesson-topic" }, "หัวข้อ　" + (topic || "")),
           h("h1", { className: "title" }, plain(lesson.title) || topic),
           plain(lesson.summary) ? h("p", { className: "summary" }, plain(lesson.summary)) : null
         ),
 
         core ? h("section", { className: "block" },
-          h("h2", { className: "label" }, "核心解釋"),
-          h("p", { className: "prose" }, renderWithThai(core, onSpeak, speaking, "core"))
+          h("h2", { className: "label" }, "คำอธิบายหลัก"),
+          h("p", { className: "prose" }, renderWithEn(core, onSpeak, speaking, "core"))
         ) : null,
 
         compare.length ? h("section", { className: "block" },
-          h("h2", { className: "label" }, "對照表"),
+          h("h2", { className: "label" }, "ตารางเปรียบเทียบ"),
           CompareTable(compare)
         ) : null,
 
         examples.length ? h("section", { className: "block" },
-          h("h2", { className: "label" }, "例句"),
+          h("h2", { className: "label" }, "ประโยคตัวอย่าง"),
           examples.map(function (ex, i) {
+            var sentence = str(ex.en);
             var key = "ex" + i;
-            var sentence = str(ex.th);
             return h("div", { className: "ex", key: key },
               h("button", {
                 type: "button",
                 className: "play" + (speaking === key ? " on" : ""),
-                "aria-label": "朗讀整句：" + sentence,
-                // The whole sentence is spoken from its kanji form: TTS reads
-                // Japanese better with context than from bare rom.
+                "aria-label": "อ่านทั้งประโยค: " + sentence,
                 onClick: function () { speak(sentence, key); }
               }, h(PlayIcon)),
               h("div", { className: "ex-body" },
-                h("div", { className: "ex-thai", lang: "th" },
-                  renderThaiTokens(ex, onSpeak, speaking, key)),
-                str(ex.zh) ? h("div", { className: "ex-zh" }, str(ex.zh)) : null
+                h("div", { className: "ex-en" }, renderTokens(sentence, onSpeak, speaking, key)),
+                str(ex.tr) ? h("div", { className: "ex-zh" }, str(ex.tr)) : null
               )
             );
           })
         ) : null,
 
         traps.length ? h("section", { className: "block" },
-          h("h2", { className: "label" }, "常見錯誤"),
+          h("h2", { className: "label" }, "ข้อผิดพลาดที่พบบ่อย"),
           traps.map(function (t, i) {
             return h("div", { className: "trap", key: "trap" + i },
               h("div", { className: "trap-point" }, str(t.point)),
               str(t.wrong) ? h("div", { className: "wr wr-x" },
                 h("span", { className: "wr-tag" }, "✕"),
-                h(ThaiWord, {
-                  surface: str(t.wrong), reading: "", speakKey: "trapw" + i,
-                  onSpeak: onSpeak, speaking: speaking
+                h(EnWord, {
+                  text: str(t.wrong), speakKey: "trapw" + i, onSpeak: onSpeak, speaking: speaking
                 })
               ) : null,
               str(t.right) ? h("div", { className: "wr wr-o" },
                 h("span", { className: "wr-tag" }, "✓"),
-                h(ThaiWord, {
-                  surface: str(t.right), reading: "", speakKey: "trapr" + i,
-                  onSpeak: onSpeak, speaking: speaking
+                h(EnWord, {
+                  text: str(t.right), speakKey: "trapr" + i, onSpeak: onSpeak, speaking: speaking
                 })
               ) : null,
-              str(t.why) ? h("div", { className: "trap-why" },
-                renderWithThai(str(t.why), onSpeak, speaking, "trapy" + i)) : null
+              str(t.why) ? h("div", { className: "trap-why" }, str(t.why)) : null
             );
           })
         ) : null,
 
         colls.length ? h("section", { className: "block" },
-          h("h2", { className: "label" }, "常用搭配"),
+          h("h2", { className: "label" }, "คำที่ใช้คู่กันบ่อย"),
           h("div", { className: "colls" }, colls.map(function (c, i) {
-            var word = str(c.th);
-            var rom = str(c.rom);
-            var saved = hasWord(word);
+            var en = str(c.en);
+            var saved = hasWord(en);
             return h("div", { className: "coll", key: "col" + i },
-              h("span", { className: "coll-word" }, h(ThaiWord, {
-                surface: word, reading: rom, speakKey: "col" + i,
-                onSpeak: onSpeak, speaking: speaking
+              h("span", { className: "coll-en" }, h(EnWord, {
+                text: en, speakKey: "col" + i, onSpeak: onSpeak, speaking: speaking
               })),
-              h("span", { className: "coll-zh" }, str(c.zh)),
+              h("span", { className: "coll-zh" }, str(c.tr)),
               h("button", {
                 type: "button",
                 className: "addbtn" + (saved ? " saved" : ""),
-                "aria-label": saved ? ("「" + word + "」已在單字總表") : ("把「" + word + "」加入單字總表"),
-                onClick: function () { if (!saved) addWord(word, rom, "", c.zh); }
-              }, saved ? "已收錄" : "＋"))
-            ;
+                "aria-label": saved ? ("「" + en + "」อยู่ในรายการแล้ว") : ("เพิ่ม「" + en + "」ลงในรายการคำศัพท์"),
+                onClick: function () { if (!saved) addWord(en, "", c.zh); }
+              }, saved ? "เก็บแล้ว" : "＋")
+            );
           }))
         ) : null,
 
         notes ? h("section", { className: "block" },
-          h("h2", { className: "label" }, "延伸筆記"),
+          h("h2", { className: "label" }, "บันทึกเพิ่มเติม"),
           h("div", { className: "notes" },
-            h("p", { className: "prose" }, renderWithThai(notes, onSpeak, speaking, "notes"))
+            h("p", { className: "prose" }, renderWithEn(notes, onSpeak, speaking, "notes"))
           )
         ) : null,
 
         h("div", { className: "block" },
           h("p", { className: "footnote" },
-            "課程由 Gemini 依你的主題即時生成，用法與讀音建議當作起點而非定論；關鍵用字再對照一次辭典。課程存在這台裝置的瀏覽器裡，不會同步到其他裝置。",
+            "บทเรียนสร้างโดย Gemini ตามหัวข้อที่คุณใส่ การใช้งานและการออกเสียงควรถือเป็นจุดเริ่มต้น ไม่ใช่ข้อสรุป คำสำคัญควรตรวจสอบกับพจนานุกรมอีกครั้ง",
             h("span", { className: "ver" }, "　v" + LL.VERSION))
         )
       );
@@ -1049,75 +1041,72 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       var items = vocab;
       return h("div", null,
         h("div", { className: "vocab-head" },
-          h("h1", null, "單字總表"),
-          h("span", { className: "vocab-count" }, items.length + " 個詞"),
+          h("h1", null, "รายการคำศัพท์"),
+          h("span", { className: "vocab-count" }, items.length + " คำ"),
           h("div", { className: "vocab-actions" },
             items.length ? h("button", {
               type: "button", className: "btn-ghost",
               onClick: function () {
                 playQueue(items.map(function (v, i) {
-                  // 一定要送泰文字給 TTS，不能送轉寫 —— Google 會拿英文去念 Paiboon
-                  return { text: str(v.th), key: "vq" + i };
+                  return { text: str(v.en), key: "vq" + i };
                 }));
               }
-            }, "連續播放") : null,
+            }, "เล่นต่อเนื่อง") : null,
             nowPlaying ? h("button", {
               type: "button", className: "btn-ghost", onClick: stopSpeech
-            }, "停止") : null
+            }, "หยุด") : null
           )
         ),
         !items.length
           ? h("p", { className: "rail-empty", style: { padding: "0" } },
-              "課程裡的對照表和常用搭配右邊有「＋ 總表」，點下去就會收錄到這裡，跨課程累積。")
+              "ในตารางเปรียบเทียบและคำที่ใช้คู่กันบ่อย จะมีปุ่ม「+ เก็บ」อยู่ด้านขวา กดแล้วคำนั้นจะถูกเก็บมาที่นี่ สะสมข้ามบทเรียนได้")
           : items.map(function (v, i) {
               var k = "vq" + i;
-              var armKey = "v:" + str(v.th);
+              var armKey = "v:" + v.en;
               return h("div", { className: "vrow", key: "v" + i },
-                h("span", { className: "v-word" }, h(ThaiWord, {
-                  surface: str(v.th), reading: str(v.rom), speakKey: k,
-                  onSpeak: onSpeak, speaking: speaking
+                h("span", { className: "v-en" }, h(EnWord, {
+                  text: str(v.en), speakKey: k, onSpeak: onSpeak, speaking: speaking
                 })),
-                str(v.tone) ? h("span", { className: "v-acc" }, str(v.tone)) : null,
-                h("span", { className: "v-zh" },
-                  renderWithThai(str(v.zh), onSpeak, speaking, "vz" + i)),
+                str(v.ipa) ? h("span", { className: "v-ipa" }, str(v.ipa)) : null,
+                h("span", { className: "v-zh" }, str(v.tr)),
                 v.lessonId ? h("button", {
                   type: "button", className: "v-src",
                   onClick: function () { openLesson(v.lessonId); }
-                }, str(v.lessonTitle) || "回到課程") : null,
+                }, str(v.lessonTitle) || "กลับไปบทเรียน") : null,
                 h("button", {
                   type: "button",
                   className: "v-del" + (armed === armKey ? " armed" : ""),
                   onClick: function () {
                     if (armed !== armKey) { setArmed(armKey); return; }
                     setArmed(null);
-                    writeVocab(vocabRef.current.filter(function (x) { return str(x.th) !== str(v.th); }));
+                    writeVocab(vocabRef.current.filter(function (x) { return x.en !== v.en; }));
                   },
                   onBlur: function () { if (armed === armKey) setArmed(null); }
-                }, armed === armKey ? "確認移除" : "移除")
+                }, armed === armKey ? "ยืนยัน" : "ลบออก")
               );
             })
       );
     }
 
     var TRY = [
-      "五個聲調的規則怎麼記",
-      "ไป 和 มา 的方向感",
-      "在路邊攤點餐會用到的泰文"
+      "ทำไมต้องเติม -s ท้ายคำนาม",
+      "ภาษาอังกฤษที่ใช้ในการทำงาน",
+      "a กับ the ใช้ต่างกันอย่างไร"
     ];
 
     function EmptyView() {
       return h("div", { className: "empty" },
-        h("h1", null, "丟一個主題進來，換一份標好聲調、唸得出聲的辭典條目"),
-        h("p", null, "不管是一組容易混淆的詞、一條聲調規則，還是一個場合的用語，都可以問。每份課程固定六段："),
+        h("h1", null, "ใส่หัวข้อเข้ามา แล้วรับบทเรียนที่ฟังเสียงได้ทุกคำ"),
+        h("p", null, "ไม่ว่าจะเป็นความหมายของคำเดียว คำใกล้เคียงที่สับสนกันง่าย หรือศัพท์เฉพาะทาง ถามได้หมด ทุกบทเรียนมี 6 ส่วนเสมอ:"),
         h("dl", { className: "contents" },
-          h("div", null, h("dt", null, "核心解釋"), h("dd", null, "主要用法、語感、正式與口語的分別")),
-          h("div", null, h("dt", null, "對照表"), h("dd", null, "近義詞差異，附 Paiboon 轉寫與五聲調")),
-          h("div", null, h("dt", null, "例句"), h("dd", null, "真實語境，逐詞標轉寫、點一下就發音")),
-          h("div", null, h("dt", null, "常見錯誤"), h("dd", null, "聲調記錯、母音長短、子音分類、詞序")),
-          h("div", null, h("dt", null, "常用搭配"), h("dd", null, "母語者真正會說的慣用講法")),
-          h("div", null, h("dt", null, "延伸筆記"), h("dd", null, "巴利梵語借詞、拼寫與發音的落差"))
+          h("div", null, h("dt", null, "คำอธิบายหลัก"), h("dd", null, "การใช้งานหลัก ความหมาย ทางการหรือไม่ทางการ")),
+          h("div", null, h("dt", null, "ตารางเปรียบเทียบ"), h("dd", null, "ความต่างของคำใกล้เคียง พร้อมสัทอักษร IPA")),
+          h("div", null, h("dt", null, "ประโยคตัวอย่าง"), h("dd", null, "สถานการณ์จริง แตะทีละคำเพื่อฟังเสียง")),
+          h("div", null, h("dt", null, "ข้อผิดพลาดที่พบบ่อย"), h("dd", null, "ข้อผิดพลาดที่คนไทยทำจริง")),
+          h("div", null, h("dt", null, "คำที่ใช้คู่กันบ่อย"), h("dd", null, "สำนวนที่เจ้าของภาษาใช้จริง")),
+          h("div", null, h("dt", null, "บันทึกเพิ่มเติม"), h("dd", null, "ที่มาของคำ การเน้นเสียง ความต่างอังกฤษ-อเมริกัน"))
         ),
-        h("div", { className: "try-label" }, "先試試看"),
+        h("div", { className: "try-label" }, "ลองดู"),
         h("div", { className: "try" }, TRY.map(function (t, i) {
           return h("button", {
             key: "try" + i, type: "button",
@@ -1133,11 +1122,11 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
           h("button", {
             type: "button", className: "rail-tab", "aria-pressed": tab === "history",
             onClick: function () { setTab("history"); }
-          }, "歷史紀錄"),
+          }, "ประวัติ"),
           h("button", {
             type: "button", className: "rail-tab", "aria-pressed": tab === "vocab",
             onClick: function () { setTab("vocab"); setView("vocab"); setDrawer(false); }
-          }, "單字總表 " + (vocab.length || ""))
+          }, "รายการคำศัพท์ " + (vocab.length || ""))
         ),
         tab === "history"
           ? (index.length
@@ -1155,38 +1144,35 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
                     h("button", {
                       type: "button",
                       className: "hist-del" + (armed === armKey ? " armed" : ""),
-                      "aria-label": "刪除「" + (it.title || it.topic) + "」",
+                      "aria-label": "ลบ「" + (it.title || it.topic) + "」",
                       onClick: function () {
                         if (armed !== armKey) { setArmed(armKey); return; }
                         deleteLesson(it.id);
                       },
                       onBlur: function () { if (armed === armKey) setArmed(null); }
-                    }, armed === armKey ? "確認" : "刪除")
+                    }, armed === armKey ? "ยืนยัน" : "ลบ")
                   );
                 })
               : h("p", { className: "rail-empty" },
-                  storeState === "off"
-                    ? "這個瀏覽器不讓頁面保存資料（無痕視窗通常會這樣），課程只留到你關掉分頁為止。"
-                    : "還沒有課程。生成的每一份都會留在這台裝置的瀏覽器裡。"))
+                  dbState === "off"
+                    ? "เบราว์เซอร์นี้ไม่อนุญาตให้บันทึกข้อมูล (มักเกิดในโหมดไม่ระบุตัวตน) บทเรียนจะอยู่จนกว่าคุณจะปิดแท็บ"
+                    : "ยังไม่มีบทเรียน ทุกบทที่สร้างจะถูกเก็บไว้ให้อัตโนมัติ"))
           : h("div", null,
               h("button", {
                 type: "button", className: "hist-item",
                 onClick: function () { setView("vocab"); setDrawer(false); }
               },
-                h("div", { className: "hist-title" }, "開啟單字總表"),
-                h("div", { className: "hist-meta" }, vocab.length + " 個詞")
+                h("div", { className: "hist-title" }, "เปิดรายการคำศัพท์"),
+                h("div", { className: "hist-meta" }, vocab.length + " คำ")
               ),
               vocab.slice(0, 12).map(function (v, i) {
                 return h("div", { className: "hist-row", key: "rv" + i },
                   h("button", {
                     type: "button", className: "hist-item",
-                    onClick: function () { speak(str(v.th), "rv" + i); }
+                    onClick: function () { speak(str(v.en), "rv" + i); }
                   },
-                    h("div", {
-                      className: "hist-title", lang: "th",
-                      style: { fontFamily: "var(--thai)", fontSize: "16px" }
-                    }, str(v.th)),
-                    h("div", { className: "hist-meta" }, str(v.rom))
+                    h("div", { className: "hist-title", style: { fontFamily: "var(--serif)" } }, str(v.en)),
+                    h("div", { className: "hist-meta" }, str(v.tr).slice(0, 18))
                   )
                 );
               })
@@ -1201,31 +1187,27 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
     else body = EmptyView();
 
     return h(Frag, null,
-      h("div", { className: "shell" + (rom ? "" : " norom") },
+      h("div", { className: "shell" },
         Rail(),
         h("main", { className: "main" },
           h("div", { className: "col" },
             h("div", { className: "masthead" },
-              h("h1", { className: "wordmark" }, "泰文", h("em", null, "研究室")),
-              h("span", { className: "tagline" }, "泰文用法・聲調・發音"),
+              h("h1", { className: "wordmark" }, "ห้องเรียน", h("em", null, "ภาษาอังกฤษ")),
+              h("span", { className: "tagline" }, "การใช้งาน・ความหมาย・การออกเสียง"),
               h("span", { className: "masthead-sp" }),
-              h("span", { className: "langbar" }, LL.LANGS.map(function (L) {
-                if (L.id === "th") return h("span", { key: L.id, className: "on" }, L.label);
-                // 還沒做好的語言不給連結，免得點過去是 404
-                if (!L.ready) {
-                  return h("span", { key: L.id, className: "soon", title: "還沒做好" }, L.label);
-                }
+              h("span", { className: "langbar" }, LL.siblings("th").map(function (L) {
+                if (L.id === "th-en") return h("span", { key: L.id, className: "on" }, L.label);
                 return h("a", { key: L.id, href: L.path }, L.label);
               })),
               h("button", {
                 type: "button", className: "logout",
-                title: "登出", "aria-label": "登出",
+                title: "ออกจากระบบ", "aria-label": "ออกจากระบบ",
                 onClick: function () { LL.logout(); }
-              }, "登出"),
+              }, "ออกจากระบบ"),
               view === "vocab" ? h("button", {
                 type: "button", className: "btn-ghost",
                 onClick: function () { setView("lesson"); }
-              }, "回到課程") : null
+              }, "กลับไปบทเรียน") : null
             ),
             VoiceBar(),
             Composer(),
@@ -1234,14 +1216,14 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
         )
       ),
       nowPlaying ? h("div", { className: "pill pill-enter", role: "status" },
-        h("span", { className: "pill-text", lang: "th" }, nowPlaying.text),
+        h("span", { className: "pill-text" }, nowPlaying.text),
         h("span", { className: "pill-voice" }, nowPlaying.voice),
-        h("button", { type: "button", className: "pill-stop", onClick: stopSpeech }, "停止")
+        h("button", { type: "button", className: "pill-stop", onClick: stopSpeech }, "หยุด")
       ) : null
     );
   }
 
-  LL.remember("th");
+  LL.remember("th-en");
 
   ReactDOM.createRoot(document.getElementById("root")).render(h(App));
 })();

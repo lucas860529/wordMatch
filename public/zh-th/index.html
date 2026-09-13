@@ -6,12 +6,14 @@
 <meta name="description" content="繁體中文母語者的英／日／泰學習工具">
 <meta name="theme-color" content="#ECEFF1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121C22" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="icon" href="/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="言葉研究室">
-<title>言葉研究室</title>
+<meta name="apple-mobile-web-app-title" content="泰文研究室">
+<title>泰文研究室</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&display=swap">
 <style>
 :root{
@@ -32,8 +34,11 @@
   --mustard:#9A7418;
   --on-accent:#F5F8FC;
 
-  --jpser:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","Source Han Serif JP",serif;
-  --jpsans:"Hiragino Sans","Yu Gothic","YuGothic","Noto Sans JP",sans-serif;
+  /* 泰文字型必須有頭圈 —— Kanit 那類無頭圈的現代字體會拿掉辨認字母的依據 */
+  --thai:"Sarabun","Noto Sans Thai","Thonburi","Leelawadee UI",sans-serif;
+  --thsans:"Sarabun","Noto Sans Thai","Thonburi",sans-serif;
+  /* 母音與聲調符號疊在子音上下，行高從 2.2 起跳，容器也不能 overflow:hidden */
+  --thlh:2.2;
   --sans:"Avenir Next","PingFang TC","Microsoft JhengHei","Noto Sans TC","Hiragino Sans",sans-serif;
 
   --measure:62ch;
@@ -92,20 +97,24 @@ button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:p
 input{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
 
-/* ---------- ruby / furigana ---------- */
-ruby{ruby-position:over;-webkit-ruby-position:before}
-rt{
-  font-family:var(--jpsans);
-  font-size:.5em;
-  font-weight:400;
-  color:var(--ink-2);
-  letter-spacing:.02em;
-  line-height:1.2;
-}
-/* Hidden, not removed — the line keeps its height so toggling doesn't
-   shift the text you are reading. */
-.nofuri rt{visibility:hidden}
-.jp.on rt{color:var(--on-accent);opacity:.75}
+/* ---------- 轉寫的呈現 ----------
+   泰文不用 ruby。日文的假名標在漢字上方沒問題，因為漢字上下是空的；
+   泰文不一樣 —— 母音符號（ิ ี ึ ื）在上、聲調符號（่ ้ ๊ ๋）更在上、
+   另一組母音（ ุ ู）在下，上下都被佔滿了，轉寫再疊上去只會糊成一團。
+   所以改成：句子裡的詞上下堆疊，內文裡的詞用括號跟在後面。 */
+
+/* 內文：泰文後面接小字轉寫 */
+.rom{font-size:.8em;color:var(--ink-2);letter-spacing:.01em;margin-left:2px}
+.thai.on .rom{color:var(--on-accent);opacity:.8}
+
+/* 例句：泰文在上、轉寫在下，各自一欄 */
+.stack{display:inline-flex;flex-direction:column;align-items:center;vertical-align:top;margin:0 3px 4px}
+.stack .w{font-family:var(--thai);font-size:20px;line-height:var(--thlh)}
+.stack .r{font-size:11.5px;color:var(--ink-2);line-height:1.35;white-space:nowrap}
+.stack.on .w{background:var(--accent);color:var(--on-accent);border-radius:2px}
+
+/* 藏起來時用 visibility 不用 display —— 行高保留，切換時版面才不會跳 */
+.norom .rom,.norom .stack .r,.norom .c-rom{visibility:hidden}
 
 /* ---------- shell ---------- */
 .shell{display:flex;align-items:flex-start;min-height:100vh}
@@ -142,7 +151,7 @@ rt{
 .col{max-width:var(--col);margin:0 auto}
 
 .masthead{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:baseline;padding:26px 0 16px;border-bottom:1px solid var(--rule)}
-.wordmark{font-family:var(--jpser);font-size:22px;letter-spacing:.03em;margin:0;font-weight:600}
+.wordmark{font-family:var(--thai);font-size:22px;letter-spacing:.03em;margin:0;font-weight:600}
 .wordmark em{font-style:normal;color:var(--accent)}
 .tagline{font-size:12.5px;color:var(--ink-3);letter-spacing:.02em}
 .build{font-size:11px;color:var(--ink-3);letter-spacing:.06em;font-variant-numeric:tabular-nums;border:1px solid var(--rule);border-radius:2px;padding:1px 8px;white-space:nowrap}
@@ -155,7 +164,7 @@ rt{
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
 .seg button:not([aria-pressed="true"]):hover{background:var(--paper-3)}
 .voicename{font-size:11.5px;color:var(--ink-3);letter-spacing:.02em}
-.voicename b{font-weight:500;color:var(--ink-2);font-family:var(--jpser)}
+.voicename b{font-weight:500;color:var(--ink-2);font-family:var(--thai)}
 .drawer-btn{display:none}
 
 /* composer */
@@ -173,12 +182,12 @@ rt{
 .status{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:13px;color:var(--ink-2)}
 .pulse{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:0 0 auto;animation:pulse 1.3s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
-.status-stage{font-family:var(--jpser);color:var(--ink)}
+.status-stage{font-family:var(--thai);color:var(--ink)}
 .status-count{font-variant-numeric:tabular-nums;color:var(--ink-3);font-size:12px}
 
 .notice{margin-top:14px;padding:10px 14px;font-size:13.5px;line-height:1.65;border-left:3px solid var(--brick);background:var(--brick-faint);color:var(--ink)}
 .notice button{color:var(--brick);text-decoration:underline;text-underline-offset:3px;margin-left:8px}
-.notice .code{display:block;margin-top:7px;font-family:var(--jpser);font-size:11.5px;color:var(--ink-2);letter-spacing:.03em}
+.notice .code{display:block;margin-top:7px;font-family:var(--thai);font-size:11.5px;color:var(--ink-2);letter-spacing:.03em}
 .diag{margin-top:14px;font-size:11.5px;color:var(--ink-3)}
 .diag summary{cursor:pointer;letter-spacing:.08em;padding:2px 0}
 .diag dl{margin:9px 0 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.6}
@@ -196,15 +205,15 @@ h2.label{font-size:11px;letter-spacing:.16em;font-weight:600;color:var(--ink-3);
 .prose{margin:0;max-width:var(--measure);font-size:15.5px;line-height:2.05}
 
 /* clickable japanese */
-.jp{
-  font-family:var(--jpser);
+.thai{
+  font-family:var(--thai);
   border-bottom:1px solid var(--rule-strong);
   cursor:pointer;padding:0 1px;border-radius:2px;
   transition:background-color .1s,color .1s;
 }
-.jp:hover{background:var(--accent-faint)}
-.jp.on{background:var(--accent);color:var(--on-accent);border-bottom-color:transparent}
-.tok{font-family:var(--jpser);cursor:pointer;border-radius:2px;padding:0 .5px}
+.thai:hover{background:var(--accent-faint)}
+.thai.on{background:var(--accent);color:var(--on-accent);border-bottom-color:transparent}
+.tok{font-family:var(--thai);cursor:pointer;border-radius:2px;padding:0 .5px}
 .tok:hover{background:var(--accent-faint)}
 .tok.on{background:var(--accent);color:var(--on-accent)}
 .tok.plain{cursor:default}
@@ -216,9 +225,9 @@ table.compare{border-collapse:collapse;width:100%;min-width:440px}
 table.compare th{text-align:left;font-size:11px;letter-spacing:.14em;font-weight:600;color:var(--ink-3);padding:0 12px 7px 0;border-bottom:2px solid var(--rule-strong)}
 table.compare th:last-child,table.compare td:last-child{padding-right:0}
 table.compare td{padding:13px 12px 13px 0;border-bottom:1px solid var(--rule);vertical-align:baseline;font-size:14.5px}
-td.c-jp{white-space:nowrap}
-td.c-jp .jp{font-size:18px}
-td.c-acc{font-family:var(--jpsans);color:var(--ink-2);white-space:nowrap;font-size:12.5px}
+td.c-word{white-space:nowrap;line-height:var(--thlh)}
+td.c-word .thai{font-size:19px}
+td.c-tone{font-family:var(--thsans);color:var(--ink-2);white-space:nowrap;font-size:12.5px}
 td.c-note{color:var(--ink);min-width:210px;line-height:1.85}
 td.c-add{width:1%;text-align:right;white-space:nowrap}
 .addbtn{font-size:11px;letter-spacing:.06em;color:var(--ink-3);border:1px solid var(--rule);border-radius:2px;padding:2px 7px}
@@ -234,7 +243,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 .play.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .play svg{width:9px;height:9px;display:block}
 .ex-body{min-width:0}
-.ex-jp{font-family:var(--jpser);font-size:19px;line-height:2.1;max-width:var(--measure)}
+.ex-thai{font-family:var(--thai);font-size:19px;line-height:2.1;max-width:var(--measure)}
 .ex-zh{color:var(--ink-2);font-size:13.5px;margin-top:6px;max-width:var(--measure)}
 
 /* traps */
@@ -245,13 +254,13 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 .wr-tag{font-size:10.5px;letter-spacing:.1em;flex:0 0 auto;width:22px;font-family:var(--sans)}
 .wr-x .wr-tag{color:var(--brick)}
 .wr-o .wr-tag{color:var(--accent)}
-.wr-x .jp{text-decoration:line-through;text-decoration-color:var(--brick);text-decoration-thickness:1px}
+.wr-x .thai{text-decoration:line-through;text-decoration-color:var(--brick);text-decoration-thickness:1px}
 .trap-why{color:var(--ink-2);font-size:13.5px;margin-top:8px;max-width:var(--measure);line-height:1.95}
 
 /* collocations */
 .colls{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1px 26px}
 .coll{display:flex;gap:10px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--rule)}
-.coll-jp{font-size:16.5px;min-width:0}
+.coll-thai{font-size:16.5px;min-width:0}
 .coll-zh{color:var(--ink-2);font-size:12.5px;margin-left:auto;text-align:right;flex:0 1 auto}
 
 /* notes */
@@ -266,8 +275,8 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 .btn-ghost{border:1px solid var(--rule-strong);border-radius:2px;padding:5px 12px;font-size:12.5px;color:var(--ink-2)}
 .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
 .vrow{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;padding:14px 0;border-top:1px solid var(--rule)}
-.vrow .v-jp{font-size:18px}
-.v-acc{font-family:var(--jpsans);color:var(--ink-2);font-size:12.5px}
+.vrow .v-thai{font-size:19px}
+.v-tone{font-family:var(--thsans);color:var(--ink-2);font-size:12.5px}
 .v-zh{color:var(--ink);font-size:13.5px;flex:1 1 180px;min-width:0}
 .v-src{font-size:11.5px;color:var(--ink-3)}
 .v-src:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
@@ -288,7 +297,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 .try button{text-align:left;padding:11px 0;border-top:1px solid var(--rule);font-size:14.5px;display:flex;gap:10px;align-items:baseline}
 .try button:last-child{border-bottom:1px solid var(--rule)}
 .try button:hover{color:var(--accent)}
-.try .arrow{color:var(--accent);flex:0 0 auto;font-family:var(--jpser)}
+.try .arrow{color:var(--accent);flex:0 0 auto;font-family:var(--thai)}
 
 /* ---------- speech pill ---------- */
 .pill{
@@ -300,7 +309,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
   box-shadow:0 6px 24px rgba(10,25,32,.22);
   z-index:50;
 }
-.pill-text{font-family:var(--jpser);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill-text{font-family:var(--thai);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pill-voice{font-size:11px;opacity:.6;white-space:nowrap;flex:0 0 auto}
 .pill-stop{font-size:11px;opacity:.75;flex:0 0 auto;border-left:1px solid rgba(255,255,255,.2);padding-left:11px}
 .pill-stop:hover{opacity:1}
@@ -318,7 +327,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
   .main{padding:0 16px 150px}
   .drawer-btn{display:inline-block;font-size:12px;letter-spacing:.06em;color:var(--ink-2);border:1px solid var(--rule-strong);border-radius:2px;padding:3px 10px}
   h1.title{font-size:23px}
-  td.c-jp{white-space:normal}
+  td.c-word{white-space:normal}
   .colls{grid-template-columns:1fr;gap:0}
 }
 
@@ -368,12 +377,12 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 
   /* ============================ storage ============================ */
 
-  var SEED = {"index":[{"id":"Jkanjitrap01","topic":"漢字看得懂，意思卻不一樣的日文詞","title":"漢字陷阱：看得懂卻會錯意的詞","createdAt":1789200000000}],"vocab":[],"lessons":{"Jkanjitrap01":{"id":"Jkanjitrap01","topic":"漢字看得懂，意思卻不一樣的日文詞","createdAt":1789200000000,"lesson":{"title":"漢字陷阱：看得懂卻會錯意的詞","summary":"台灣人學日文最大的優勢是漢字，最大的陷阱也是漢字。真正危險的不是完全看不懂的詞，而是你確信自己懂、但其實意思已經分岔的那些。","core":"日文裡的漢語詞大致有三種來源：從中國傳入後意思保留的、傳入後意思偏移的，以及日本自己用漢字造出來的和製漢語。讀日文時大腦會自動套用中文語感，第一種沒事，第三種多半也安全（像 <jp>経済|けいざい</jp>、<jp>社会|しゃかい</jp> 這些反而是從日本回流到中文的），出事的是第二種。<jp>勉強|べんきょう</jp> 就是典型：字形熟悉、語感錯誤、而且句子照樣通順，所以錯了也不會有人提醒你。","compare":[{"jp":"勉強","kana":"べんきょう","accent":"0型（平板）","note":"日文是「讀書、學習」。中文那個「不情願地硬做」在日文要用 <jp>無理|むり</jp>。商業場合另有「算便宜一點」的用法。"},{"jp":"手紙","kana":"てがみ","accent":"0型（平板）","note":"日文是「信件」。衛生紙是 <jp>トイレットペーパー</jp>，兩者毫無關係。"},{"jp":"大丈夫","kana":"だいじょうぶ","accent":"3型（中高）","note":"日文是「沒問題、不要緊」，被招待時說出口通常等於婉拒。中文的「大丈夫」在日文是 <jp>立派な男|りっぱなおとこ</jp>。"},{"jp":"邪魔","kana":"じゃま","accent":"0型（平板）","note":"日文是「妨礙、打擾」，<jp>お邪魔します|おじゃまします</jp> 是進別人家的招呼語。中文的「邪魔」是 <jp>悪魔|あくま</jp>。"},{"jp":"我慢","kana":"がまん","accent":"1型（頭高）","note":"日文是「忍耐、忍住」，帶正面色彩。中文沒有這個詞，容易被拆成「我」「慢」誤讀。"},{"jp":"汽車","kana":"きしゃ","accent":"2型（尾高）","note":"日文專指蒸汽火車。現代的汽車是 <jp>車|くるま</jp> 或 <jp>自動車|じどうしゃ</jp>。"}],"examples":[{"jp":"毎日二時間日本語を勉強しています。","kana":"まいにちにじかんにほんごをべんきょうしています。","tokens":[{"w":"毎日","r":"まいにち"},{"w":"二時間","r":"にじかん"},{"w":"日本語","r":"にほんご"},{"w":"を"},{"w":"勉強","r":"べんきょう"},{"w":"しています"},{"w":"。"}],"zh":"我每天讀兩小時日文。"},{"jp":"友達から手紙が届きました。","kana":"ともだちからてがみがとどきました。","tokens":[{"w":"友達","r":"ともだち"},{"w":"から"},{"w":"手紙","r":"てがみ"},{"w":"が"},{"w":"届きました","r":"とどきました"},{"w":"。"}],"zh":"朋友寄的信到了。"},{"jp":"「コーヒーいかがですか。」「あ、大丈夫です。」","kana":"「コーヒーいかがですか。」「あ、だいじょうぶです。」","tokens":[{"w":"「"},{"w":"コーヒー"},{"w":"いかが"},{"w":"ですか"},{"w":"。」"},{"w":"「あ、"},{"w":"大丈夫","r":"だいじょうぶ"},{"w":"です"},{"w":"。」"}],"zh":"「要不要來杯咖啡？」「啊，不用了。」—— 這裡的大丈夫是婉拒，不是「我沒事」。"},{"jp":"お邪魔します。","kana":"おじゃまします。","tokens":[{"w":"お"},{"w":"邪魔","r":"じゃま"},{"w":"します"},{"w":"。"}],"zh":"打擾了。進別人家門時說的固定招呼。"},{"jp":"もう少し我慢してください。","kana":"もうすこしがまんしてください。","tokens":[{"w":"もう"},{"w":"少し","r":"すこし"},{"w":"我慢","r":"がまん"},{"w":"してください"},{"w":"。"}],"zh":"請再忍耐一下。"}],"traps":[{"point":"把中文的「勉強」直接搬進日文句子","wrong":"彼は勉強してこの仕事をしています。","right":"彼は無理してこの仕事をしています。","why":"日文的 <jp>勉強|べんきょう</jp> 只有「學習」的意思。要說「不情願地硬做」得用 <jp>無理|むり</jp>。錯誤那句日本人會理解成「他一邊唸書一邊做這份工作」，完全是另一件事。"},{"point":"想答應邀約，卻回了「大丈夫です」","wrong":"「もう一杯いかがですか。」「大丈夫です。」（心裡想要）","right":"「もう一杯いかがですか。」「はい、お願いします。」","why":"被招待時的 <jp>大丈夫です|だいじょうぶです</jp> 幾乎固定理解成「不用了」。想答應要明確說 <jp>お願いします|おねがいします</jp>，否則對方會直接把杯子收走。"},{"point":"把「汽車」當成一般汽車","wrong":"汽車で会社に行きます。","right":"車で会社に行きます。","why":"<jp>汽車|きしゃ</jp> 在現代日文專指蒸汽火車。開車上班要用 <jp>車|くるま</jp>。這句錯誤講出來，對方會想像你每天搭蒸汽火車通勤。"}],"collocations":[{"jp":"勉強になる","kana":"べんきょうになる","zh":"學到了、受教了（聽完別人說話的常用回應）"},{"jp":"お邪魔します","kana":"おじゃまします","zh":"打擾了（進門時）"},{"jp":"大丈夫ですか","kana":"だいじょうぶですか","zh":"你還好嗎？"},{"jp":"我慢できない","kana":"がまんできない","zh":"受不了、忍不住"},{"jp":"手紙を出す","kana":"てがみをだす","zh":"寄信"},{"jp":"無理しないで","kana":"むりしないで","zh":"別逞強、別勉強自己"}],"notes":"這些詞多半在江戶到明治之間意思分岔。<jp>汽車|きしゃ</jp> 是最清楚的例子：蒸汽火車傳入時日本命名為「汽車」，中文後來把這兩個字給了 automobile，兩邊就此分家。反方向則是和製漢語 —— <jp>経済|けいざい</jp>、<jp>社会|しゃかい</jp>、<jp>哲学|てつがく</jp> 都是日本人用漢字新造後回流中文的，所以這類詞中日同義，讀起來反而最安全。アクセント方面，這一課的詞以平板型居多（<jp>勉強|べんきょう</jp>、<jp>手紙|てがみ</jp>、<jp>邪魔|じゃま</jp>），只有 <jp>我慢|がまん</jp> 是頭高型、<jp>大丈夫|だいじょうぶ</jp> 是中高型，唸的時候注意起伏位置。"}}}};
+  var SEED = {"index": [{"id": "Tkrapka01", "topic": "ครับ 和 ค่ะ 怎麼用", "title": "泰文禮貌句尾詞 ครับ 與 ค่ะ 的正確用法", "createdAt": 1789200000000}], "vocab": [], "lessons": {"Tkrapka01": {"id": "Tkrapka01", "topic": "ครับ 和 ค่ะ 怎麼用", "createdAt": 1789200000000, "lesson": {"title": "泰文禮貌句尾詞 ครับ 與 ค่ะ 的正確用法", "summary": "掌握泰語男性專用詞 ครับ 與女性專用詞 ค่ะ/คะ 的時機與聲調變化，避免性別與句型誤用。", "core": "泰語的句尾禮貌詞依說話者的性別而有嚴格劃分。男性說話者不論在陳述句、疑問句或單獨回答時，一律使用 <thai>ครับ|kráp</thai>；女性說話者則需依據語境切換：用於陳述句與回答時使用降調的 <thai>ค่ะ|kâ</thai>，用於疑問句與呼喚回應時則使用高調的 <thai>คะ|ká</thai>。使用禮貌詞能大幅提升講話的客氣程度與社交親和力。", "compare": [{"th": "ครับ", "rom": "kráp", "tone": "高", "note": "男性專用禮貌詞，可用於陳述句、疑問句及單獨回答「好的、是的」。"}, {"th": "ค่ะ", "rom": "kâ", "tone": "降", "note": "女性專用禮貌詞，用於陳述句、否定句及單獨回答「好的、是的」。"}, {"th": "คะ", "rom": "ká", "tone": "高", "note": "女性專用禮貌詞，用於疑問句、祈使句及回應他人呼喚（相當於「在！／什麼事？」）。"}, {"th": "นะคะ", "rom": "ná-ká", "tone": "高-高", "note": "女性專用溫柔叮嚀語氣詞，用於提醒、請求或結語（不可寫成 นะค่ะ）。"}], "examples": [{"th": "ผมเป็นคนไต้หวันครับ", "rom": "pǒm bpen kon dtâi-wǎn kráp", "tokens": [{"w": "ผม", "r": "pǒm"}, {"w": "เป็น", "r": "bpen"}, {"w": "คน", "r": "kon"}, {"w": "ไต้หวัน", "r": "dtâi-wǎn"}, {"w": "ครับ", "r": "kráp"}], "zh": "我是台灣人。（男性說）"}, {"th": "ขอบคุณมากค่ะ", "rom": "kɔ̀ɔp-kun mâak kâ", "tokens": [{"w": "ขอบคุณ", "r": "kɔ̀ɔp-kun"}, {"w": "มาก", "r": "mâak"}, {"w": "ค่ะ", "r": "kâ"}], "zh": "非常感謝。（女性說）"}, {"th": "สบายดีไหมคะ", "rom": "sà-baai-dii mǎi ká", "tokens": [{"w": "สบายดี", "r": "sà-baai-dii"}, {"w": "ไหม", "r": "mǎi"}, {"w": "คะ", "r": "ká"}], "zh": "你好嗎？（女性問）"}, {"th": "เข้าใจแล้วค่ะ", "rom": "kâo-jai lɛ́ɛo kâ", "tokens": [{"w": "เข้าใจ", "r": "kâo-jai"}, {"w": "แล้ว", "r": "lɛ́ɛo"}, {"w": "ค่ะ", "r": "kâ"}], "zh": "我明白了。（女性說）"}], "traps": [{"point": "女性混淆 ค่ะ (降調) 與 คะ (高調) 的句型", "wrong": "สบายดีไหมค่ะ", "right": "สบายดีไหมคะ", "why": "疑問句結尾女性應使用高調的 <thai>คะ|ká</thai>，而不是降調的 <thai>ค่ะ|kâ</thai>。降調的 <thai>ค่ะ|kâ</thai> 僅能用於陳述句或回答。"}, {"point": "女性誤寫並誤讀 <thai>นะคะ|ná-ká</thai> 為 <thai>นะค่ะ|ná-kâ</thai>", "wrong": "ขอบคุณนะค่ะ", "right": "ขอบคุณนะคะ", "why": "<thai>นะ|ná</thai> 後面搭配女性禮貌詞時必須使用高調的 <thai>คะ|ká</thai>，組成 <thai>นะคะ|ná-ká</thai>。泰文寫作 <thai>นะค่ะ|ná-kâ</thai> 是極常見的拼寫與發音錯誤。"}, {"point": "男性誤用女性禮貌詞或在疑問句更換 ครับ 的聲調", "wrong": "ผมสบายดีค่ะ", "right": "ผมสบายดีครับ", "why": "男性在任何句型（陳述、疑問、回答）中皆統一使用 <thai>ครับ|kráp</thai>，無需像女性一樣根據句型切換聲調或字形。第一人稱代名詞 <thai>ผม|pǒm</thai> 搭配女性禮貌詞 <thai>ค่ะ|kâ</thai> 會造成性別矛盾。"}], "collocations": [{"th": "ครับผม", "rom": "kráp-pǒm", "zh": "好的／是的（男性極具禮貌、恭敬的回應）"}, {"th": "ใช่ครับ", "rom": "châi kráp", "zh": "是的（男性回答）"}, {"th": "ใช่ค่ะ", "rom": "châi kâ", "zh": "是的（女性回答）"}, {"th": "อะไรคะ", "rom": "à-rai ká", "zh": "什麼事呢？／什麼？（女性疑問）"}, {"th": "ขอบคุณนะคะ", "rom": "kɔ̀ɔp-kun ná-ká", "zh": "謝謝捏／謝謝喔（女性親切表達感謝）"}, {"th": "ยินดีครับ", "rom": "yin-dii kráp", "zh": "不客氣／我的榮幸（男性回答）"}], "notes": "在聲調規則上，<thai>ครับ|kráp</thai> 的低子音 <thai>ค|kɔɔ-kwaai</thai> 搭配短母音與死音尾音 <thai>บ|bɔɔ-baimaai</thai>，依規則發高調。女性詞 <thai>คะ|ká</thai> 為低子音搭配短母音開音節，同樣發高調；而 <thai>ค่ะ|kâ</thai> 加上一聲調符號（Mai Ek）後變為降調。男性不論陳述或疑問一律使用 <thai>ครับ|kráp</thai>，女性則必須依據句型分清降調的 <thai>ค่ะ|kâ</thai>（陳述/回答）與高調的 <thai>คะ|ká</thai>（疑問/呼喚）。"}}}};
 
   var Store = (function () {
     var healthy = true;
-    var K = { index: "kotoba.index", vocab: "kotoba.vocab", seeded: "kotoba.seeded" };
-    function lk(id) { return "kotoba.lesson." + id; }
+    var K = { index: "siam.index", vocab: "siam.vocab", seeded: "siam.seeded" };
+    function lk(id) { return "siam.lesson." + id; }
 
     function read(key, fallback) {
       try {
@@ -425,7 +434,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
   }
 
   function newId() {
-    return "J" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    return "T" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   }
 
   function arr(x) { return Array.isArray(x) ? x : []; }
@@ -434,7 +443,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
   // 保險：title/summary 是當純文字排版的，模型偶爾還是會把標記塞進來，
   // 不剝掉就會看到字面的 <en>Make</en>
   function plain(text) {
-    return str(text).replace(/<(en|jp|thai)>([\s\S]*?)<\/\1>/g, function (m, t, inner) {
+    return str(text).replace(/<(en|jp|thai|zh)>([\s\S]*?)<\/\1>/g, function (m, t, inner) {
       return inner.split("|")[0];
     });
   }
@@ -442,7 +451,8 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 
   // Punctuation and particles alone are not worth a pronunciation click.
   function speakable(token) {
-    return /[぀-ヿ㐀-鿿ｦ-ﾟa-zA-Z]/.test(token);
+    // 泰文字元範圍。標點、空白、數字單獨點下去只會播出一段怪音
+    return /[\u0E00-\u0E5B]/.test(token);
   }
 
   /* ====== prompt ====== */
@@ -481,25 +491,30 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
   // One clickable Japanese word. Furigana rides above the kanji as real ruby;
   // clicking speaks the READING rather than the surface form, because a single
   // kanji word out of context is exactly where TTS picks the wrong reading.
-  function JpWord(props) {
+  function ThaiWord(props) {
     var surface = props.surface;
     var reading = props.reading;
     var key = props.speakKey;
     var onSpeak = props.onSpeak;
-    var cls = (props.cls || "jp") + (props.speaking === key ? " on" : "");
-    var body = reading
-      ? h("ruby", null, surface, h("rt", null, reading))
-      : surface;
+    var cls = (props.cls || "thai") + (props.speaking === key ? " on" : "");
+
+    // ⚠️ 一定要念 surface（泰文字），不是 reading（Paiboon 轉寫）——
+    // TTS 讀不懂轉寫，餵給它只會念出一串亂七八糟的英文音
     var fire = function (e) {
       e.stopPropagation();
-      onSpeak(reading || surface, key);
+      onSpeak(surface, key);
     };
+
+    var body = reading
+      ? [surface, h("span", { className: "rom", key: "r" }, "（" + reading + "）")]
+      : [surface];
+
     return h("span", {
       className: cls,
-      lang: "ja",
+      lang: "th",
       role: "button",
       tabIndex: 0,
-      title: "點一下發音",
+      title: reading ? reading : "點一下發音",
       onClick: fire,
       onKeyDown: function (e) {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fire(e); }
@@ -507,14 +522,14 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
     }, body);
   }
 
-  // Splits a Chinese paragraph on <jp>surface|reading</jp>.
-  function renderWithJp(text, onSpeak, speaking, keyBase) {
-    var parts = String(text).split(/(<jp>[\s\S]*?<\/jp>)/g);
+  // Splits a Chinese paragraph on <thai>surface|reading</thai>.
+  function renderWithThai(text, onSpeak, speaking, keyBase) {
+    var parts = String(text).split(/(<thai>[\s\S]*?<\/thai>)/g);
     return parts.map(function (part, i) {
-      var m = part.match(/^<jp>([\s\S]*?)<\/jp>$/);
+      var m = part.match(/^<thai>([\s\S]*?)<\/thai>$/);
       if (!m) return h("span", { key: keyBase + "-t" + i }, part);
       var bits = m[1].split("|");
-      return h(JpWord, {
+      return h(ThaiWord, {
         key: keyBase + "-j" + i,
         surface: bits[0],
         reading: bits.length > 1 ? bits[1] : "",
@@ -527,11 +542,18 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 
   // Japanese writes without spaces, so the sentence arrives pre-segmented as
   // tokens rather than being split here.
-  function renderJpTokens(ex, onSpeak, speaking, keyBase) {
+  // 泰文跟日文一樣不用空白斷詞，所以例句是模型切好 token 送過來的。
+  // 但呈現方式不同：每個詞做成「泰文在上、轉寫在下」的一欄，
+  // 這樣邊讀邊對得上音，又不會像 ruby 那樣跟聲調符號打架。
+  function renderThaiTokens(ex, onSpeak, speaking, keyBase) {
     var tokens = arr(ex.tokens);
-    if (!tokens.length) {
-      return h(JpWord, {
-        surface: str(ex.jp),
+    var sentence = str(ex.th);
+
+    // 切詞接不回原句就整句不切 —— 錯的切詞比沒有切詞更誤導人
+    var joined = tokens.map(function (t) { return str(t.w); }).join("");
+    if (!tokens.length || joined !== sentence) {
+      return h(ThaiWord, {
+        surface: sentence,
         reading: "",
         speakKey: keyBase + "-whole",
         onSpeak: onSpeak,
@@ -539,22 +561,33 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
         cls: "tok"
       });
     }
+
     return tokens.map(function (t, i) {
       var w = str(t.w);
       var r = str(t.r);
       var k = keyBase + "-k" + i;
+
       if (!speakable(w)) {
-        return h("span", { key: k, className: "tok plain", lang: "ja" }, w);
+        return h("span", { key: k, className: "stack", lang: "th" },
+          h("span", { className: "w" }, w),
+          h("span", { className: "r" }, "\u00a0"));
       }
-      return h(JpWord, {
+
+      var fire = function (e) { e.stopPropagation(); onSpeak(w, k); };
+      return h("span", {
         key: k,
-        surface: w,
-        reading: r,
-        speakKey: k,
-        onSpeak: onSpeak,
-        speaking: speaking,
-        cls: "tok"
-      });
+        className: "stack tok" + (speaking === k ? " on" : ""),
+        lang: "th",
+        role: "button",
+        tabIndex: 0,
+        title: r || "點一下發音",
+        onClick: fire,
+        onKeyDown: function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fire(e); }
+        }
+      },
+        h("span", { className: "w" }, w),
+        h("span", { className: "r" }, r || "\u00a0"));
     });
   }
 
@@ -575,7 +608,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
     var s7 = useState([]); var vocab = s7[0], setVocab = s7[1];
     var s8 = useState("history"); var tab = s8[0], setTab = s8[1];
     var s9 = useState("lesson"); var view = s9[0], setView = s9[1];
-    var s10 = useState("female"); var gender = s10[0], setGender = s10[1];
+    // 泰文的 Standard 只有一個音色（th-TH-Standard-A），沒有男女可選
     var s11 = useState(1); var rate = s11[0], setRate = s11[1];
     var s12 = useState(null); var speaking = s12[0], setSpeaking = s12[1];
     var s13 = useState(null); var nowPlaying = s13[0], setNowPlaying = s13[1];
@@ -586,7 +619,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
     var s18 = useState("loading"); var aiState = s18[0], setAiState = s18[1];
     var s19 = useState(null); var currentId = s19[0], setCurrentId = s19[1];
     var sD = useState({}); var diag = sD[0], setDiag = sD[1];
-    var s20 = useState(true); var furi = s20[0], setFuri = s20[1];
+    var s20 = useState(true); var rom = s20[0], setRom = s20[1];
 
     var abortRef = useRef(null);
     var utterSeq = useRef(0);
@@ -609,7 +642,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 
       // 伺服器的 D1 才是歷史的事實來源，localStorage 只是本機快取。
       // 換裝置或清過快取時，這一步會把紀錄補回來。
-      LL.history.hydrate("kotoba", "ja").then(function (items) {
+      LL.history.hydrate("siam", "zh-th").then(function (items) {
         if (live && items) setIndex(items);
       });
 
@@ -620,7 +653,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
     // 原本這裡訂閱瀏覽器的 voiceschanged 事件，等系統語音載入完再重畫。
     // 改走 Google TTS 之後沒有「語音清單要等」這回事，整段拿掉。
 
-    var activeVoice = { name: (gender === "male" ? "男聲 Standard" : "女聲 Standard") };
+    var activeVoice = { name: "th-TH Standard" };
 
     /* ---- speech ---- */
     var stopSpeech = useCallback(function () {
@@ -636,16 +669,16 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       utterSeq.current += 1;
       var seq = utterSeq.current;
       setSpeaking(key);
-      setNowPlaying({ text: text, voice: (gender === "male" ? "男聲 Standard" : "女聲 Standard") });
+      setNowPlaying({ text: text, voice: "th-TH Standard" });
       // 失敗靜默降級成不發音 —— 點一個詞念不出來就跳錯誤，讀一段課文會被打斷十次
-      LL.speech.speak("ja", text, key, { rate: rate, voice: gender })
+      LL.speech.speak("th", text, key, { rate: rate, voice: "female" })
         .then(function () {
           if (utterSeq.current !== seq) return;
           setSpeaking(null);
           setNowPlaying(null);
           if (onDone) onDone();
         });
-    }, [gender, rate]);
+    }, [rate]);
 
     var playQueue = useCallback(function (items) {
       if (!items.length) return;
@@ -723,13 +756,13 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       Store.setVocab(next.slice(0, 800));
     }
 
-    function addWord(jp, kana, accent, zh) {
-      var key = jp;
-      if (vocabRef.current.some(function (v) { return str(v.jp) === key; })) return;
+    function addWord(word, rom, tone, zh) {
+      var key = word;
+      if (vocabRef.current.some(function (v) { return str(v.th) === key; })) return;
       var next = [{
-        jp: jp,
-        kana: str(kana),
-        accent: str(accent),
+        th: word,
+        rom: str(rom),
+        tone: str(tone),
         zh: str(zh),
         lessonId: currentId,
         lessonTitle: lesson ? str(lesson.title) : "",
@@ -738,8 +771,8 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       writeVocab(next);
     }
 
-    function hasWord(jp) {
-      return vocab.some(function (v) { return str(v.jp) === jp; });
+    function hasWord(word) {
+      return vocab.some(function (v) { return str(v.th) === word; });
     }
 
     /* ---- generation ---- */
@@ -758,7 +791,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
       var ctl = new AbortController();
       abortRef.current = ctl;
 
-      LL.generate("ja", t, { signal: ctl.signal }).then(function (r) {
+      LL.generate("zh-th", t, { signal: ctl.signal }).then(function (r) {
         var data = r && r.lesson;
         if (!data || typeof data !== "object") throw { code: "bad_json", message: "not an object" };
         // 用伺服器那筆紀錄的 id，兩邊才對得起來
@@ -793,16 +826,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
     function VoiceBar() {
       var voiceLabel = activeVoice.name;
       return h("div", { className: "voicebar" },
-        h("div", { className: "seg", role: "group", "aria-label": "語音" },
-          h("button", {
-            type: "button", "aria-pressed": gender === "female",
-            onClick: function () { setGender("female"); }
-          }, "女聲"),
-          h("button", {
-            type: "button", "aria-pressed": gender === "male",
-            onClick: function () { setGender("male"); }
-          }, "男聲")
-        ),
+        // 泰文的 Standard 只有 th-TH-Standard-A 一個音色，沒得選，所以不放切換
         h("div", { className: "seg", role: "group", "aria-label": "語速" },
           h("button", {
             type: "button", "aria-pressed": rate === 1,
@@ -817,14 +841,14 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
             onClick: function () { setRate(0.5); }
           }, "很慢")
         ),
-        h("div", { className: "seg", role: "group", "aria-label": "假名" },
+        h("div", { className: "seg", role: "group", "aria-label": "轉寫" },
           h("button", {
-            type: "button", "aria-pressed": furi,
-            onClick: function () { setFuri(true); }
-          }, "假名"),
+            type: "button", "aria-pressed": rom,
+            onClick: function () { setRom(true); }
+          }, "轉寫"),
           h("button", {
-            type: "button", "aria-pressed": !furi,
-            onClick: function () { setFuri(false); }
+            type: "button", "aria-pressed": !rom,
+            onClick: function () { setRom(false); }
           }, "隱藏")
         ),
         h("span", { className: "voicename" }, "語音　", h("b", null, voiceLabel)),
@@ -845,7 +869,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
             id: "topic",
             type: "text",
             value: topic,
-            placeholder: "想學什麼？例如「は と が 到底差在哪」",
+            placeholder: "想學什麼？例如「ครับ 和 ค่ะ 怎麼用」",
             "aria-label": "課程主題",
             onChange: function (e) { setTopic(e.target.value); },
             onKeyDown: function (e) { if (e.key === "Enter") generate(topic, false); }
@@ -882,27 +906,27 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
         h("table", { className: "compare" },
           h("thead", null, h("tr", null,
             h("th", null, "詞"),
-            h("th", null, "アクセント"),
+            h("th", null, "聲調"),
             h("th", null, "語感與使用場合"),
             h("th", null, "")
           )),
           h("tbody", null, rows.map(function (r, i) {
-            var jp = str(r.jp);
-            var kana = str(r.kana);
-            var saved = hasWord(jp);
+            var word = str(r.th);
+            var rom = str(r.rom);
+            var saved = hasWord(word);
             return h("tr", { key: "cmp" + i },
-              h("td", { className: "c-jp" }, h(JpWord, {
-                surface: jp, reading: kana, speakKey: "cmp" + i,
+              h("td", { className: "c-word" }, h(ThaiWord, {
+                surface: word, reading: rom, speakKey: "cmp" + i,
                 onSpeak: onSpeak, speaking: speaking
               })),
-              h("td", { className: "c-acc" }, str(r.accent)),
+              h("td", { className: "c-tone" }, str(r.tone)),
               h("td", { className: "c-note" },
-                renderWithJp(str(r.note), onSpeak, speaking, "cmpn" + i)),
+                renderWithThai(str(r.note), onSpeak, speaking, "cmpn" + i)),
               h("td", { className: "c-add" }, h("button", {
                 type: "button",
                 className: "addbtn" + (saved ? " saved" : ""),
-                "aria-label": saved ? ("「" + jp + "」已在單字總表") : ("把「" + jp + "」加入單字總表"),
-                onClick: function () { if (!saved) addWord(jp, kana, r.accent, r.note); }
+                "aria-label": saved ? ("「" + word + "」已在單字總表") : ("把「" + word + "」加入單字總表"),
+                onClick: function () { if (!saved) addWord(word, rom, str(r.tone), r.note); }
               }, saved ? "已收錄" : "＋ 總表"))
             );
           }))
@@ -928,7 +952,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
 
         core ? h("section", { className: "block" },
           h("h2", { className: "label" }, "核心解釋"),
-          h("p", { className: "prose" }, renderWithJp(core, onSpeak, speaking, "core"))
+          h("p", { className: "prose" }, renderWithThai(core, onSpeak, speaking, "core"))
         ) : null,
 
         compare.length ? h("section", { className: "block" },
@@ -940,19 +964,19 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
           h("h2", { className: "label" }, "例句"),
           examples.map(function (ex, i) {
             var key = "ex" + i;
-            var sentence = str(ex.jp);
+            var sentence = str(ex.th);
             return h("div", { className: "ex", key: key },
               h("button", {
                 type: "button",
                 className: "play" + (speaking === key ? " on" : ""),
                 "aria-label": "朗讀整句：" + sentence,
                 // The whole sentence is spoken from its kanji form: TTS reads
-                // Japanese better with context than from bare kana.
+                // Japanese better with context than from bare rom.
                 onClick: function () { speak(sentence, key); }
               }, h(PlayIcon)),
               h("div", { className: "ex-body" },
-                h("div", { className: "ex-jp", lang: "ja" },
-                  renderJpTokens(ex, onSpeak, speaking, key)),
+                h("div", { className: "ex-thai", lang: "th" },
+                  renderThaiTokens(ex, onSpeak, speaking, key)),
                 str(ex.zh) ? h("div", { className: "ex-zh" }, str(ex.zh)) : null
               )
             );
@@ -966,20 +990,20 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
               h("div", { className: "trap-point" }, str(t.point)),
               str(t.wrong) ? h("div", { className: "wr wr-x" },
                 h("span", { className: "wr-tag" }, "✕"),
-                h(JpWord, {
+                h(ThaiWord, {
                   surface: str(t.wrong), reading: "", speakKey: "trapw" + i,
                   onSpeak: onSpeak, speaking: speaking
                 })
               ) : null,
               str(t.right) ? h("div", { className: "wr wr-o" },
                 h("span", { className: "wr-tag" }, "✓"),
-                h(JpWord, {
+                h(ThaiWord, {
                   surface: str(t.right), reading: "", speakKey: "trapr" + i,
                   onSpeak: onSpeak, speaking: speaking
                 })
               ) : null,
               str(t.why) ? h("div", { className: "trap-why" },
-                renderWithJp(str(t.why), onSpeak, speaking, "trapy" + i)) : null
+                renderWithThai(str(t.why), onSpeak, speaking, "trapy" + i)) : null
             );
           })
         ) : null,
@@ -987,20 +1011,20 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
         colls.length ? h("section", { className: "block" },
           h("h2", { className: "label" }, "常用搭配"),
           h("div", { className: "colls" }, colls.map(function (c, i) {
-            var jp = str(c.jp);
-            var kana = str(c.kana);
-            var saved = hasWord(jp);
+            var word = str(c.th);
+            var rom = str(c.rom);
+            var saved = hasWord(word);
             return h("div", { className: "coll", key: "col" + i },
-              h("span", { className: "coll-jp" }, h(JpWord, {
-                surface: jp, reading: kana, speakKey: "col" + i,
+              h("span", { className: "coll-word" }, h(ThaiWord, {
+                surface: word, reading: rom, speakKey: "col" + i,
                 onSpeak: onSpeak, speaking: speaking
               })),
               h("span", { className: "coll-zh" }, str(c.zh)),
               h("button", {
                 type: "button",
                 className: "addbtn" + (saved ? " saved" : ""),
-                "aria-label": saved ? ("「" + jp + "」已在單字總表") : ("把「" + jp + "」加入單字總表"),
-                onClick: function () { if (!saved) addWord(jp, kana, "", c.zh); }
+                "aria-label": saved ? ("「" + word + "」已在單字總表") : ("把「" + word + "」加入單字總表"),
+                onClick: function () { if (!saved) addWord(word, rom, "", c.zh); }
               }, saved ? "已收錄" : "＋"))
             ;
           }))
@@ -1009,7 +1033,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
         notes ? h("section", { className: "block" },
           h("h2", { className: "label" }, "延伸筆記"),
           h("div", { className: "notes" },
-            h("p", { className: "prose" }, renderWithJp(notes, onSpeak, speaking, "notes"))
+            h("p", { className: "prose" }, renderWithThai(notes, onSpeak, speaking, "notes"))
           )
         ) : null,
 
@@ -1032,7 +1056,8 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
               type: "button", className: "btn-ghost",
               onClick: function () {
                 playQueue(items.map(function (v, i) {
-                  return { text: str(v.kana) || str(v.jp), key: "vq" + i };
+                  // 一定要送泰文字給 TTS，不能送轉寫 —— Google 會拿英文去念 Paiboon
+                  return { text: str(v.th), key: "vq" + i };
                 }));
               }
             }, "連續播放") : null,
@@ -1046,15 +1071,15 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
               "課程裡的對照表和常用搭配右邊有「＋ 總表」，點下去就會收錄到這裡，跨課程累積。")
           : items.map(function (v, i) {
               var k = "vq" + i;
-              var armKey = "v:" + str(v.jp);
+              var armKey = "v:" + str(v.th);
               return h("div", { className: "vrow", key: "v" + i },
-                h("span", { className: "v-jp" }, h(JpWord, {
-                  surface: str(v.jp), reading: str(v.kana), speakKey: k,
+                h("span", { className: "v-word" }, h(ThaiWord, {
+                  surface: str(v.th), reading: str(v.rom), speakKey: k,
                   onSpeak: onSpeak, speaking: speaking
                 })),
-                str(v.accent) ? h("span", { className: "v-acc" }, str(v.accent)) : null,
+                str(v.tone) ? h("span", { className: "v-acc" }, str(v.tone)) : null,
                 h("span", { className: "v-zh" },
-                  renderWithJp(str(v.zh), onSpeak, speaking, "vz" + i)),
+                  renderWithThai(str(v.zh), onSpeak, speaking, "vz" + i)),
                 v.lessonId ? h("button", {
                   type: "button", className: "v-src",
                   onClick: function () { openLesson(v.lessonId); }
@@ -1065,7 +1090,7 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
                   onClick: function () {
                     if (armed !== armKey) { setArmed(armKey); return; }
                     setArmed(null);
-                    writeVocab(vocabRef.current.filter(function (x) { return str(x.jp) !== str(v.jp); }));
+                    writeVocab(vocabRef.current.filter(function (x) { return str(x.th) !== str(v.th); }));
                   },
                   onBlur: function () { if (armed === armKey) setArmed(null); }
                 }, armed === armKey ? "確認移除" : "移除")
@@ -1075,22 +1100,22 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
     }
 
     var TRY = [
-      "あげる・くれる・もらう：到底誰給誰",
-      "建設公司相關的日文",
-      "は と が 的差別"
+      "五個聲調的規則怎麼記",
+      "ไป 和 มา 的方向感",
+      "在路邊攤點餐會用到的泰文"
     ];
 
     function EmptyView() {
       return h("div", { className: "empty" },
-        h("h1", null, "丟一個主題進來，換一份標好假名、唸得出聲的辭典條目"),
-        h("p", null, "不管是一組容易混淆的動詞、一個助詞的用法，還是一個行業的用語，都可以問。每份課程固定六段："),
+        h("h1", null, "丟一個主題進來，換一份標好聲調、唸得出聲的辭典條目"),
+        h("p", null, "不管是一組容易混淆的詞、一條聲調規則，還是一個場合的用語，都可以問。每份課程固定六段："),
         h("dl", { className: "contents" },
-          h("div", null, h("dt", null, "核心解釋"), h("dd", null, "主要用法、語感、敬體常體的分別")),
-          h("div", null, h("dt", null, "對照表"), h("dd", null, "近義詞差異，附假名讀音與アクセント型")),
-          h("div", null, h("dt", null, "例句"), h("dd", null, "真實語境，漢字標假名、逐詞可點發音")),
-          h("div", null, h("dt", null, "常見錯誤"), h("dd", null, "漢字同形異義、助詞、自他動詞、敬語")),
+          h("div", null, h("dt", null, "核心解釋"), h("dd", null, "主要用法、語感、正式與口語的分別")),
+          h("div", null, h("dt", null, "對照表"), h("dd", null, "近義詞差異，附 Paiboon 轉寫與五聲調")),
+          h("div", null, h("dt", null, "例句"), h("dd", null, "真實語境，逐詞標轉寫、點一下就發音")),
+          h("div", null, h("dt", null, "常見錯誤"), h("dd", null, "聲調記錯、母音長短、子音分類、詞序")),
           h("div", null, h("dt", null, "常用搭配"), h("dd", null, "母語者真正會說的慣用講法")),
-          h("div", null, h("dt", null, "延伸筆記"), h("dd", null, "語源、音読み訓読み、和製漢語"))
+          h("div", null, h("dt", null, "延伸筆記"), h("dd", null, "巴利梵語借詞、拼寫與發音的落差"))
         ),
         h("div", { className: "try-label" }, "先試試看"),
         h("div", { className: "try" }, TRY.map(function (t, i) {
@@ -1155,13 +1180,13 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
                 return h("div", { className: "hist-row", key: "rv" + i },
                   h("button", {
                     type: "button", className: "hist-item",
-                    onClick: function () { speak(str(v.kana) || str(v.jp), "rv" + i); }
+                    onClick: function () { speak(str(v.th), "rv" + i); }
                   },
                     h("div", {
-                      className: "hist-title", lang: "ja",
-                      style: { fontFamily: "var(--jpser)", fontSize: "16px" }
-                    }, str(v.jp)),
-                    h("div", { className: "hist-meta" }, str(v.kana))
+                      className: "hist-title", lang: "th",
+                      style: { fontFamily: "var(--thai)", fontSize: "16px" }
+                    }, str(v.th)),
+                    h("div", { className: "hist-meta" }, str(v.rom))
                   )
                 );
               })
@@ -1176,20 +1201,16 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
     else body = EmptyView();
 
     return h(Frag, null,
-      h("div", { className: "shell" + (furi ? "" : " nofuri") },
+      h("div", { className: "shell" + (rom ? "" : " norom") },
         Rail(),
         h("main", { className: "main" },
           h("div", { className: "col" },
             h("div", { className: "masthead" },
-              h("h1", { className: "wordmark", lang: "ja" }, "言葉", h("em", null, "研究室")),
-              h("span", { className: "tagline" }, "日文用法・語感・發音"),
+              h("h1", { className: "wordmark" }, "泰文", h("em", null, "研究室")),
+              h("span", { className: "tagline" }, "泰文用法・聲調・發音"),
               h("span", { className: "masthead-sp" }),
-              h("span", { className: "langbar" }, LL.LANGS.map(function (L) {
-                if (L.id === "ja") return h("span", { key: L.id, className: "on" }, L.label);
-                // 還沒做好的語言不給連結，免得點過去是 404
-                if (!L.ready) {
-                  return h("span", { key: L.id, className: "soon", title: "還沒做好" }, L.label);
-                }
+              h("span", { className: "langbar" }, LL.siblings("zh").map(function (L) {
+                if (L.id === "zh-th") return h("span", { key: L.id, className: "on" }, L.label);
                 return h("a", { key: L.id, href: L.path }, L.label);
               })),
               h("button", {
@@ -1209,14 +1230,14 @@ td.c-add{width:1%;text-align:right;white-space:nowrap}
         )
       ),
       nowPlaying ? h("div", { className: "pill pill-enter", role: "status" },
-        h("span", { className: "pill-text", lang: "ja" }, nowPlaying.text),
+        h("span", { className: "pill-text", lang: "th" }, nowPlaying.text),
         h("span", { className: "pill-voice" }, nowPlaying.voice),
         h("button", { type: "button", className: "pill-stop", onClick: stopSpeech }, "停止")
       ) : null
     );
   }
 
-  LL.remember("ja");
+  LL.remember("zh-th");
 
   ReactDOM.createRoot(document.getElementById("root")).render(h(App));
 })();

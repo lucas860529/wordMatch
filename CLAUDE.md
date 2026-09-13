@@ -14,12 +14,25 @@
 
 目前分工：`thai/` 管 SRS 間隔重複與字庫；wordMatch 管「問一個主題、生成一份講解」。
 
+## 課程制
+
+一堂課程 = **母語（ui）× 學習語言（target）**，網址是 `/{ui}-{target}/`。
+登錄表在 `src/api/_shared/courses.js`，前端的對應清單在 `public/shared/ll.js`
+的 `LL.COURSES` —— **兩邊要一起改**。
+
+加一個課程要動四個地方：`courses.js`、`prompts.js`、`ll.js`、
+新的 `public/{id}/index.html`（從最接近的課程複製再改）。
+
+**說明語言不是繁中的課程**（`th-*`），介面文案要手動翻譯，
+但**課程內容的語言是 prompt 決定的** —— Gemini 直接用那個語言寫，不要人工翻。
+
 ## 已定案（勿重新討論，見 docs/adr/）
 
 - **三頁不是單一 SPA**（ADR 0001）—— `/en/` `/ja/` `/th/` 各自完整，只共用 `shared/ll.js`
 - **泰文轉寫用 Paiboon**，不用 RTGS（ADR 0002）
 - **TTS 護欄按字元算不按次數**（ADR 0003）
 - **沒有打包工具** —— 原生 ES modules + 直接送目錄
+- **不做舊網址轉址** —— `/en/` `/ja/` `/th/` 直接 404
 - **用 Workers 不用 Pages**（ADR 0004）—— 路由手寫在 `src/index.js`，不用 Pages 的檔案路由
 
 ## 英文與日文的程式碼不是在這裡寫的

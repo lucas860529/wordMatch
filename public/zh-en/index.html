@@ -1,0 +1,1230 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="繁體中文母語者的英／日／泰學習工具">
+<meta name="theme-color" content="#ECEFF1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121C22" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="字詞研究室">
+<title>字詞研究室</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Charis+SIL:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root{
+  --paper:#ECEFF1;
+  --paper-2:#E3E8EB;
+  --paper-3:#D9E0E4;
+  --ink:#16232B;
+  --ink-2:#4B5C66;
+  --ink-3:#72848E;
+  --rule:#C7D0D6;
+  --rule-strong:#8FA0AA;
+  --teal:#0F6E7A;
+  --teal-deep:#0A525B;
+  --teal-wash:#BFE3E6;
+  --teal-faint:#D9EDEF;
+  --brick:#A8412B;
+  --brick-faint:#F0DED8;
+  --mustard:#9A7418;
+  --mustard-faint:#EDE4CE;
+  --on-teal:#F4FAFB;
+
+  --serif:"Charter","Charis SIL","Iowan Old Style",Palatino,Georgia,"Times New Roman",serif;
+  --sans:"Avenir Next","PingFang TC","Microsoft JhengHei","Noto Sans TC","Hiragino Sans",sans-serif;
+
+  --measure:62ch;
+  --col:760px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#121C22;
+    --paper-2:#18242B;
+    --paper-3:#1F2D35;
+    --ink:#DFE7EB;
+    --ink-2:#93A5B0;
+    --ink-3:#74868F;
+    --rule:#2D3C45;
+    --rule-strong:#4A5F6A;
+    --teal:#5CBCC6;
+    --teal-deep:#8AD5DC;
+    --teal-wash:#174B54;
+    --teal-faint:#16323A;
+    --brick:#DE7F63;
+    --brick-faint:#32201B;
+    --mustard:#CCA13F;
+    --mustard-faint:#2C2517;
+    --on-teal:#08181C;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#121C22;
+  --paper-2:#18242B;
+  --paper-3:#1F2D35;
+  --ink:#DFE7EB;
+  --ink-2:#93A5B0;
+  --ink-3:#74868F;
+  --rule:#2D3C45;
+  --rule-strong:#4A5F6A;
+  --teal:#5CBCC6;
+  --teal-deep:#8AD5DC;
+  --teal-wash:#174B54;
+  --teal-faint:#16323A;
+  --brick:#DE7F63;
+  --brick-faint:#32201B;
+  --mustard:#CCA13F;
+  --mustard-faint:#2C2517;
+  --on-teal:#08181C;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
+input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:2px}
+
+/* ---------- shell ---------- */
+.shell{display:flex;align-items:flex-start;min-height:100vh}
+
+.rail{
+  width:264px;flex:0 0 264px;
+  border-right:1px solid var(--rule);
+  background:var(--paper-2);
+  min-height:100vh;
+  position:sticky;top:0;
+  max-height:100vh;overflow-y:auto;
+  padding:22px 0 40px;
+}
+.rail-head{
+  display:flex;gap:2px;padding:0 18px 14px;
+}
+.rail-tab{
+  font-size:12px;letter-spacing:.09em;
+  padding:5px 9px;color:var(--ink-3);
+  border-bottom:2px solid transparent;
+}
+.rail-tab[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--teal)}
+.rail-tab:hover{color:var(--ink)}
+
+.rail-empty{padding:4px 18px;color:var(--ink-3);font-size:13px;line-height:1.75}
+
+.hist-item{
+  display:block;width:100%;text-align:left;
+  padding:11px 18px;border-top:1px solid var(--rule);
+}
+.hist-item:first-of-type{border-top:none}
+.hist-item:hover{background:var(--paper-3)}
+.hist-item[aria-current="true"]{background:var(--paper-3);box-shadow:inset 3px 0 0 var(--teal)}
+.hist-title{font-size:14px;line-height:1.5;margin-bottom:3px}
+.hist-meta{font-size:11.5px;color:var(--ink-3);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.hist-row{display:flex;align-items:stretch;border-top:1px solid var(--rule)}
+.hist-row:first-child{border-top:none}
+.hist-row .hist-item{border-top:none}
+.hist-del{
+  flex:0 0 auto;padding:0 14px;color:var(--ink-3);font-size:12px;
+  opacity:0;transition:opacity .12s;
+}
+.hist-row:hover .hist-del,.hist-del:focus-visible{opacity:1}
+.hist-del.armed{opacity:1;color:var(--brick);font-weight:600}
+@media (hover:none){.hist-del{opacity:1}}
+
+/* ---------- main ---------- */
+.main{flex:1 1 auto;min-width:0;padding:0 28px 140px}
+.col{max-width:var(--col);margin:0 auto}
+
+.masthead{
+  display:flex;flex-wrap:wrap;gap:14px 20px;align-items:baseline;
+  padding:26px 0 16px;border-bottom:1px solid var(--rule);
+}
+.wordmark{font-family:var(--serif);font-size:21px;letter-spacing:.01em;margin:0;font-weight:700}
+.wordmark em{font-style:normal;color:var(--teal)}
+.tagline{font-size:12.5px;color:var(--ink-3);letter-spacing:.02em}
+.build{font-size:11px;color:var(--ink-3);letter-spacing:.06em;font-variant-numeric:tabular-nums;border:1px solid var(--rule);border-radius:2px;padding:1px 8px;white-space:nowrap}
+.masthead-sp{flex:1 1 auto}
+
+.voicebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.seg{display:flex;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
+.seg button{
+  padding:3px 10px;font-size:12px;color:var(--ink-2);
+  border-right:1px solid var(--rule-strong);white-space:nowrap;
+}
+.seg button:last-child{border-right:none}
+.seg button[aria-pressed="true"]{background:var(--teal);color:var(--on-teal)}
+.seg button:not([aria-pressed="true"]):hover{background:var(--paper-3)}
+.voicename{font-size:11.5px;color:var(--ink-3);letter-spacing:.02em}
+.voicename b{font-weight:500;color:var(--ink-2);font-family:var(--serif)}
+.drawer-btn{display:none}
+
+/* composer */
+.composer{padding:22px 0 20px;border-bottom:1px solid var(--rule)}
+.composer-row{display:flex;gap:10px;flex-wrap:wrap}
+#topic{
+  flex:1 1 260px;min-width:0;
+  background:var(--paper-2);
+  border:1px solid var(--rule-strong);
+  border-radius:2px;padding:9px 12px;font-size:15px;
+}
+#topic::placeholder{color:var(--ink-3)}
+#topic:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-faint)}
+.btn-go{
+  flex:0 0 auto;background:var(--teal);color:var(--on-teal);
+  padding:9px 20px;border-radius:2px;font-size:14px;letter-spacing:.04em;
+}
+.btn-go:hover{background:var(--teal-deep)}
+.btn-go[disabled]{background:var(--rule-strong);cursor:default}
+.btn-stop{flex:0 0 auto;padding:9px 16px;border:1px solid var(--rule-strong);border-radius:2px;font-size:13px;color:var(--ink-2)}
+.btn-stop:hover{border-color:var(--brick);color:var(--brick)}
+
+.status{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:13px;color:var(--ink-2)}
+.pulse{
+  width:7px;height:7px;border-radius:50%;background:var(--teal);flex:0 0 auto;
+  animation:pulse 1.3s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+.status-stage{font-family:var(--serif);color:var(--ink)}
+.status-count{font-variant-numeric:tabular-nums;color:var(--ink-3);font-size:12px}
+
+.notice{
+  margin-top:14px;padding:10px 14px;font-size:13.5px;line-height:1.65;
+  border-left:3px solid var(--brick);background:var(--brick-faint);color:var(--ink);
+}
+.notice button{color:var(--brick);text-decoration:underline;text-underline-offset:3px;margin-left:8px}
+.notice .code{display:block;margin-top:7px;font-family:var(--serif);font-size:11.5px;color:var(--ink-2);letter-spacing:.03em}
+.diag{margin-top:14px;font-size:11.5px;color:var(--ink-3)}
+.diag summary{cursor:pointer;letter-spacing:.08em;padding:2px 0}
+.diag dl{margin:9px 0 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.6}
+.diag dt{color:var(--ink-3);white-space:nowrap}
+.diag dd{margin:0;color:var(--ink-2);overflow-wrap:anywhere}
+
+/* ---------- lesson ---------- */
+.lesson{padding-top:8px}
+.lesson-head{padding:26px 0 18px}
+h1.title{
+  font-family:var(--sans);font-size:27px;line-height:1.35;font-weight:600;
+  margin:0 0 10px;text-wrap:balance;letter-spacing:-.005em;
+}
+.summary{margin:0;color:var(--ink-2);font-size:15px;max-width:var(--measure)}
+.lesson-topic{font-size:11.5px;letter-spacing:.1em;color:var(--ink-3);margin-bottom:12px}
+
+section.block{padding:24px 0;border-top:1px solid var(--rule)}
+h2.label{
+  font-size:11px;letter-spacing:.16em;font-weight:600;color:var(--ink-3);
+  margin:0 0 14px;
+}
+.prose{margin:0;max-width:var(--measure);font-size:15.5px}
+.prose+.prose{margin-top:12px}
+
+/* clickable english */
+.en{
+  font-family:var(--serif);
+  border-bottom:1px solid var(--rule-strong);
+  cursor:pointer;padding:0 1px;border-radius:2px;
+  transition:background-color .1s,color .1s;
+}
+.en:hover{background:var(--teal-faint)}
+.en.on{background:var(--teal);color:var(--on-teal);border-bottom-color:transparent}
+.tok{font-family:var(--serif);cursor:pointer;border-radius:2px;padding:0 .5px}
+.tok:hover{background:var(--teal-faint)}
+.tok.on{background:var(--teal);color:var(--on-teal)}
+
+/* compare table */
+.tablewrap{overflow-x:auto;max-width:100%}
+table.compare{border-collapse:collapse;width:100%;min-width:420px}
+table.compare th{
+  text-align:left;font-size:11px;letter-spacing:.14em;font-weight:600;
+  color:var(--ink-3);padding:0 12px 7px 0;
+  border-bottom:2px solid var(--rule-strong);
+}
+table.compare th:last-child,table.compare td:last-child{padding-right:0}
+table.compare td{
+  padding:11px 12px 11px 0;border-bottom:1px solid var(--rule);
+  vertical-align:baseline;font-size:14.5px;
+}
+td.c-en{white-space:nowrap}
+td.c-en .en{font-size:16.5px}
+td.c-ipa{font-family:var(--serif);color:var(--ink-2);white-space:nowrap;font-size:14px}
+td.c-note{color:var(--ink);min-width:200px}
+td.c-add{width:1%;text-align:right;white-space:nowrap}
+.addbtn{
+  font-size:11px;letter-spacing:.06em;color:var(--ink-3);
+  border:1px solid var(--rule);border-radius:2px;padding:2px 7px;
+}
+.addbtn:hover{border-color:var(--teal);color:var(--teal)}
+.addbtn.saved{color:var(--teal);border-color:var(--teal-wash);background:var(--teal-faint)}
+
+/* examples */
+.ex{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--rule)}
+.ex:last-child{border-bottom:none}
+.ex:first-child{padding-top:0}
+.play{
+  flex:0 0 auto;width:26px;height:26px;border:1px solid var(--rule-strong);
+  border-radius:50%;display:grid;place-items:center;margin-top:2px;color:var(--ink-2);
+}
+.play:hover{border-color:var(--teal);color:var(--teal)}
+.play.on{background:var(--teal);border-color:var(--teal);color:var(--on-teal)}
+.play svg{width:9px;height:9px;display:block}
+.ex-body{min-width:0}
+.ex-en{font-family:var(--serif);font-size:17px;line-height:1.6;max-width:var(--measure)}
+.ex-zh{color:var(--ink-2);font-size:13.5px;margin-top:4px;max-width:var(--measure)}
+
+/* traps */
+.trap{border-left:3px solid var(--brick);padding:2px 0 2px 15px;margin-bottom:18px}
+.trap:last-child{margin-bottom:0}
+.trap-point{font-size:14.5px;margin-bottom:7px;max-width:var(--measure)}
+.wr{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:15.5px;margin-bottom:3px}
+.wr-tag{
+  font-size:10.5px;letter-spacing:.1em;flex:0 0 auto;width:22px;
+  font-family:var(--sans);
+}
+.wr-x .wr-tag{color:var(--brick)}
+.wr-o .wr-tag{color:var(--teal)}
+.wr-x .en{text-decoration:line-through;text-decoration-color:var(--brick);text-decoration-thickness:1px}
+.trap-why{color:var(--ink-2);font-size:13.5px;margin-top:6px;max-width:var(--measure)}
+
+/* collocations */
+.colls{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1px 26px}
+.coll{display:flex;gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--rule)}
+.coll-en{font-size:15.5px;min-width:0}
+.coll-zh{color:var(--ink-2);font-size:12.5px;margin-left:auto;text-align:right;flex:0 0 auto}
+
+/* notes */
+.notes{border-left:3px solid var(--mustard);padding:2px 0 2px 15px;background:transparent}
+.notes .prose{font-size:14.5px;color:var(--ink)}
+
+/* ---------- vocab ---------- */
+.vocab-head{display:flex;flex-wrap:wrap;gap:12px;align-items:baseline;padding:26px 0 16px}
+.vocab-head h1{font-size:24px;font-weight:600;margin:0}
+.vocab-count{font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.vocab-actions{margin-left:auto;display:flex;gap:8px}
+.btn-ghost{border:1px solid var(--rule-strong);border-radius:2px;padding:5px 12px;font-size:12.5px;color:var(--ink-2)}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+.vrow{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;padding:12px 0;border-top:1px solid var(--rule)}
+.vrow .v-en{font-size:17px}
+.v-ipa{font-family:var(--serif);color:var(--ink-2);font-size:13.5px}
+.v-zh{color:var(--ink);font-size:13.5px;flex:1 1 180px;min-width:0}
+.v-src{font-size:11.5px;color:var(--ink-3)}
+.v-src:hover{color:var(--teal);text-decoration:underline;text-underline-offset:3px}
+.v-del{font-size:11.5px;color:var(--ink-3)}
+.v-del:hover{color:var(--brick)}
+.v-del.armed{color:var(--brick);font-weight:600}
+
+/* ---------- empty ---------- */
+.empty{padding:34px 0 10px;max-width:var(--measure)}
+.empty h1{font-family:var(--sans);font-size:25px;font-weight:600;margin:0 0 12px;text-wrap:balance}
+.empty p{color:var(--ink-2);margin:0 0 24px;font-size:15px}
+.contents{border-top:1px solid var(--rule);margin-bottom:26px}
+.contents div{display:flex;gap:14px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--rule);font-size:13.5px}
+.contents dt{flex:0 0 88px;color:var(--ink);margin:0}
+.contents dd{margin:0;color:var(--ink-2);font-size:13px}
+.try-label{font-size:11px;letter-spacing:.16em;color:var(--ink-3);margin-bottom:10px}
+.try{display:flex;flex-direction:column;gap:1px}
+.try button{
+  text-align:left;padding:11px 0;border-top:1px solid var(--rule);
+  font-size:14.5px;display:flex;gap:10px;align-items:baseline;
+}
+.try button:last-child{border-bottom:1px solid var(--rule)}
+.try button:hover{color:var(--teal)}
+.try .arrow{color:var(--teal);flex:0 0 auto;font-family:var(--serif)}
+
+/* ---------- speech pill ---------- */
+.pill{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
+  display:flex;align-items:center;gap:11px;
+  background:var(--ink);color:var(--paper);
+  padding:8px 16px;border-radius:999px;
+  font-size:13px;max-width:min(560px,calc(100vw - 32px));
+  box-shadow:0 6px 24px rgba(10,25,32,.22);
+  z-index:50;
+}
+.pill-text{font-family:var(--serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill-voice{font-size:11px;opacity:.6;white-space:nowrap;flex:0 0 auto}
+.pill-stop{font-size:11px;opacity:.75;flex:0 0 auto;border-left:1px solid rgba(255,255,255,.2);padding-left:11px}
+.pill-stop:hover{opacity:1}
+.pill-enter{animation:pillin .18s ease-out}
+@keyframes pillin{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+.ver{opacity:.55;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.footnote{padding:26px 0 0;border-top:1px solid var(--rule);font-size:12.5px;color:var(--ink-3);max-width:var(--measure)}
+
+/* ---------- responsive ---------- */
+@media (max-width:840px){
+  .shell{display:block}
+  .rail{
+    display:none;width:auto;flex:none;position:static;max-height:none;min-height:0;
+    border-right:none;border-bottom:1px solid var(--rule);padding:14px 0 18px;
+  }
+  .rail.open{display:block}
+  .main{padding:0 16px 150px}
+  .drawer-btn{
+    display:inline-block;font-size:12px;letter-spacing:.06em;color:var(--ink-2);
+    border:1px solid var(--rule-strong);border-radius:2px;padding:3px 10px;
+  }
+  h1.title{font-size:23px}
+  td.c-en{white-space:normal}
+  .colls{grid-template-columns:1fr;gap:0}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+/* ---------- 語言切換 ---------- */
+.langbar{display:flex;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden;flex:0 0 auto}
+.langbar a,.langbar span{
+  padding:5px 11px;font-size:12px;color:var(--ink-2);text-decoration:none;
+  border-right:1px solid var(--rule-strong);white-space:nowrap;line-height:1.6;
+}
+.langbar a:last-child,.langbar span:last-child{border-right:none}
+.langbar a:hover{background:var(--paper-3);color:var(--ink)}
+.langbar .on{background:var(--accent);color:var(--on-accent)}
+.langbar .soon{color:var(--ink-3);opacity:.45;cursor:not-allowed}
+.logout{font-size:11.5px;color:var(--ink-3);letter-spacing:.06em;padding:4px 2px}
+.logout:hover{color:var(--brick)}
+@media (max-width:840px){
+  .langbar a,.langbar span{padding:7px 13px;font-size:12.5px}
+  .logout{padding:8px 4px}
+}
+</style>
+
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="/shared/ll.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var h = React.createElement;
+  var Frag = React.Fragment;
+  var useState = React.useState;
+  var useEffect = React.useEffect;
+  var useRef = React.useRef;
+  var useCallback = React.useCallback;
+
+
+  /* ====== speech ====== */
+  // 發音走 /api/tts（Google Cloud TTS），實作在 /shared/ll.js。
+  // 原本的 window.speechSynthesis 已經拿掉：品質看裝置，泰文更是常常沒有語音。
+
+  function clean(word) {
+    return String(word).replace(/^[^A-Za-z0-9'’]+/, "").replace(/[^A-Za-z0-9'’%]+$/, "");
+  }
+
+  /* ============================ storage ============================ */
+
+  // Lessons live in this browser's localStorage: one key per lesson plus a
+  // lightweight index, so opening the history list never parses every lesson.
+  var SEED = {"index":[{"createdAt":1789277538600,"id":"Lmtzdncpzo2hrz","title":"Give Up 的多重面貌：不只是「放棄」","topic":"Give up除了放棄還可以怎麼"},{"createdAt":1789276872251,"id":"Lmtzd92kaoyue8","title":"拍攝怎麼說：take、shoot、film 的差別","topic":"拍攝怎麼說：take、shoot、film 的差別"}],"vocab":[{"addedAt":1789277283859,"en":"snap","ipa":"/snæp/","lessonId":"Lmtzd92kaoyue8","lessonTitle":"拍攝怎麼說：take、shoot、film 的差別","zh":"非正式口語，指快速隨手拍一張，如 snap a picture"}],"lessons":{"Lmtzdncpzo2hrz":{"id":"Lmtzdncpzo2hrz","topic":"Give up除了放棄還可以怎麼","createdAt":1789277538600,"lesson":{"collocations":[{"en":"give up hope","zh":"放棄希望"},{"en":"give up the fight","zh":"放棄抗爭、不再努力"},{"en":"give up one's seat","zh":"讓座"},{"en":"give oneself up","zh":"自首、投案"},{"en":"never give up","zh":"永不放棄（常見勵志用語）"},{"en":"give it up for someone","zh":"為某人鼓掌（口語，常在表演場合使用）"},{"en":"give up the ghost","zh":"（機器）壞掉、（人）過世，帶幽默或委婉語氣"}],"compare":[{"en":"give up","ipa":"/ɡɪv ʌp/","note":"最通用，放棄嘗試、戒掉習慣、投降都可用"},{"en":"give up on","ipa":"/ɡɪv ʌp ɑn/","note":"對「人」或「某件事的希望」死心，帶情緒色彩，比單純give up更消極"},{"en":"quit","ipa":"/kwɪt/","note":"偏口語，常用於辭職或戒掉習慣，如quit smoking，語氣較直接、乾脆"},{"en":"surrender","ipa":"/səˈrɛndɚ/","note":"正式，多用於軍事投降或法律上交出，日常口語少用"},{"en":"abandon","ipa":"/əˈbændən/","note":"正式，強調「拋棄、遺棄」，可用於人、計畫、地方，語氣較冷硬"},{"en":"throw in the towel","ipa":"/θroʊ ɪn ðə ˈtaʊəl/","note":"拳擊術語衍生，口語慣用語，表示認輸、放棄，語氣生動"}],"core":"<en>Give up</en>字面上是「交出去、上繳」，所以延伸出很多用法：(1) 放棄嘗試某事，如<en>give up trying</en>；(2) 戒掉壞習慣，如<en>give up smoking</en>；(3) 投降、認輸，如在遊戲或猜謎時說<en>I give up</en>表示「我猜不出來了」；(4) 讓出、交出某物給別人，如<en>give up your seat</en>讓座；(5) 犯罪片裡的<en>give oneself up</en>是「自首」。口語中非常常用，也可加強語氣說<en>give up on someone/something</en>表示「對某人或某事死心、不再抱希望」，這和單純<en>give up something</en>語感不同，前者帶有失望、放棄期待的情緒。","examples":[{"en":"I finally gave up trying to fix the printer myself and called a technician.","zh":"我終於放棄自己修印表機，改叫技師來。"},{"en":"She gave up sugar for a month and felt much healthier.","zh":"她戒糖一個月，感覺健康許多。"},{"en":"I give up—what's the answer?","zh":"猜謎時說「我猜不出來，答案是什麼？」"},{"en":"After years of trying, his parents gave up on him ever finishing college.","zh":"多年嘗試後，他父母對他能否讀完大學已不抱希望。"},{"en":"The suspect gave himself up to the police after three days on the run.","zh":"嫌犯逃亡三天後向警方自首。"}],"notes":"<en>Give it up for someone</en>是主持人常用語，例如頒獎典禮說<en>Let's give it up for our next performer!</en>，意思是「掌聲鼓勵」，和放棄完全無關，是台灣學習者容易誤解的慣用語。另外<en>give up the ghost</en>字面直譯很怪，其實源自聖經用語，指「嚥氣、斷氣」，後來也戲謔地用在機器故障，如<en>My old laptop finally gave up the ghost.</en>","summary":"<en>Give up</en>的核心語感是「停止嘗試、交出、或不再抵抗」，依情境可翻成放棄、戒掉、投降、讓出、認輸猜不到等。理解「交出控制權」這個底層概念，就能舉一反三用在各種場合。","title":"Give Up 的多重面貌：不只是「放棄」","traps":[{"point":"give up 後接動詞要用動名詞，不能用不定詞","right":"I gave up smoking last year.","why":"<en>give up</en>是介系詞片語動詞，後面接動詞須用<en>-ing</en>形式，不可用<en>to V</en>","wrong":"I gave up to smoke last year."},{"point":"混淆 give up 與 give up on 的對象與語氣","right":"Don't give up on your dream.","why":"<en>on</en>要放在受詞前面，且<en>give up on</en>帶有「對...失去信心」的情緒，語序不可顛倒","wrong":"Don't give up your dream on."},{"point":"以為 give up 只能表示「放棄」，忽略「猜不出來」的用法","right":"I give up. What's the answer?","why":"表示猜不出來時<en>give up</en>是不及物用法，不需加受詞，直接說<en>I give up</em>即可","wrong":"I don't know the answer, I give up it."}]}},"Lmtzd92kaoyue8":{"id":"Lmtzd92kaoyue8","topic":"拍攝怎麼說：take、shoot、film 的差別","createdAt":1789276872251,"lesson":{"collocations":[{"en":"take a selfie","zh":"自拍"},{"en":"shoot a scene","zh":"拍攝一個場景"},{"en":"film crew","zh":"攝影劇組"},{"en":"photo shoot","zh":"攝影棚拍攝、拍攝活動（名詞用法）"},{"en":"shoot on location","zh":"在實地取景拍攝"},{"en":"film footage","zh":"拍攝到的影片片段"},{"en":"take a snapshot","zh":"拍一張快照"},{"en":"behind the scenes footage","zh":"幕後花絮影片"}],"compare":[{"en":"take a photo","ipa":"/teɪk ə ˈfoʊtoʊ/","note":"最日常的說法，隨手拍照、觀光客拍照都用這個"},{"en":"shoot","ipa":"/ʃuːt/","note":"強調拍攝的動作與過程，常用於專業攝影、電影、廣告，也可當名詞指「拍攝工作」，如 photo shoot"},{"en":"film","ipa":"/fɪlm/","note":"專指拍攝動態影像，語感正式，也可當名詞指「電影」或「膠捲」"},{"en":"record","ipa":"/rɪˈkɔːrd/","note":"強調「記錄」的功能性，常用於錄音、錄影會議、錄影監視器畫面，不帶藝術或專業色彩"},{"en":"capture","ipa":"/ˈkæptʃər/","note":"文學或行銷語感，強調「捕捉瞬間」，如 capture the moment，較少用在日常口語指令"},{"en":"snap","ipa":"/snæp/","note":"非正式口語，指快速隨手拍一張，如 snap a picture"}],"core":"<en>take</en> 是最基本、最口語的說法，幾乎只用在「拍照」這個動作本身，例如 <en>take a photo</en>、<en>take a picture</en>，強調結果（照片被拍出來了），不強調過程。<en>shoot</en> 原意是「射擊」，引申為「用相機或攝影機捕捉畫面」，語感較動態、專業，可以用在照片也可以用在影片，常見於攝影師、電影劇組、廣告拍攝等語境，例如 <en>shoot a movie</en>、<en>shoot a wedding</en>。<en>film</en> 專指用攝影機拍攝「會動的畫面」，也就是影片、電影，不太用在單張照片上，語感偏正式或帶紀錄意味，例如 <en>film a documentary</en>、<en>film the ceremony</en>。簡單記法：拍照片用 <en>take</en>，拍照片或影片、強調專業過程用 <en>shoot</en>，拍動態影像、強調用攝影機記錄用 <en>film</en>。","examples":[{"en":"Can you take a photo of us in front of the temple?","zh":"觀光客請別人幫忙拍照的常見說法"},{"en":"We're shooting the commercial next Tuesday.","zh":"廣告公司或劇組討論拍攝行程"},{"en":"They filmed the entire wedding from start to finish.","zh":"強調整場婚禮從頭到尾都用攝影機記錄下來"},{"en":"The photographer shot over 500 pictures at the event.","zh":"強調攝影師工作量大、動作性強，用 shoot 而非 take"},{"en":"This scene was filmed in New Zealand.","zh":"電影幕後花絮常見句型，指影片場景的拍攝地點"}],"notes":"<en>shoot</en> 的過去式是不規則變化 <en>shot</en>，例如 <en>They shot the film in three weeks.</en>，容易被誤寫成 <en>shooted</en>。另外 <en>film</en> 在英式英語中也常直接當作「電影」的同義詞使用（相當於美式的 <en>movie</en>），例如英國人說 <en>Let's watch a film tonight.</en>，而美國人更常說 <en>Let's watch a movie tonight.</en>。","summary":"<en>take</en> 是最泛用的動詞，適合日常拍照；<en>shoot</en> 帶有專業、動作感，常用於拍攝照片或影片的過程；<en>film</en> 特指用攝影機拍攝動態影像，語感較正式或帶技術性。三者在口語中常有重疊，但搭配對象和語境不同。","title":"拍攝怎麼說：take、shoot、film 的差別","traps":[{"point":"把 film 用在單張照片上","right":"Can you take a photo of me?","why":"<en>film</en> 只用於動態影像，單張照片一律用 <en>take</en>","wrong":"Can you film a photo of me?"},{"point":"shoot 忘記加受詞或誤用介系詞","right":"He is shooting photos in the mountains.","why":"<en>shoot</en> 是及物動詞，後面直接接拍攝對象（照片、影片、人），不是「往某處拍攝」的方向介系詞用法","wrong":"He is shooting to the mountain."},{"point":"把 take a picture 說成 take a photograph 卻念錯重音","right":"take a phoTOGraph","why":"<en>photograph</en> 重音在第一音節 /ˈfoʊtəˌɡræf/，但當動詞或某些片語中容易被誤念成重音在第二音節，需特別注意","wrong":"take a PHOtograph"},{"point":"用 record 取代 film 表達拍電影","right":"We filmed a movie about climate change.","why":"<en>record</en> 語感偏「純記錄」，缺乏 <en>film</en> 的專業、敘事色彩，拍電影或紀錄片一般用 <en>film</en>","wrong":"We recorded a movie about climate change."}]}}}};
+
+  var Store = (function () {
+    var healthy = true;
+    var K = { index: "lex.index", vocab: "lex.vocab", seeded: "lex.seeded" };
+    function lk(id) { return "lex.lesson." + id; }
+
+    function read(key, fallback) {
+      try {
+        var raw = window.localStorage.getItem(key);
+        if (raw == null) return fallback;
+        return JSON.parse(raw);
+      } catch (e) { healthy = false; return fallback; }
+    }
+    function write(key, value) {
+      try { window.localStorage.setItem(key, JSON.stringify(value)); return true; }
+      catch (e) { healthy = false; return false; }
+    }
+    function drop(key) {
+      try { window.localStorage.removeItem(key); } catch (e) { healthy = false; }
+    }
+
+    return {
+      ok: function () { return healthy; },
+      // First visit gets the two lessons this page shipped with, so it opens
+      // on something real instead of an empty shell.
+      seed: function () {
+        if (read(K.seeded, null)) return;
+        if (!read(K.index, null)) {
+          SEED.index.forEach(function (it) {
+            if (SEED.lessons[it.id]) write(lk(it.id), SEED.lessons[it.id]);
+          });
+          write(K.index, SEED.index);
+          write(K.vocab, SEED.vocab);
+        }
+        write(K.seeded, 1);
+      },
+      index: function () { var v = read(K.index, []); return Array.isArray(v) ? v : []; },
+      setIndex: function (items) { write(K.index, items); },
+      vocab: function () { var v = read(K.vocab, []); return Array.isArray(v) ? v : []; },
+      setVocab: function (items) { write(K.vocab, items); },
+      getLesson: function (id) { return read(lk(id), null); },
+      putLesson: function (id, body) { write(lk(id), body); },
+      delLesson: function (id) { drop(lk(id)); }
+    };
+  })();
+
+  /* ============================ helpers ============================ */
+
+  function fmtDate(ts) {
+    try {
+      var d = new Date(ts);
+      var p = function (n) { return n < 10 ? "0" + n : "" + n; };
+      return d.getFullYear() + "." + p(d.getMonth() + 1) + "." + p(d.getDate()) + " " +
+        p(d.getHours()) + ":" + p(d.getMinutes());
+    } catch (e) { return ""; }
+  }
+
+  function newId() {
+    return "L" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  function arr(x) { return Array.isArray(x) ? x : []; }
+  function str(x) { return typeof x === "string" ? x : ""; }
+
+  // 保險：title/summary 是當純文字排版的，模型偶爾還是會把標記塞進來，
+  // 不剝掉就會看到字面的 <en>Make</en>
+  function plain(text) {
+    return str(text).replace(/<(en|jp|thai|zh)>([\s\S]*?)<\/\1>/g, function (m, t, inner) {
+      return inner.split("|")[0];
+    });
+  }
+
+
+  /* ====== prompt ====== */
+  // prompt 在伺服器端（functions/api/_shared/prompts.js）。
+  // 前端只送 lang 與 topic —— 否則任何人都能把這支 Gemini 金鑰當免費的通用 LLM 用。
+
+  var STAGES = [
+    ['"summary"', "核心重點"],
+    ['"core"', "核心解釋"],
+    ['"compare"', "對照表"],
+    ['"examples"', "例句"],
+    ['"traps"', "常見錯誤"],
+    ['"collocations"', "常用搭配"],
+    ['"notes"', "延伸筆記"]
+  ];
+
+  function stageOf(text) {
+    var label = "課程標題";
+    for (var i = 0; i < STAGES.length; i++) {
+      if (text.indexOf(STAGES[i][0]) !== -1) label = STAGES[i][1];
+    }
+    return label;
+  }
+
+  var ERRORS = {
+    rate_limited: "今天的生成次數到上限了，或 Gemini 的免費額度暫時滿了。等一下再試。",
+    bad_input: "主題是空的或太長了，改一下再送出。",
+    upstream: "生成服務出了狀況，再試一次。",
+    bad_json: "回傳的內容格式不完整，通常再生成一次就會好。",
+    offline: "目前離線。已存下來的課程可以讀，生成新課程需要連線。",
+    network: "連線出了狀況，再試一次。"
+  };
+
+  /* ============================ english rendering ============================ */
+
+  function EnWord(props) {
+    var speakKey = props.speakKey;
+    var onSpeak = props.onSpeak;
+    var text = props.text;
+    var cls = (props.cls || "en") + (props.speaking === speakKey ? " on" : "");
+    return h("span", {
+      className: cls,
+      role: "button",
+      tabIndex: 0,
+      title: "點一下發音",
+      onClick: function (e) { e.stopPropagation(); onSpeak(text, speakKey); },
+      onKeyDown: function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault(); e.stopPropagation(); onSpeak(text, speakKey);
+        }
+      }
+    }, text);
+  }
+
+  // Splits a Chinese paragraph on <en>...</en> and makes each tagged word clickable.
+  function renderWithEn(text, onSpeak, speaking, keyBase) {
+    var parts = String(text).split(/(<en>[\s\S]*?<\/en>)/g);
+    return parts.map(function (part, i) {
+      var m = part.match(/^<en>([\s\S]*?)<\/en>$/);
+      if (!m) return h("span", { key: keyBase + "-t" + i }, part);
+      var word = m[1];
+      return h(EnWord, {
+        key: keyBase + "-e" + i,
+        text: word,
+        speakKey: keyBase + "-e" + i,
+        onSpeak: onSpeak,
+        speaking: speaking
+      });
+    });
+  }
+
+  // Splits an English sentence into individually clickable word tokens.
+  function renderTokens(sentence, onSpeak, speaking, keyBase) {
+    var tokens = String(sentence).split(/(\s+)/);
+    return tokens.map(function (tok, i) {
+      if (/^\s+$/.test(tok) || tok === "") return h("span", { key: keyBase + "-s" + i }, tok);
+      var bare = clean(tok);
+      if (!bare) return h("span", { key: keyBase + "-p" + i }, tok);
+      var k = keyBase + "-w" + i;
+      return h("span", {
+        key: k,
+        className: "tok" + (speaking === k ? " on" : ""),
+        role: "button",
+        tabIndex: 0,
+        title: "只念這個字",
+        onClick: function (e) { e.stopPropagation(); onSpeak(bare, k); },
+        onKeyDown: function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault(); e.stopPropagation(); onSpeak(bare, k);
+          }
+        }
+      }, tok);
+    });
+  }
+
+  function PlayIcon() {
+    return h("svg", { viewBox: "0 0 10 10", "aria-hidden": "true" },
+      h("path", { d: "M1 0.5 L9 5 L1 9.5 Z", fill: "currentColor" }));
+  }
+
+  /* ============================ app ============================ */
+
+  function App() {
+    var s1 = useState(""); var topic = s1[0], setTopic = s1[1];
+    var s2 = useState(null); var lesson = s2[0], setLesson = s2[1];
+    var s3 = useState(false); var busy = s3[0], setBusy = s3[1];
+    var s4 = useState(null); var progress = s4[0], setProgress = s4[1];
+    var s5 = useState(null); var err = s5[0], setErr = s5[1];
+    var s6 = useState([]); var index = s6[0], setIndex = s6[1];
+    var s7 = useState([]); var vocab = s7[0], setVocab = s7[1];
+    var s8 = useState("history"); var tab = s8[0], setTab = s8[1];
+    var s9 = useState("lesson"); var view = s9[0], setView = s9[1];
+    var s10 = useState("en-US"); var accent = s10[0], setAccent = s10[1];
+    var s11 = useState(1); var rate = s11[0], setRate = s11[1];
+    var s12 = useState(null); var speaking = s12[0], setSpeaking = s12[1];
+    var s13 = useState(null); var nowPlaying = s13[0], setNowPlaying = s13[1];
+    var s14 = useState(0); var voiceTick = s14[0], setVoiceTick = s14[1];
+    var s15 = useState(null); var armed = s15[0], setArmed = s15[1];
+    var s16 = useState(false); var drawer = s16[0], setDrawer = s16[1];
+    var s17 = useState("loading"); var dbState = s17[0], setDbState = s17[1];
+    var s18 = useState("loading"); var aiState = s18[0], setAiState = s18[1];
+    var s19 = useState(null); var currentId = s19[0], setCurrentId = s19[1];
+    var sD = useState({}); var diag = sD[0], setDiag = sD[1];
+
+    var abortRef = useRef(null);
+    var utterSeq = useRef(0);
+    var queueRef = useRef(null);
+    var indexRef = useRef([]);
+    var vocabRef = useRef([]);
+
+    indexRef.current = index;
+    vocabRef.current = vocab;
+
+    /* ---- storage + capability ---- */
+    useEffect(function () {
+      var live = true;
+
+      Store.seed();
+      setIndex(Store.index());
+      setVocab(Store.vocab());
+      setDbState(Store.ok() ? "on" : "off");
+      setAiState("on");
+
+      // 伺服器的 D1 才是歷史的事實來源，localStorage 只是本機快取。
+      // 換裝置或清過快取時，這一步會把紀錄補回來。
+      LL.history.hydrate("lex", "zh-en").then(function (items) {
+        if (live && items) setIndex(items);
+      });
+
+      return function () { live = false; };
+    }, []);
+
+    /* ---- voices ---- */
+    // 原本這裡訂閱瀏覽器的 voiceschanged 事件，等系統語音載入完再重畫。
+    // 改走 Google TTS 之後沒有「語音清單要等」這回事，整段拿掉。
+
+    var activeVoice = { name: (accent === "en-GB" ? "英式 Standard" : "美式 Standard") };
+
+    /* ---- speech ---- */
+    var stopSpeech = useCallback(function () {
+      queueRef.current = null;
+      utterSeq.current += 1;
+      LL.speech.stop();
+      setSpeaking(null);
+      setNowPlaying(null);
+    }, []);
+
+    var speak = useCallback(function (text, key, onDone) {
+      if (!text) return;
+      utterSeq.current += 1;
+      var seq = utterSeq.current;
+      setSpeaking(key);
+      setNowPlaying({ text: text, voice: (accent === "en-GB" ? "英式 Standard" : "美式 Standard") });
+      // 失敗靜默降級成不發音 —— 點一個詞念不出來就跳錯誤，讀一段課文會被打斷十次
+      LL.speech.speak("en", text, key, { rate: rate, voice: (accent === "en-GB" ? "uk" : "us") })
+        .then(function () {
+          if (utterSeq.current !== seq) return;
+          setSpeaking(null);
+          setNowPlaying(null);
+          if (onDone) onDone();
+        });
+    }, [accent, rate]);
+
+    var playQueue = useCallback(function (items) {
+      if (!items.length) return;
+      var i = 0;
+      var token = {};
+      var step = function () {
+        if (queueRef.current !== token) return;
+        if (i >= items.length) { queueRef.current = null; return; }
+        var it = items[i]; i += 1;
+        speak(it.text, it.key, step);
+      };
+      queueRef.current = token;
+      step();
+    }, [speak]);
+
+    useEffect(function () {
+      return function () { LL.speech.stop(); };
+    }, []);
+
+    /* ---- persistence ---- */
+    function saveLesson(id, topicText, data) {
+      var entry = {
+        id: id,
+        topic: topicText,
+        title: plain(data.title) || topicText,
+        createdAt: Date.now()
+      };
+      Store.putLesson(id, {
+        id: id, topic: topicText, createdAt: entry.createdAt, lesson: data
+      });
+      var next = [entry]
+        .concat(indexRef.current.filter(function (x) { return x.id !== id; }))
+        .slice(0, 300);
+      setIndex(next);
+      Store.setIndex(next);
+    }
+
+    function openLesson(id) {
+      setDrawer(false);
+      setView("lesson");
+
+      var show = function (d) {
+        if (!d) return;
+        setLesson(d.lesson || null);
+        setTopic(str(d.topic));
+        setCurrentId(id);
+        setErr(null);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+
+      var local = Store.getLesson(id);
+      if (local) { show(local); return; }
+
+      // 本機快取沒有這一堂（換了裝置，或清過瀏覽器資料）→ 跟伺服器要，
+      // 拿到之後順手寫回本機，下次就不用再抓
+      LL.history.get(id).then(function (remote) {
+        if (!remote) return;
+        Store.putLesson(id, remote);
+        show(remote);
+      });
+    }
+
+    function deleteLesson(id) {
+      var next = indexRef.current.filter(function (x) { return x.id !== id; });
+      setIndex(next);
+      setArmed(null);
+      if (currentId === id) { setLesson(null); setCurrentId(null); }
+      Store.setIndex(next);
+      Store.delLesson(id);
+      LL.history.remove(id);
+    }
+
+    function writeVocab(next) {
+      setVocab(next);
+      Store.setVocab(next.slice(0, 800));
+    }
+
+    function addWord(en, ipa, zh) {
+      var key = en.toLowerCase();
+      if (vocabRef.current.some(function (v) { return String(v.en).toLowerCase() === key; })) return;
+      var next = [{
+        en: en,
+        ipa: str(ipa),
+        zh: str(zh),
+        lessonId: currentId,
+        lessonTitle: lesson ? str(lesson.title) : "",
+        addedAt: Date.now()
+      }].concat(vocabRef.current);
+      writeVocab(next);
+    }
+
+    function hasWord(en) {
+      var key = String(en).toLowerCase();
+      return vocab.some(function (v) { return String(v.en).toLowerCase() === key; });
+    }
+
+    /* ---- generation ---- */
+    function generate(topicText, fresh) {
+      var t = String(topicText || "").trim();
+      if (!t || busy) return;
+
+      setBusy(true);
+      setErr(null);
+      setView("lesson");
+      setDrawer(false);
+      setLesson(null);
+      setCurrentId(null);
+      setProgress({ stage: "課程標題", chars: 0, started: false });
+
+      var ctl = new AbortController();
+      abortRef.current = ctl;
+
+      LL.generate("zh-en", t, { signal: ctl.signal }).then(function (r) {
+        var data = r && r.lesson;
+        if (!data || typeof data !== "object") throw { code: "bad_json", message: "not an object" };
+        // 用伺服器那筆紀錄的 id，兩邊才對得起來
+        var id = r.id || newId();
+        setLesson(data);
+        setCurrentId(id);
+        setBusy(false);
+        setProgress(null);
+        abortRef.current = null;
+        saveLesson(id, t, data);
+      }).catch(function (e) {
+        abortRef.current = null;
+        setBusy(false);
+        setProgress(null);
+        var code = e && e.code ? e.code : "upstream_error";
+        if (code === "cancelled") return;
+        setErr({ code: code, topic: t });
+      });
+    }
+
+    function stopGeneration() {
+      if (abortRef.current) abortRef.current.abort();
+      abortRef.current = null;
+      setBusy(false);
+      setProgress(null);
+    }
+
+    /* ---- pieces ---- */
+
+    var onSpeak = function (text, key) { speak(text, key); };
+
+    function VoiceBar() {
+      var voiceLabel = activeVoice.name;
+      return h("div", { className: "voicebar" },
+        h("div", { className: "seg", role: "group", "aria-label": "口音" },
+          h("button", {
+            type: "button", "aria-pressed": accent === "en-US",
+            onClick: function () { setAccent("en-US"); }
+          }, "美式"),
+          h("button", {
+            type: "button", "aria-pressed": accent === "en-GB",
+            onClick: function () { setAccent("en-GB"); }
+          }, "英式")
+        ),
+        h("div", { className: "seg", role: "group", "aria-label": "語速" },
+          h("button", {
+            type: "button", "aria-pressed": rate === 1,
+            onClick: function () { setRate(1); }
+          }, "正常"),
+          h("button", {
+            type: "button", "aria-pressed": rate === 0.7,
+            onClick: function () { setRate(0.7); }
+          }, "慢"),
+          h("button", {
+            type: "button", "aria-pressed": rate === 0.5,
+            onClick: function () { setRate(0.5); }
+          }, "很慢")
+        ),
+        h("span", { className: "voicename" }, "語音　", h("b", null, voiceLabel)),
+        h("span", { className: "masthead-sp" }),
+        h("button", {
+          type: "button", className: "drawer-btn",
+          "aria-expanded": drawer,
+          onClick: function () { setDrawer(!drawer); }
+        }, drawer ? "收起清單" : "歷史與單字")
+      );
+    }
+
+    function Composer() {
+      var disabled = busy || aiState === "off" || aiState === "loading";
+      return h("div", { className: "composer" },
+        h("div", { className: "composer-row" },
+          h("input", {
+            id: "topic",
+            type: "text",
+            value: topic,
+            placeholder: "想學什麼？例如「expire 能不能用在人身上」",
+            "aria-label": "課程主題",
+            onChange: function (e) { setTopic(e.target.value); },
+            onKeyDown: function (e) { if (e.key === "Enter") generate(topic, false); }
+          }),
+          h("button", {
+            type: "button", className: "btn-go", disabled: disabled,
+            onClick: function () { generate(topic, false); }
+          }, busy ? "生成中…" : "生成課程"),
+          busy ? h("button", {
+            type: "button", className: "btn-stop", onClick: stopGeneration
+          }, "停止") : null
+        ),
+        busy && progress ? h("div", { className: "status" },
+          h("span", { className: "pulse" }),
+          progress.started
+            ? h(Frag, null,
+                h("span", null, "正在寫："),
+                h("span", { className: "status-stage" }, progress.stage),
+                h("span", { className: "status-count" }, progress.chars + " 字"))
+            : h("span", null, "正在讀題目，想一下再動筆…")
+        ) : null,
+        err ? h("div", { className: "notice" },
+          ERRORS[err.code] || ERRORS.upstream_error,
+          err.topic ? h("button", {
+            type: "button", onClick: function () { generate(err.topic, true); }
+          }, "重試") : null,
+          h("span", { className: "code" }, "錯誤代碼　" + err.code)
+        ) : null
+      );
+    }
+
+    function CompareTable(rows) {
+      return h("div", { className: "tablewrap" },
+        h("table", { className: "compare" },
+          h("thead", null, h("tr", null,
+            h("th", null, "詞"),
+            h("th", null, "音標"),
+            h("th", null, "語感與使用場合"),
+            h("th", null, "")
+          )),
+          h("tbody", null, rows.map(function (r, i) {
+            var en = str(r.en);
+            var saved = hasWord(en);
+            return h("tr", { key: "cmp" + i },
+              h("td", { className: "c-en" }, h(EnWord, {
+                text: en, speakKey: "cmp" + i, onSpeak: onSpeak, speaking: speaking
+              })),
+              h("td", { className: "c-ipa" }, str(r.ipa)),
+              h("td", { className: "c-note" }, str(r.note)),
+              h("td", { className: "c-add" }, h("button", {
+                type: "button",
+                className: "addbtn" + (saved ? " saved" : ""),
+                "aria-label": saved ? ("「" + en + "」已在單字總表") : ("把「" + en + "」加入單字總表"),
+                onClick: function () { if (!saved) addWord(en, r.ipa, r.note); }
+              }, saved ? "已收錄" : "＋ 總表"))
+            );
+          }))
+        )
+      );
+    }
+
+    function LessonView() {
+      if (!lesson) return null;
+      var compare = arr(lesson.compare);
+      var examples = arr(lesson.examples);
+      var traps = arr(lesson.traps);
+      var colls = arr(lesson.collocations);
+      var notes = str(lesson.notes).trim();
+      var core = str(lesson.core).trim();
+
+      return h("article", { className: "lesson" },
+        h("header", { className: "lesson-head" },
+          h("div", { className: "lesson-topic" }, "主題　" + (topic || "")),
+          h("h1", { className: "title" }, plain(lesson.title) || topic),
+          plain(lesson.summary) ? h("p", { className: "summary" }, plain(lesson.summary)) : null
+        ),
+
+        core ? h("section", { className: "block" },
+          h("h2", { className: "label" }, "核心解釋"),
+          h("p", { className: "prose" }, renderWithEn(core, onSpeak, speaking, "core"))
+        ) : null,
+
+        compare.length ? h("section", { className: "block" },
+          h("h2", { className: "label" }, "對照表"),
+          CompareTable(compare)
+        ) : null,
+
+        examples.length ? h("section", { className: "block" },
+          h("h2", { className: "label" }, "例句"),
+          examples.map(function (ex, i) {
+            var sentence = str(ex.en);
+            var key = "ex" + i;
+            return h("div", { className: "ex", key: key },
+              h("button", {
+                type: "button",
+                className: "play" + (speaking === key ? " on" : ""),
+                "aria-label": "朗讀整句：" + sentence,
+                onClick: function () { speak(sentence, key); }
+              }, h(PlayIcon)),
+              h("div", { className: "ex-body" },
+                h("div", { className: "ex-en" }, renderTokens(sentence, onSpeak, speaking, key)),
+                str(ex.zh) ? h("div", { className: "ex-zh" }, str(ex.zh)) : null
+              )
+            );
+          })
+        ) : null,
+
+        traps.length ? h("section", { className: "block" },
+          h("h2", { className: "label" }, "常見錯誤"),
+          traps.map(function (t, i) {
+            return h("div", { className: "trap", key: "trap" + i },
+              h("div", { className: "trap-point" }, str(t.point)),
+              str(t.wrong) ? h("div", { className: "wr wr-x" },
+                h("span", { className: "wr-tag" }, "✕"),
+                h(EnWord, {
+                  text: str(t.wrong), speakKey: "trapw" + i, onSpeak: onSpeak, speaking: speaking
+                })
+              ) : null,
+              str(t.right) ? h("div", { className: "wr wr-o" },
+                h("span", { className: "wr-tag" }, "✓"),
+                h(EnWord, {
+                  text: str(t.right), speakKey: "trapr" + i, onSpeak: onSpeak, speaking: speaking
+                })
+              ) : null,
+              str(t.why) ? h("div", { className: "trap-why" }, str(t.why)) : null
+            );
+          })
+        ) : null,
+
+        colls.length ? h("section", { className: "block" },
+          h("h2", { className: "label" }, "常用搭配"),
+          h("div", { className: "colls" }, colls.map(function (c, i) {
+            var en = str(c.en);
+            var saved = hasWord(en);
+            return h("div", { className: "coll", key: "col" + i },
+              h("span", { className: "coll-en" }, h(EnWord, {
+                text: en, speakKey: "col" + i, onSpeak: onSpeak, speaking: speaking
+              })),
+              h("span", { className: "coll-zh" }, str(c.zh)),
+              h("button", {
+                type: "button",
+                className: "addbtn" + (saved ? " saved" : ""),
+                "aria-label": saved ? ("「" + en + "」已在單字總表") : ("把「" + en + "」加入單字總表"),
+                onClick: function () { if (!saved) addWord(en, "", c.zh); }
+              }, saved ? "已收錄" : "＋")
+            );
+          }))
+        ) : null,
+
+        notes ? h("section", { className: "block" },
+          h("h2", { className: "label" }, "延伸筆記"),
+          h("div", { className: "notes" },
+            h("p", { className: "prose" }, renderWithEn(notes, onSpeak, speaking, "notes"))
+          )
+        ) : null,
+
+        h("div", { className: "block" },
+          h("p", { className: "footnote" },
+            "課程由 Gemini 依你的主題即時生成，用法與讀音建議當作起點而非定論；關鍵用字再對照一次辭典。課程存在這台裝置的瀏覽器裡，不會同步到其他裝置。",
+            h("span", { className: "ver" }, "　v" + LL.VERSION))
+        )
+      );
+    }
+
+    function VocabView() {
+      var items = vocab;
+      return h("div", null,
+        h("div", { className: "vocab-head" },
+          h("h1", null, "單字總表"),
+          h("span", { className: "vocab-count" }, items.length + " 個詞"),
+          h("div", { className: "vocab-actions" },
+            items.length ? h("button", {
+              type: "button", className: "btn-ghost",
+              onClick: function () {
+                playQueue(items.map(function (v, i) {
+                  return { text: str(v.en), key: "vq" + i };
+                }));
+              }
+            }, "連續播放") : null,
+            nowPlaying ? h("button", {
+              type: "button", className: "btn-ghost", onClick: stopSpeech
+            }, "停止") : null
+          )
+        ),
+        !items.length
+          ? h("p", { className: "rail-empty", style: { padding: "0" } },
+              "課程裡的對照表和常用搭配右邊有「＋ 總表」，點下去就會收錄到這裡，跨課程累積。")
+          : items.map(function (v, i) {
+              var k = "vq" + i;
+              var armKey = "v:" + v.en;
+              return h("div", { className: "vrow", key: "v" + i },
+                h("span", { className: "v-en" }, h(EnWord, {
+                  text: str(v.en), speakKey: k, onSpeak: onSpeak, speaking: speaking
+                })),
+                str(v.ipa) ? h("span", { className: "v-ipa" }, str(v.ipa)) : null,
+                h("span", { className: "v-zh" }, str(v.zh)),
+                v.lessonId ? h("button", {
+                  type: "button", className: "v-src",
+                  onClick: function () { openLesson(v.lessonId); }
+                }, str(v.lessonTitle) || "回到課程") : null,
+                h("button", {
+                  type: "button",
+                  className: "v-del" + (armed === armKey ? " armed" : ""),
+                  onClick: function () {
+                    if (armed !== armKey) { setArmed(armKey); return; }
+                    setArmed(null);
+                    writeVocab(vocabRef.current.filter(function (x) { return x.en !== v.en; }));
+                  },
+                  onBlur: function () { if (armed === armKey) setArmed(null); }
+                }, armed === armKey ? "確認移除" : "移除")
+              );
+            })
+      );
+    }
+
+    var TRY = [
+      "拍攝怎麼說：take、shoot、film 的差別",
+      "建設公司相關的英文",
+      "sea 與 ocean 的差異"
+    ];
+
+    function EmptyView() {
+      return h("div", { className: "empty" },
+        h("h1", null, "丟一個主題進來，換一份能唸出聲的辭典條目"),
+        h("p", null, "不管是一個字的語感、一組容易混淆的近義詞，還是一個行業的用語，都可以問。每份課程固定六段："),
+        h("dl", { className: "contents" },
+          h("div", null, h("dt", null, "核心解釋"), h("dd", null, "主要用法、語感、正式或口語")),
+          h("div", null, h("dt", null, "對照表"), h("dd", null, "近義詞差異與容易搞混的詞，附 IPA")),
+          h("div", null, h("dt", null, "例句"), h("dd", null, "真實語境，逐字可點發音")),
+          h("div", null, h("dt", null, "常見錯誤"), h("dd", null, "台灣學習者真正會犯的錯")),
+          h("div", null, h("dt", null, "常用搭配"), h("dd", null, "母語者真正會說的講法")),
+          h("div", null, h("dt", null, "延伸筆記"), h("dd", null, "詞源、重音、同音字、英美差異"))
+        ),
+        h("div", { className: "try-label" }, "先試試看"),
+        h("div", { className: "try" }, TRY.map(function (t, i) {
+          return h("button", {
+            key: "try" + i, type: "button",
+            onClick: function () { setTopic(t); generate(t, false); }
+          }, h("span", { className: "arrow" }, "→"), h("span", null, t));
+        }))
+      );
+    }
+
+    function Rail() {
+      return h("aside", { className: "rail" + (drawer ? " open" : "") },
+        h("div", { className: "rail-head" },
+          h("button", {
+            type: "button", className: "rail-tab", "aria-pressed": tab === "history",
+            onClick: function () { setTab("history"); }
+          }, "歷史紀錄"),
+          h("button", {
+            type: "button", className: "rail-tab", "aria-pressed": tab === "vocab",
+            onClick: function () { setTab("vocab"); setView("vocab"); setDrawer(false); }
+          }, "單字總表 " + (vocab.length || ""))
+        ),
+        tab === "history"
+          ? (index.length
+              ? index.map(function (it) {
+                  var armKey = "h:" + it.id;
+                  return h("div", { className: "hist-row", key: it.id },
+                    h("button", {
+                      type: "button", className: "hist-item",
+                      "aria-current": currentId === it.id && view === "lesson",
+                      onClick: function () { openLesson(it.id); }
+                    },
+                      h("div", { className: "hist-title" }, it.title || it.topic),
+                      h("div", { className: "hist-meta" }, fmtDate(it.createdAt))
+                    ),
+                    h("button", {
+                      type: "button",
+                      className: "hist-del" + (armed === armKey ? " armed" : ""),
+                      "aria-label": "刪除「" + (it.title || it.topic) + "」",
+                      onClick: function () {
+                        if (armed !== armKey) { setArmed(armKey); return; }
+                        deleteLesson(it.id);
+                      },
+                      onBlur: function () { if (armed === armKey) setArmed(null); }
+                    }, armed === armKey ? "確認" : "刪除")
+                  );
+                })
+              : h("p", { className: "rail-empty" },
+                  dbState === "off"
+                    ? "這個瀏覽器不讓頁面保存資料（無痕視窗通常會這樣），課程只留到你關掉分頁為止。"
+                    : "還沒有課程。生成的每一份都會留在這台裝置的瀏覽器裡。"))
+          : h("div", null,
+              h("button", {
+                type: "button", className: "hist-item",
+                onClick: function () { setView("vocab"); setDrawer(false); }
+              },
+                h("div", { className: "hist-title" }, "開啟單字總表"),
+                h("div", { className: "hist-meta" }, vocab.length + " 個詞")
+              ),
+              vocab.slice(0, 12).map(function (v, i) {
+                return h("div", { className: "hist-row", key: "rv" + i },
+                  h("button", {
+                    type: "button", className: "hist-item",
+                    onClick: function () { speak(str(v.en), "rv" + i); }
+                  },
+                    h("div", { className: "hist-title", style: { fontFamily: "var(--serif)" } }, str(v.en)),
+                    h("div", { className: "hist-meta" }, str(v.zh).slice(0, 18))
+                  )
+                );
+              })
+            )
+      );
+    }
+
+    var body;
+    if (view === "vocab") body = VocabView();
+    else if (lesson) body = LessonView();
+    else if (busy) body = null;
+    else body = EmptyView();
+
+    return h(Frag, null,
+      h("div", { className: "shell" },
+        Rail(),
+        h("main", { className: "main" },
+          h("div", { className: "col" },
+            h("div", { className: "masthead" },
+              h("h1", { className: "wordmark" }, "字詞", h("em", null, "研究室")),
+              h("span", { className: "tagline" }, "英文用法・語感・發音"),
+              h("span", { className: "masthead-sp" }),
+              h("span", { className: "langbar" }, LL.siblings("zh").map(function (L) {
+                if (L.id === "zh-en") return h("span", { key: L.id, className: "on" }, L.label);
+                return h("a", { key: L.id, href: L.path }, L.label);
+              })),
+              h("button", {
+                type: "button", className: "logout",
+                title: "登出", "aria-label": "登出",
+                onClick: function () { LL.logout(); }
+              }, "登出"),
+              view === "vocab" ? h("button", {
+                type: "button", className: "btn-ghost",
+                onClick: function () { setView("lesson"); }
+              }, "回到課程") : null
+            ),
+            VoiceBar(),
+            Composer(),
+            body
+          )
+        )
+      ),
+      nowPlaying ? h("div", { className: "pill pill-enter", role: "status" },
+        h("span", { className: "pill-text" }, nowPlaying.text),
+        h("span", { className: "pill-voice" }, nowPlaying.voice),
+        h("button", { type: "button", className: "pill-stop", onClick: stopSpeech }, "停止")
+      ) : null
+    );
+  }
+
+  LL.remember("zh-en");
+
+  ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+})();
+</script>
+</body>
+</html>
