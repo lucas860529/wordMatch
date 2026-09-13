@@ -8,7 +8,7 @@
  *    所以快取的只是外殼；外殼有更新時要能馬上拿到新的。
  */
 
-const VERSION = 'v2';  // 課程化，路徑全變了，一定要換版號把舊快取清掉
+const VERSION = 'v3';  // 登入頁與 ll.js 都改了，換版號把舊快取清掉
 const SHELL = `ll-shell-${VERSION}`;
 
 // 用「能抓到就存」而不是 addAll —— addAll 只要一個 404 整批都會失敗，SW 就裝不起來。
